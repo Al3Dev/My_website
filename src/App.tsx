@@ -3,7 +3,6 @@ import './App.css';
 
 const App = () => {
   const [loading, setLoading] = useState(true);
-  const [contentLoaded, setContentLoaded] = useState(false);
   const [showGame, setShowGame] = useState(false);
 
   useEffect(() => {
@@ -29,7 +28,6 @@ const App = () => {
 
       try {
         await Promise.all(imageUrls.map(loadImage));
-        setContentLoaded(true);
         setTimeout(() => setLoading(false), 3000); // Aumentamos el tiempo a 3 segundos
       } catch (error) {
         console.error('Error cargando recursos:', error);
