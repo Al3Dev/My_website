@@ -335,11 +335,7 @@ const App = () => {
           <div className="star"></div>
         </div>
         <div className="floating-name">
-          <img 
-            src="./assets/character.png" 
-            alt="character" 
-            className="character-overlay"
-          />
+          <div className="character-overlay"></div>
           <h1>AlleRoDi</h1>
           <div className="game-buttons">
             <button className="pixel-btn" onClick={() => setShowGame(true)}>
@@ -401,7 +397,7 @@ const App = () => {
         <div className="container">
           <div className="about-content">
             <div className="about-image-container">
-              <img src="src/assets/Me.png" alt="Profile" className="profile-image" />
+              <div className="profile-image"></div>
             </div>
             <div className="about-info">
               <h2 className="about-title">Sobre Mí</h2>
