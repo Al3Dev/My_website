@@ -297,13 +297,17 @@ body {
 }
 
 .profile-image {
+  background-image: url('./assets/Me.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
   width: 100%;
   max-width: 500px;
-  height: auto;
+  height: 500px;
   border-radius: 0;
   filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.1));
-  image-rendering: pixelated; /* Hace que la imagen se vea pixelada */
-  transform: scale(1); /* Asegura que el pixelado sea visible */
+  image-rendering: pixelated;
+  transform: scale(1);
   transition: transform 0.3s ease;
 }
 
