@@ -336,7 +336,7 @@ const App = () => {
         </div>
         <div className="floating-name">
           <img 
-            src="src/assets/character.png" 
+            src="./assets/character.png" 
             alt="character" 
             className="character-overlay"
           />
@@ -544,7 +544,7 @@ const App = () => {
           </div>
         </div>
       )}
-    </div>
+          </div>
   );
 };
 
