@@ -195,14 +195,17 @@ body {
 }
 
 .character-overlay {
+  background-image: url('./assets/character.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 400px;
+  height: 400px;
   position: absolute;
-  top: -285px; /* Ajustamos la posición del personaje */
+  top: -285px;
   left: 50%;
   transform: translateX(-50%);
-  width: 400px;
-  height: auto;
   z-index: 0;
-
 }
 
 .loading-screen {
