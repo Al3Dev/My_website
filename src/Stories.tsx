@@ -12,7 +12,6 @@ interface StoryEvent {
 }
 
 const Stories = () => {
-  const [selectedFilter, setSelectedFilter] = useState('todos');
   const [activeCategory, setActiveCategory] = useState<string>('all');
 
   const stories: StoryEvent[] = [
