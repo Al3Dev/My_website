@@ -18,8 +18,10 @@
     "@react95/core": "^9.2.1",
     "@react95/icons": "^2.1.1",
     "bootstrap": "^5.3.5",
+    "cloudinary": "^2.6.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-router-dom": "^7.5.0",
     "styled-components": "^6.1.17"
   },
   "devDependencies": {

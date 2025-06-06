@@ -1,9 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
+import Creations from './Creations';
+import About from './About';
+import Stories from './Stories';
+import Store from './Store';
 
 const App = () => {
   const [loading, setLoading] = useState(true);
   const [showGame, setShowGame] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     const preloadResources = async () => {
@@ -65,7 +71,6 @@ const App = () => {
 
   // Componente ChatBot
   const ChatBot = () => {
-    const [open, setOpen] = useState(false);
     const [messages, setMessages] = useState([
       { from: "bot", text: "¡Hola! Soy Alejandro. Me gusta la música, crear cosas y la inteligencia artificial. ¿De qué quieres platicar?" }
     ]);
@@ -111,13 +116,13 @@ const App = () => {
     // Scroll automático al final del chat
     useEffect(() => {
       chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages, open]);
+    }, [messages, chatOpen]);
 
     return (
       <>
         <button
-          className="chatbot-fab"
-          onClick={() => setOpen((o) => !o)}
+          className="chatbot-fab desktop-only"
+          onClick={() => setChatOpen((o) => !o)}
           style={{
             position: "fixed",
             bottom: 24,
@@ -135,9 +140,9 @@ const App = () => {
           }}
           aria-label="Abrir chat"
         >
-          💬
+          <i className="fas fa-comments"></i>
         </button>
-        {open && (
+        {chatOpen && (
           <div
             className="chatbot-window"
             style={{
@@ -157,7 +162,7 @@ const App = () => {
           >
             <div style={{ padding: 16, borderBottom: "1px solid #eee", background: "#202124", color: "#fff", borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
               <b>ChatBot Gemini</b>
-              <button onClick={() => setOpen(false)} style={{ float: "right", background: "none", border: "none", color: "#fff", fontSize: 20, cursor: "pointer" }}>×</button>
+              <button onClick={() => setChatOpen(false)} style={{ float: "right", background: "none", border: "none", color: "#fff", fontSize: 20, cursor: "pointer" }}>×</button>
             </div>
             <div style={{ flex: 1, overflowY: "auto", padding: 16, background: "#f7f7f7" }}>
               {messages.map((msg, i) => (
@@ -289,10 +294,11 @@ const App = () => {
   }
 
   return (
-    <div>
-      <nav className="navbar navbar-expand-lg navbar-light fixed-top">
+    <Router>
+      <div className="app">
+        <nav className="navbar navbar-expand-lg navbar-light fixed-top" role="navigation" aria-label="Navegación principal">
         <div className="container">
-          <a className="navbar-brand" href="#home">AlleRoDi</a>
+            <Link className="navbar-brand" to="/" aria-label="Ir a inicio">AlleRoDi</Link>
           <button 
             className="navbar-toggler" 
             type="button" 
@@ -307,25 +313,27 @@ const App = () => {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto">
               <li className="nav-item">
-                <a className="nav-link" href="#home">Home</a>
+                  <Link to="/" className="nav-link" aria-current="page">Home</Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#about">About</a>
+                  <Link to="/creations" className="nav-link">Creations</Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#services">Services</a>
+                  <Link to="/stories" className="nav-link">Stories</Link>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#music">Music</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#contact">Contact</a>
+                  <Link to="/store" className="nav-link cart-link" aria-label="Ir a la tienda">
+                    <i className="fas fa-shopping-cart" aria-hidden="true"></i>
+                  </Link>
               </li>
             </ul>
           </div>
         </div>
       </nav>
       
+        <Routes>
+          <Route path="/" element={
+            <>
       <div className="hero-section">
         <div className="stars-layer">
           <div className="star"></div>
@@ -334,7 +342,7 @@ const App = () => {
           <div className="star"></div>
           <div className="star"></div>
         </div>
-        <div className="floating-name">
+        <div className="floating-name" style={{ marginTop: '35vh' }}>
           <div className="character-overlay"></div>
           <h1>AlleRoDi</h1>
           <div className="game-buttons">
@@ -342,18 +350,40 @@ const App = () => {
               <i className="fas fa-gamepad"></i>
               <span>Jugar</span>
             </button>
-            <button className="pixel-btn">
+            <button className="pixel-btn" onClick={() => window.location.href='/creations'}>
               <i className="fas fa-play"></i>
               <span>Reproducir</span>
             </button>
-            <button className="pixel-btn">
-              <i className="fas fa-eye"></i>
-              <span>Ver</span>
-            </button>
+            <Link to="/store" className="pixel-btn">
+              <i className="fas fa-shopping-cart"></i>
+              <span>Store</span>
+            </Link>
           </div>
         </div>
         <div className="scroll-arrow" onClick={handleScrollDown}>
           <i className="fas fa-chevron-down"></i>
+        </div>
+      </div>
+
+            {/* Botones de navegación móvil */}
+            <div className="mobile-nav">
+              <div className="nav-buttons">
+                <Link to="/" className="nav-button active">
+                  <i className="fas fa-home"></i>
+                  <div className="nav-indicator"></div>
+                </Link>
+                <Link to="/stories" className="nav-button">
+                  <i className="fas fa-book-open"></i>
+                </Link>
+                <Link to="/creations" className="nav-button">
+                  <i className="fas fa-camera"></i>
+                </Link>
+                <Link to="/store" className="nav-button">
+                  <i className="fas fa-shopping-cart"></i>
+                </Link>
+                <button className="nav-button chat-button" onClick={() => setChatOpen((o) => !o)}>
+                  <i className="fas fa-comments"></i>
+                </button>
         </div>
       </div>
 
@@ -390,81 +420,27 @@ const App = () => {
   </div>
 </div>
 
-
-      {/* Sección About mejorada */}
-      <section id="about" className="section about-section">
-        <div className="section-background"></div>
-        <div className="container">
-          <div className="about-content">
-            <div className="about-image-container">
-              <div className="profile-image"></div>
-            </div>
-            <div className="about-info">
-              <h2 className="about-title">Sobre Mí</h2>
-              <div className="about-description">
-                <p>Soy un desarrollador web Full Stack apasionado por crear experiencias digitales únicas y memorables. Con un enfoque en la innovación y la creatividad, combino mi amor por la tecnología con mi pasión por la música para crear soluciones web extraordinarias.</p>
-                <p>Mi experiencia abarca desde el desarrollo frontend hasta el backend, siempre buscando la excelencia en cada proyecto que emprendo. Me especializo en crear interfaces intuitivas y experiencias de usuario excepcionales.</p>
-                <p>Cuando no estoy programando, me dedico a la producción musical, donde encuentro otra forma de expresar mi creatividad y pasión por el arte digital.</p>
-              </div>
-              <div className="skills-container">
-                {/* Desarrollo Web */}
-                <div className="skills-category">
-                  <h3 className="category-title">Desarrollo Web</h3>
-                  <div className="skill-tags">
-                    <span className="skill-tag">
-                      <i className="fab fa-react"></i> React
-                    </span>
-                    <span className="skill-tag">
-                      <i className="fab fa-js"></i> JavaScript
-                    </span>
-                    <span className="skill-tag">
-                      <i className="fab fa-node"></i> Node.js
-                    </span>
-                    <span className="skill-tag">
-                      <i className="fab fa-html5"></i> HTML5
-                    </span>
-                    <span className="skill-tag">
-                      <i className="fab fa-css3-alt"></i> CSS3
-                    </span>
-                    <span className="skill-tag">
-                      <i className="fab fa-git-alt"></i> Git
-                    </span>
+            {/* Nueva sección de Actualizaciones */}
+            <section className="inspiration-section">
+              <div className="inspiration-container">
+                <div className="update-content">
+                  <div className="update-image">
+                    <img src="https://i.imgur.com/8XZQZQZ.jpg" alt="Próximo Lanzamiento" />
                   </div>
+                  <div className="update-text">
+                    <h2 className="update-title">Actualización</h2>
+                    <p className="update-description">
+                      Estamos trabajando en algo especial. Un nuevo proyecto que fusiona música, tecnología y arte digital. 
+                      Una experiencia inmersiva que cambiará la forma en que interactúas con la música.
+                    </p>
+                    <div className="update-details">
+                      <div className="update-detail">
+                        <i className="fas fa-music"></i>
+                        <span>Nuevo Álbum</span>
                 </div>
-
-                {/* Software y Diseño */}
-                <div className="skills-category">
-                  <h3 className="category-title">Diseño y 3D</h3>
-                  <div className="skill-tags">
-                    <span className="skill-tag">
-                      <i className="fas fa-pen-nib"></i> Illustrator
-                    </span>
-                    <span className="skill-tag">
-                      <i className="fas fa-image"></i> Photoshop
-                    </span>
-                    <span className="skill-tag">
-                      <i className="fas fa-film"></i> After Effects
-                    </span>
-                    <span className="skill-tag">
-                      <i className="fas fa-cube"></i> Blender
-                    </span>
-                    <span className="skill-tag">
-                      <i className="fab fa-figma"></i> Figma
-                    </span>
-                  </div>
-                </div>
-
-                {/* Lenguajes de Programación */}
-                <div className="skills-category">
-                  <h3 className="category-title">Otros Lenguajes</h3>
-                  <div className="skill-tags">
-                    <span className="skill-tag">
-                      <i className="fas fa-code"></i> C
-                    </span>
-                    <span className="skill-tag">
-                      <i className="fas fa-code"></i> C++
-                    </span>
-                  </div>
+                      <div className="update-detail">
+                        <i className="fas fa-calendar"></i>
+                        <span>Próximamente</span>
                 </div>
               </div>
             </div>
@@ -472,75 +448,171 @@ const App = () => {
         </div>
       </section>
 
-      {/* Nueva sección Servicios - ahora con música de Spotify */}
-      <section id="services" className="services-section artist-spotify-bg">
-        <div className="container">
-          <div className="artist-spotify-card">
-            <div className="artist-spotify-left">
-              <iframe
-                src="https://open.spotify.com/embed/artist/2zU4sGIwSViMGRnwMSlD1j?utm_source=generator"
-                width="100%"
-                height="380"
-                frameBorder="0"
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                loading="lazy"
-                style={{ borderRadius: '16px', border: '3px solid #202124', minWidth: '220px', background: '#121212' }}
-                title="Spotify AlleRoDI"
-              ></iframe>
+            {/* Reemplazar la sección about existente con el nuevo componente */}
+            <About />
+
+            {/* Nueva sección de Galería */}
+            <section className="gallery-section">
+              <div className="gallery-container">
+                <div className="video-container">
+                  <iframe
+                    src="https://www.youtube.com/embed/cN1zF62wHVU?si=Q_ZRD6cfaK-8ZMA9"
+                    title="YouTube video player"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+              </div>
+                <div className="gallery-content">
+                  <h2 className="gallery-title">Galería de Creaciones</h2>
+                  <p className="gallery-description">
+                    Explora mi colección de trabajos digitales, donde cada pieza cuenta una historia única a través de la fusión de arte y tecnología.
+                  </p>
+                  <div className="gallery-grid">
+                    <div className="gallery-item">
+                      <div className="gallery-image" style={{ backgroundImage: "url('https://i.pinimg.com/564x/66/67/43/666743919869753375.jpg')" }}></div>
+                      <div className="gallery-item-title">AlleRoDI</div>
             </div>
-            <div className="artist-spotify-right">
-              <h3 className="artist-title">AlleRoDI</h3>
-              <p className="artist-bio">
-                Soy AlleRoDI, artista y creador digital apasionado por la música electrónica y la innovación. Mi sonido fusiona creatividad, tecnología y emociones, buscando siempre romper límites y conectar con quienes escuchan. ¡Dale play y acompáñame en este viaje musical!
-              </p>
-              <a href="https://open.spotify.com/artist/2zU4sGIwSViMGRnwMSlD1j" target="_blank" rel="noopener noreferrer" className="spotify-link">
-                Escúchame en Spotify
-              </a>
+                    <div className="gallery-item">
+                      <div className="gallery-image" style={{ backgroundImage: "url('./assets/creation2.jpg')" }}></div>
+                      <div className="gallery-item-title">Proyecto 2</div>
+              </div>
+                    <div className="gallery-item">
+                      <div className="gallery-image" style={{ backgroundImage: "url('./assets/creation3.jpg')" }}></div>
+                      <div className="gallery-item-title">Proyecto 3</div>
+            </div>
+                    <div className="gallery-item">
+                      <div className="gallery-image" style={{ backgroundImage: "url('./assets/creation4.jpg')" }}></div>
+                      <div className="gallery-item-title">Proyecto 4</div>
+              </div>
+            </div>
+                  <div className="gallery-more">
+                    <a href="/creations" className="gallery-more-btn">
+                      Ver más <i className="fas fa-arrow-right"></i>
+                    </a>
+              </div>
+            </div>
+              </div>
+            </section>
+
+            {/* Nueva sección de Música */}
+            <section className="music-section">
+              <div className="music-container">
+                <div className="music-image">
+                  <img src="./src/assets/Albums.png" alt="AlleRoDI Albums" />
+              </div>
+                <div className="music-content">
+                  <h2 className="music-title">Mi Música</h2>
+                  <p className="music-description">
+                    Mi música está disponible en todas las plataformas digitales. 
+                    Explora mis álbumes y singles en tu plataforma favorita.
+                  </p>
+                  <div className="music-buttons">
+                    <a href="https://store.allerodi.com" target="_blank" rel="noopener noreferrer" className="pixel-btn">
+                      <i className="fas fa-shopping-cart"></i>
+                      <span>Comprar</span>
+                    </a>
+                    <a href="https://open.spotify.com/artist/2zU4sGIwSViMGRnwMSlD1j" target="_blank" rel="noopener noreferrer" className="pixel-btn">
+                      <i className="fab fa-spotify"></i>
+                      <span>Escuchar</span>
+                    </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+            {/* Nueva sección de Personaje */}
+            <section className="character-section">
+              <div className="character-container">
+                <div className="character-image">
+                  <img src="./assets/character.png" alt="Mi Personaje" />
+            </div>
+                <div className="character-content">
+                  <h2 className="character-title">Este es mi Personaje</h2>
+                  <p className="character-description">
+                    Un ser digital que representa mi esencia creativa. Cada píxel cuenta una historia, 
+                    cada movimiento refleja mi pasión por la música y la tecnología. Este personaje 
+                    es la fusión perfecta entre mi amor por la programación y mi espíritu artístico.
+                  </p>
+          </div>
+        </div>
+      </section>
+
+            {/* Nueva sección Servicios - ahora con música de Spotify */}
+            <section id="services" className="services-section artist-spotify-bg">
+        <div className="container">
+                <div className="artist-spotify-card">
+                  <div className="artist-spotify-left">
+                    <iframe
+                      src="https://open.spotify.com/embed/artist/2zU4sGIwSViMGRnwMSlD1j?utm_source=generator"
+                      width="100%"
+                      height="380"
+                      frameBorder="0"
+                      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                      loading="lazy"
+                      style={{ borderRadius: '16px', border: '3px solid #202124', minWidth: '220px', background: '#121212' }}
+                      title="Spotify AlleRoDI"
+                    ></iframe>
+                </div>
+                  <div className="artist-spotify-right">
+                    <h3 className="artist-title">AlleRoDI</h3>
+                    <p className="artist-bio">
+                      Soy AlleRoDI, artista y creador digital apasionado por la música electrónica y la innovación. Mi sonido fusiona creatividad, tecnología y emociones, buscando siempre romper límites y conectar con quienes escuchan. ¡Dale play y acompáñame en este viaje musical!
+                    </p>
+                    <a href="https://open.spotify.com/artist/2zU4sGIwSViMGRnwMSlD1j" target="_blank" rel="noopener noreferrer" className="spotify-link">
+                      Escúchame en Spotify
+                    </a>
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer mejorado */}
-      <footer className="pixel-footer pro-footer">
-        <div className="footer-container">
-          <div className="footer-main">
-            <div className="footer-col footer-contact">
-              <h3 className="footer-title">Contacto</h3>
-              <p className="footer-text">Email: <a href="mailto:allerodi.music@gmail.com">allerodi.music@gmail.com</a></p>
-              <div className="footer-social">
-                <a href="https://github.com/allerodi" target="_blank" rel="noopener noreferrer" className="footer-social-link"><i className="fab fa-github"></i></a>
-                <a href="https://www.linkedin.com/in/allerodi" target="_blank" rel="noopener noreferrer" className="footer-social-link"><i className="fab fa-linkedin"></i></a>
-                <a href="https://twitter.com/allerodi" target="_blank" rel="noopener noreferrer" className="footer-social-link"><i className="fab fa-twitter"></i></a>
-                <a href="https://open.spotify.com/artist/2zU4sGIwSViMGRnwMSlD1j" target="_blank" rel="noopener noreferrer" className="footer-social-link"><i className="fab fa-spotify"></i></a>
+            <footer className="pixel-footer pro-footer">
+              <div className="footer-container">
+                <div className="footer-main">
+                  <div className="footer-col footer-contact">
+                    <h3 className="footer-title">Contacto</h3>
+                    <p className="footer-text">Email: <a href="mailto:allerodi.music@gmail.com">allerodi.music@gmail.com</a></p>
+                    <div className="footer-social">
+                      <a href="https://github.com/allerodi" target="_blank" rel="noopener noreferrer" className="footer-social-link"><i className="fab fa-github"></i></a>
+                      <a href="https://www.linkedin.com/in/allerodi" target="_blank" rel="noopener noreferrer" className="footer-social-link"><i className="fab fa-linkedin"></i></a>
+                      <a href="https://twitter.com/allerodi" target="_blank" rel="noopener noreferrer" className="footer-social-link"><i className="fab fa-twitter"></i></a>
+                      <a href="https://open.spotify.com/artist/2zU4sGIwSViMGRnwMSlD1j" target="_blank" rel="noopener noreferrer" className="footer-social-link"><i className="fab fa-spotify"></i></a>
               </div>
             </div>
-            <div className="footer-col footer-newsletter">
-              <h3 className="footer-title">Newsletter</h3>
-              <form className="footer-form">
-                <input type="email" placeholder="Tu email" className="footer-input" />
-                <button type="submit" className="footer-btn">Suscribirse</button>
+                  <div className="footer-col footer-newsletter">
+                    <h3 className="footer-title">Newsletter</h3>
+                    <form className="footer-form">
+                      <input type="email" placeholder="Tu email" className="footer-input" />
+                      <button type="submit" className="footer-btn">Suscribirse</button>
               </form>
-              <p className="footer-text">Recibe novedades y lanzamientos de AlleRoDi.</p>
+                    <p className="footer-text">Recibe novedades y lanzamientos de AlleRoDi.</p>
             </div>
           </div>
           <div className="footer-bottom">
-            <p className="footer-copyright">&copy; 2024 AlleRoDi. Todos los derechos reservados.</p>
+                  <p className="footer-copyright">&copy; 2024 AlleRoDi. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>
-      <ChatBot />
-      {/* Modal del juego */}
-      {showGame && (
-        <div className="game-modal-overlay" onClick={() => setShowGame(false)}>
-          <div className="game-modal" onClick={e => e.stopPropagation()}>
-            <button className="game-modal-close" onClick={() => setShowGame(false)}>×</button>
-            <h2 className="game-modal-title">Mini Game</h2>
-            <MiniGame />
-          </div>
-        </div>
-      )}
-          </div>
+            <ChatBot />
+            {/* Modal del juego */}
+            {showGame && (
+              <div className="game-modal-overlay" onClick={() => setShowGame(false)}>
+                <div className="game-modal" onClick={e => e.stopPropagation()}>
+                  <button className="game-modal-close" onClick={() => setShowGame(false)}>×</button>
+                  <h2 className="game-modal-title">Mini Game</h2>
+                  <MiniGame />
+                </div>
+    </div>
+            )}
+          </>
+        } />
+        <Route path="/creations" element={<Creations />} />
+        <Route path="/stories" element={<Stories />} />
+        <Route path="/store" element={<Store />} />
+      </Routes>
+    </div>
+  </Router>
   );
 };
 
