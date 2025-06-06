@@ -39,7 +39,6 @@ const ProductCard = memo(({ product, onClick }: { product: Product; onClick: (pr
 ));
 
 const Store = () => {
-  const [chatOpen, setChatOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
@@ -193,14 +192,6 @@ const Store = () => {
           <Link to="/store" className="nav-button active" aria-label="Ir a tienda">
             <i className="fas fa-shopping-cart" aria-hidden="true"></i>
           </Link>
-          <button 
-            className="nav-button chat-button" 
-            onClick={() => setChatOpen((o) => !o)}
-            aria-label="Abrir chat"
-            onKeyPress={(e) => handleKeyPress(e, () => setChatOpen((o) => !o))}
-          >
-            <i className="fas fa-comments" aria-hidden="true"></i>
-          </button>
         </div>
       </div>
 

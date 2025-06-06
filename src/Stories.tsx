@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './App.css';
 
@@ -12,7 +12,7 @@ interface StoryEvent {
 }
 
 const Stories = () => {
-  const [chatOpen, setChatOpen] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState('todos');
   const [activeCategory, setActiveCategory] = useState<string>('all');
 
   const stories: StoryEvent[] = [
@@ -107,9 +107,6 @@ const Stories = () => {
           <Link to="/store" className="nav-button">
             <i className="fas fa-shopping-cart"></i>
           </Link>
-          <button className="nav-button chat-button" onClick={() => setChatOpen((o) => !o)}>
-            <i className="fas fa-comments"></i>
-          </button>
         </div>
       </div>
 
