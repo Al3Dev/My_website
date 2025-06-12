@@ -498,7 +498,7 @@ const App = () => {
             <section className="music-section">
               <div className="music-container">
                 <div className="music-image">
-                  <img src="./src/assets/Albums.png" alt="AlleRoDI Albums" />
+                  <img src="/assets/Albums.png" alt="AlleRoDI Albums" />
               </div>
                 <div className="music-content">
                   <h2 className="music-title">Mi Música</h2>
