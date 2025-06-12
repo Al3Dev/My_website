@@ -2047,14 +2047,13 @@ body {
 
 /* Sección de Actualizaciones */
 .inspiration-section {
-  padding: 80px 0;
-  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(42, 42, 42, 0.8) 100%), url('./assets/AloneInside.jpeg');
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(42, 42, 42, 0.8) 100%), url('@assets/AloneInside.jpeg');
   background-size: cover;
   background-position: center;
+  background-attachment: fixed;
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  padding: 100px 0;
 }
 
 .inspiration-section::before {
@@ -2283,15 +2282,13 @@ body {
 
 /* Sección de Personaje */
 .character-section {
-  padding: 60px 0;
-  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(42, 42, 42, 0.8) 100%), url('./assets/Personaje.jpeg');
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(42, 42, 42, 0.8) 100%), url('@assets/Personaje.jpeg');
   background-size: cover;
   background-position: center;
+  background-attachment: fixed;
   position: relative;
   overflow: hidden;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  padding: 100px 0;
 }
 
 .character-section::before {

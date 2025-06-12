@@ -5,6 +5,11 @@ import Creations from './Creations';
 import About from './About';
 import Stories from './Stories';
 import Store from './Store';
+import AloneInside from './assets/AloneInside.jpeg';
+import Life from './assets/Life.jpeg';
+import Angry from './assets/Angry.jpeg';
+import Fight from './assets/Fight.jpeg';
+import Personaje from './assets/Personaje.jpeg';
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -425,7 +430,7 @@ const App = () => {
               <div className="inspiration-container">
                 <div className="update-content">
                   <div className="update-image">
-                    <img src="./src/assets/AloneInside.jpeg" alt="Próximo Lanzamiento" />
+                    <img src={AloneInside} alt="Próximo Lanzamiento" />
                   </div>
                   <div className="update-text">
                     <h2 className="update-title">Actualización</h2>
@@ -469,19 +474,19 @@ const App = () => {
                   </p>
                   <div className="gallery-grid">
                     <div className="gallery-item">
-                      <div className="gallery-image" style={{ backgroundImage: "url('./src/assets/Life.jpeg')" }}></div>
+                      <div className="gallery-image" style={{ backgroundImage: `url(${Life})` }}></div>
                       <div className="gallery-item-title">AlleRoDI</div>
             </div>
                     <div className="gallery-item">
-                      <div className="gallery-image" style={{ backgroundImage: "url('./src/assets/AloneInside.jpeg')" }}></div>
+                      <div className="gallery-image" style={{ backgroundImage: `url(${AloneInside})` }}></div>
                       <div className="gallery-item-title">Proyecto 2</div>
               </div>
                     <div className="gallery-item">
-                      <div className="gallery-image" style={{ backgroundImage: "url('./src/assets/Angry.jpeg')" }}></div>
+                      <div className="gallery-image" style={{ backgroundImage: `url(${Angry})` }}></div>
                       <div className="gallery-item-title">Proyecto 3</div>
             </div>
                     <div className="gallery-item">
-                      <div className="gallery-image" style={{ backgroundImage: "url('./src/assets/Fight.jpeg')" }}></div>
+                      <div className="gallery-image" style={{ backgroundImage: `url(${Fight})` }}></div>
                       <div className="gallery-item-title">Proyecto 4</div>
               </div>
             </div>
@@ -524,7 +529,7 @@ const App = () => {
             <section className="character-section">
               <div className="character-container">
                 <div className="character-image">
-                  <img src="./src/assets/Personaje.jpeg" alt="Mi Personaje" />
+                  <img src={Personaje} alt="Mi Personaje" />
             </div>
                 <div className="character-content">
                   <h2 className="character-title">Este es mi Personaje</h2>
