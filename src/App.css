@@ -136,14 +136,14 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-image: url('./assets/background.png'); /* Reemplaza con tu imagen */
+  background-image: url('/My_website/assets/background.png');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
   position: relative;
   overflow: hidden;
   animation: backgroundMove 30s ease infinite;
-  padding-bottom: 80px; /* Espacio para el navbar móvil */
+  padding-bottom: 80px;
 }
 
 .stars-layer {
@@ -159,7 +159,7 @@ body {
   position: absolute;
   width: 300px;
   height: 300px;
-  background-image: url('./assets/star.png');
+  background-image: url('/My_website/assets/star.png');
   background-size: contain;
   background-repeat: no-repeat;
   opacity: 0.7;
@@ -242,7 +242,7 @@ body {
 }
 
 .character-overlay {
-  background-image: url('./assets/character.png');
+  background-image: url('/My_website/assets/character.png');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -252,7 +252,7 @@ body {
   top: -285px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 0;
+  z-index: 2;
 }
 
 .loading-screen {
@@ -379,7 +379,7 @@ body {
 .projects-section {
   position: relative;
   padding: 120px 0;
-  background-image: url('./assets/Background2.png');
+  background-image: url('/My_website/assets/Background2.png');
   background-color: #f8f9fa;
   background-size: 1000px 1000px;
   background-position: center;
@@ -2047,7 +2047,7 @@ body {
 
 /* Sección de Actualizaciones */
 .inspiration-section {
-  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(42, 42, 42, 0.8) 100%), url('@assets/AloneInside.jpeg');
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(42, 42, 42, 0.8) 100%), url('/My_website/assets/AloneInside.jpeg');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -2282,7 +2282,7 @@ body {
 
 /* Sección de Personaje */
 .character-section {
-  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(42, 42, 42, 0.8) 100%), url('@assets/Personaje.jpeg');
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(42, 42, 42, 0.8) 100%), url('/My_website/assets/Personaje.jpeg');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
