@@ -57,6 +57,29 @@ body {
   position: relative;
   padding: 0.5rem 1rem !important;
   transition: all 0.3s ease;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  animation: textGlow 2s ease-in-out infinite;
+}
+
+.nav-link:hover {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+               0 0 20px rgba(255, 255, 255, 0.6),
+               0 0 30px rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+@keyframes textGlow {
+  0% {
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+                 0 0 20px rgba(255, 255, 255, 0.6),
+                 0 0 30px rgba(255, 255, 255, 0.4);
+  }
+  100% {
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  }
 }
 
 .nav-links a {
@@ -290,13 +313,12 @@ body {
 }
 
 .section-title {
-  position: relative;
-  z-index: 2;
   font-family: 'Press Start 2P', cursive;
   font-size: 2rem;
-  color: #202124;
+  color: #fff;
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 40px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
 /* About Section */
@@ -310,93 +332,6 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
-}
-
-.about-cards {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-.about-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  backdrop-filter: blur(10px);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.about-card:hover {
-  transform: translateY(-5px);
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-}
-
-.card-image {
-  width: 100%;
-  height: 160px;
-  background-size: cover;
-  background-position: center;
-  transition: transform 0.3s ease;
-  position: relative;
-}
-
-.about-card:hover .card-image {
-  transform: scale(1.05);
-}
-
-.card-content {
-  padding: 15px;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.card-icon {
-  font-size: 20px;
-  color: #fff;
-  margin-bottom: 10px;
-}
-
-.about-card h3 {
-  color: #fff;
-  font-size: 18px;
-  margin-bottom: 8px;
-  font-weight: 600;
-}
-
-.about-card p {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 13px;
-  margin-bottom: 0;
-  line-height: 1.4;
-}
-
-@media (max-width: 1024px) {
-  .about-cards {
-    grid-template-columns: repeat(2, 1fr);
-    max-width: 600px;
-  }
-}
-
-@media (max-width: 600px) {
-  .about-cards {
-    grid-template-columns: 1fr;
-    max-width: 300px;
-  }
-  
-  .about-card:hover {
-    transform: none;
-  }
 }
 
 .skills-container {
@@ -632,12 +567,16 @@ body {
 /* Estilos para la sección de música */
 .music-section {
   padding: 40px 0;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(45, 45, 45, 0.8) 100%), url('./assets/Albums.png');
+  background-size: cover;
+  background-position: center;
   position: relative;
   overflow: hidden;
-  margin-top: 40px;
+  margin-top: 0px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .music-section::before {
@@ -647,8 +586,10 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
-  pointer-events: none;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1;
 }
 
 .music-container {
@@ -660,7 +601,7 @@ body {
   gap: 40px;
   justify-content: center;
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 .music-image {
@@ -2107,15 +2048,34 @@ body {
 /* Sección de Actualizaciones */
 .inspiration-section {
   padding: 80px 0;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(42, 42, 42, 0.8) 100%), url('./assets/AloneInside.jpeg');
+  background-size: cover;
+  background-position: center;
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.inspiration-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1;
 }
 
 .inspiration-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+  position: relative;
+  z-index: 2;
 }
 
 .update-content {
@@ -2126,6 +2086,9 @@ body {
   border-radius: 20px;
   padding: 40px;
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .update-image {
@@ -2321,10 +2284,27 @@ body {
 /* Sección de Personaje */
 .character-section {
   padding: 60px 0;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(42, 42, 42, 0.8) 100%), url('./assets/Personaje.jpeg');
+  background-size: cover;
+  background-position: center;
   position: relative;
   overflow: hidden;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.character-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 1;
 }
 
 .character-container {
@@ -2334,6 +2314,8 @@ body {
   display: flex;
   align-items: center;
   gap: 40px;
+  position: relative;
+  z-index: 2;
 }
 
 .character-image {
