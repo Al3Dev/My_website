@@ -581,51 +581,280 @@ const App = () => {
             </section>
 
             {/* Proyecto de Ventas */}
-            <section className="store-project-section" style={{
-              backgroundImage: 'url("/assets/mech.jpeg")',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
+            <section id="store-project" style={{
+              padding: window.innerWidth <= 768 ? '3rem 1.5rem' : '4rem 2rem',
+              background: 'linear-gradient(135deg, #1a0f3c 0%, #2d1b69 50%, #4a2b8a 100%)',
+              color: '#fff',
               position: 'relative',
-              width: '100%',
-              padding: '3rem 0'
+              overflow: 'hidden',
+              fontFamily: "'Poppins', sans-serif"
             }}>
-              <div className="store-project-container" style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                padding: '1.5rem',
-                borderRadius: '20px',
-                maxWidth: '800px',
-                margin: '0 auto'
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%)',
+                animation: 'pulse 8s ease-in-out infinite',
+                zIndex: 0
+              }} />
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'linear-gradient(45deg, rgba(74, 43, 138, 0.3) 0%, rgba(45, 27, 105, 0.3) 50%, rgba(26, 15, 60, 0.3) 100%)',
+                zIndex: 0
+              }} />
+              <div style={{
+                maxWidth: '1200px',
+                margin: '0 auto',
+                display: 'flex',
+                flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
+                alignItems: 'center',
+                gap: window.innerWidth <= 768 ? '3rem' : '4rem',
+                position: 'relative',
+                zIndex: 1
               }}>
-                <div className="store-project-image" style={{
-                  maxWidth: '400px',
-                  margin: '0 auto'
+                <div style={{
+                  flex: '1',
+                  maxWidth: window.innerWidth <= 768 ? '220px' : '400px',
+                  margin: '0 auto',
+                  position: 'relative'
                 }}>
-                  <img src="/assets/mech.jpeg" alt="Proyecto de Ventas" style={{
-                    width: '100%',
-                    height: 'auto',
-                    borderRadius: '10px'
+                  <div style={{
+                    position: 'absolute',
+                    top: window.innerWidth <= 768 ? '-15px' : '-20px',
+                    left: window.innerWidth <= 768 ? '-15px' : '-20px',
+                    right: window.innerWidth <= 768 ? '-15px' : '-20px',
+                    bottom: window.innerWidth <= 768 ? '-15px' : '-20px',
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    borderRadius: window.innerWidth <= 768 ? '25px' : '30px',
+                    filter: 'blur(30px)',
+                    animation: 'glow 3s ease-in-out infinite alternate'
                   }} />
+                  <img 
+                    src="/assets/mech.png" 
+                    alt="Proyecto de Ventas" 
+                    style={{
+                      width: '100%',
+                      height: 'auto',
+                      transition: 'transform 0.3s ease',
+                      filter: 'brightness(0) invert(1) drop-shadow(0 0 30px rgba(255, 255, 255, 0.2))',
+                      position: 'relative',
+                      zIndex: 1
+                    }} 
+                  />
                 </div>
-                <div className="store-project-content">
-                  <h2 className="store-project-title">Proyecto de Ventas</h2>
-                  <p className="store-project-description">
-                    Estoy desarrollando una plataforma innovadora de comercio electrónico que combina 
-                    moda y tecnología. Un espacio donde encontrarás las últimas tendencias en ropa y 
-                    los dispositivos tecnológicos más avanzados, todo en un solo lugar.
-                  </p>
-                  <div className="store-project-details">
-                    <div className="store-project-detail">
-                      <i className="fas fa-tshirt"></i>
-                      <span>Moda</span>
+
+                <div style={{
+                  flex: '1.5',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: window.innerWidth <= 768 ? '2rem' : '2.5rem',
+                  width: '100%'
+                }}>
+                  <div>
+                    <h2 style={{
+                      fontSize: window.innerWidth <= 768 ? '1.8rem' : '2.5rem',
+                      marginBottom: window.innerWidth <= 768 ? '1rem' : '1.5rem',
+                      color: '#fff',
+                      textAlign: window.innerWidth <= 768 ? 'center' : 'left',
+                      fontWeight: '600',
+                      letterSpacing: '0.5px'
+                    }}>
+                      Proyectos de Ventas
+                    </h2>
+                    <p style={{
+                      fontSize: window.innerWidth <= 768 ? '0.95rem' : '1.1rem',
+                      lineHeight: window.innerWidth <= 768 ? '1.6' : '1.8',
+                      color: '#fff',
+                      marginBottom: window.innerWidth <= 768 ? '1.5rem' : '2rem',
+                      textAlign: window.innerWidth <= 768 ? 'center' : 'left',
+                      fontWeight: '300',
+                      opacity: 0.9,
+                      padding: window.innerWidth <= 768 ? '0 0.5rem' : '0'
+                    }}>
+                      Descubre nuestra tienda en línea donde la moda, tecnología y e-commerce se encuentran.
+                      Síguenos en Instagram para ver nuestras últimas novedades y ofertas exclusivas.
+                    </p>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: window.innerWidth <= 768 ? 'center' : 'flex-start'
+                    }}>
+                      <a 
+                        href="https://www.instagram.com/mech_markett/" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.8rem',
+                          padding: window.innerWidth <= 768 ? '0.8rem 1.5rem' : '1rem 2rem',
+                          background: 'rgba(255, 255, 255, 0.1)',
+                          color: '#fff',
+                          textDecoration: 'none',
+                          borderRadius: '12px',
+                          transition: 'all 0.3s ease',
+                          fontSize: window.innerWidth <= 768 ? '0.85rem' : '1rem',
+                          fontWeight: '500',
+                          backdropFilter: 'blur(10px)',
+                          border: '1px solid rgba(255, 255, 255, 0.2)',
+                          width: window.innerWidth <= 768 ? '100%' : 'auto',
+                          justifyContent: 'center'
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.transform = 'translateY(-3px)';
+                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                        }}
+                      >
+                        <svg width={window.innerWidth <= 768 ? "18" : "20"} height={window.innerWidth <= 768 ? "18" : "20"} viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                        @mech_markett
+                      </a>
                     </div>
-                    <div className="store-project-detail">
-                      <i className="fas fa-laptop"></i>
-                      <span>Tecnología</span>
+                  </div>
+
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : 'repeat(3, 1fr)',
+                    gap: window.innerWidth <= 768 ? '1.5rem' : '2rem',
+                    width: '100%'
+                  }}>
+                    <div style={{
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      padding: window.innerWidth <= 768 ? '1.5rem' : '2rem',
+                      borderRadius: '20px',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      transition: 'all 0.3s ease',
+                      position: 'relative',
+                      overflow: 'hidden'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-5px)';
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                    }}>
+                      <div style={{
+                        fontSize: window.innerWidth <= 768 ? '2rem' : '2.5rem',
+                        marginBottom: window.innerWidth <= 768 ? '1rem' : '1.5rem',
+                        color: '#fff',
+                        textAlign: 'center'
+                      }}>👗</div>
+                      <h3 style={{
+                        fontSize: window.innerWidth <= 768 ? '1.1rem' : '1.3rem',
+                        marginBottom: window.innerWidth <= 768 ? '0.8rem' : '1rem',
+                        color: '#fff',
+                        textAlign: 'center',
+                        fontWeight: '600'
+                      }}>Moda</h3>
+                      <p style={{
+                        color: '#fff',
+                        lineHeight: window.innerWidth <= 768 ? '1.6' : '1.8',
+                        fontSize: window.innerWidth <= 768 ? '0.85rem' : '1rem',
+                        textAlign: 'center',
+                        fontWeight: '300',
+                        opacity: 0.9
+                      }}>
+                        Descubre las últimas tendencias en moda y accesorios exclusivos.
+                      </p>
                     </div>
-                    <div className="store-project-detail">
-                      <i className="fas fa-shopping-cart"></i>
-                      <span>E-commerce</span>
+
+                    <div style={{
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      padding: window.innerWidth <= 768 ? '1.5rem' : '2rem',
+                      borderRadius: '20px',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      transition: 'all 0.3s ease',
+                      position: 'relative',
+                      overflow: 'hidden'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-5px)';
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                    }}>
+                      <div style={{
+                        fontSize: window.innerWidth <= 768 ? '2rem' : '2.5rem',
+                        marginBottom: window.innerWidth <= 768 ? '1rem' : '1.5rem',
+                        color: '#fff',
+                        textAlign: 'center'
+                      }}>💻</div>
+                      <h3 style={{
+                        fontSize: window.innerWidth <= 768 ? '1.1rem' : '1.3rem',
+                        marginBottom: window.innerWidth <= 768 ? '0.8rem' : '1rem',
+                        color: '#fff',
+                        textAlign: 'center',
+                        fontWeight: '600'
+                      }}>Tecnología</h3>
+                      <p style={{
+                        color: '#fff',
+                        lineHeight: window.innerWidth <= 768 ? '1.6' : '1.8',
+                        fontSize: window.innerWidth <= 768 ? '0.85rem' : '1rem',
+                        textAlign: 'center',
+                        fontWeight: '300',
+                        opacity: 0.9
+                      }}>
+                        Los mejores productos tecnológicos con garantía y soporte especializado.
+                      </p>
+                    </div>
+
+                    <div style={{
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      padding: window.innerWidth <= 768 ? '1.5rem' : '2rem',
+                      borderRadius: '20px',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      transition: 'all 0.3s ease',
+                      position: 'relative',
+                      overflow: 'hidden'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-5px)';
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                    }}>
+                      <div style={{
+                        fontSize: window.innerWidth <= 768 ? '2rem' : '2.5rem',
+                        marginBottom: window.innerWidth <= 768 ? '1rem' : '1.5rem',
+                        color: '#fff',
+                        textAlign: 'center'
+                      }}>🛍️</div>
+                      <h3 style={{
+                        fontSize: window.innerWidth <= 768 ? '1.1rem' : '1.3rem',
+                        marginBottom: window.innerWidth <= 768 ? '0.8rem' : '1rem',
+                        color: '#fff',
+                        textAlign: 'center',
+                        fontWeight: '600'
+                      }}>E-commerce</h3>
+                      <p style={{
+                        color: '#fff',
+                        lineHeight: window.innerWidth <= 768 ? '1.6' : '1.8',
+                        fontSize: window.innerWidth <= 768 ? '0.85rem' : '1rem',
+                        textAlign: 'center',
+                        fontWeight: '300',
+                        opacity: 0.9
+                      }}>
+                        Compra segura y envíos rápidos a todo el país.
+                      </p>
                     </div>
                   </div>
                 </div>
