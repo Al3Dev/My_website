@@ -537,6 +537,101 @@ const App = () => {
         </div>
       </section>
 
+            {/* Nueva sección de Videojuego */}
+            <section className="game-section">
+              <div className="game-container">
+                <div className="game-image">
+                  <video 
+                    controls
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    style={{ 
+                      width: '100%', 
+                      borderRadius: '20px', 
+                      boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+                      maxHeight: '500px',
+                      objectFit: 'cover'
+                    }}
+                  >
+                    <source src="/assets/Mivideojuego.mp4" type="video/mp4" />
+                    Tu navegador no soporta el elemento de video.
+                  </video>
+                </div>
+                <div className="game-content">
+                  <h2 className="game-title">Mi Videojuego</h2>
+                  <p className="game-description">
+                    Estoy trabajando en un emocionante proyecto de videojuego que combina música, 
+                    arte digital y narrativa interactiva. Una experiencia única que te transportará 
+                    a un mundo donde la música cobra vida y cada decisión cuenta.
+                  </p>
+                  <div className="game-details">
+                    <div className="game-detail">
+                      <i className="fas fa-gamepad"></i>
+                      <span>Próximamente</span>
+                    </div>
+                    <div className="game-detail">
+                      <i className="fas fa-code"></i>
+                      <span>Desarrollo en Progreso</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Proyecto de Ventas */}
+            <section className="store-project-section" style={{
+              backgroundImage: 'url("/assets/mech.jpeg")',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              position: 'relative',
+              width: '100%',
+              padding: '3rem 0'
+            }}>
+              <div className="store-project-container" style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                padding: '1.5rem',
+                borderRadius: '20px',
+                maxWidth: '800px',
+                margin: '0 auto'
+              }}>
+                <div className="store-project-image" style={{
+                  maxWidth: '400px',
+                  margin: '0 auto'
+                }}>
+                  <img src="/assets/mech.jpeg" alt="Proyecto de Ventas" style={{
+                    width: '100%',
+                    height: 'auto',
+                    borderRadius: '10px'
+                  }} />
+                </div>
+                <div className="store-project-content">
+                  <h2 className="store-project-title">Proyecto de Ventas</h2>
+                  <p className="store-project-description">
+                    Estoy desarrollando una plataforma innovadora de comercio electrónico que combina 
+                    moda y tecnología. Un espacio donde encontrarás las últimas tendencias en ropa y 
+                    los dispositivos tecnológicos más avanzados, todo en un solo lugar.
+                  </p>
+                  <div className="store-project-details">
+                    <div className="store-project-detail">
+                      <i className="fas fa-tshirt"></i>
+                      <span>Moda</span>
+                    </div>
+                    <div className="store-project-detail">
+                      <i className="fas fa-laptop"></i>
+                      <span>Tecnología</span>
+                    </div>
+                    <div className="store-project-detail">
+                      <i className="fas fa-shopping-cart"></i>
+                      <span>E-commerce</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
             {/* Nueva sección Servicios - ahora con música de Spotify */}
             <section id="services" className="services-section artist-spotify-bg">
         <div className="container">
