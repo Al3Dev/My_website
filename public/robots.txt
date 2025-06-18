@@ -1,5 +1,14 @@
 User-agent: *
 Allow: /
 
+# Permitir acceso a todos los recursos
+Allow: /assets/
+Allow: /src/
+Allow: /public/
+
 # Sitemap
-Sitemap: https://allerodi.vercel.app/sitemap.xml 
+Sitemap: https://allerodi.vercel.app/sitemap.xml
+
+# Información adicional para crawlers
+# AlleRoDI - Desarrollador Web, Músico y Creador de Contenido Digital
+# Portfolio personal con proyectos de programación, música y diseño 
