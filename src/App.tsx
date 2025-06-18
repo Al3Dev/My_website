@@ -18,9 +18,9 @@ const App = () => {
         '/assets/background.png',
         '/assets/star.png',
         '/assets/project1.png',
-        '/assets/profile.png',
-        '/assets/album-cover.png',
-        // Añade aquí todas tus imágenes
+        '/assets/Me.png',
+        '/assets/Albums.png',
+        // Solo imágenes que realmente existen
       ];
 
       const loadImage = (url: string) => {
