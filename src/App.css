@@ -808,8 +808,9 @@ body {
 }
 
 .game-buttons {
-  display: flex;
-  gap: 1.5rem;
+  display: flex; /* Cambiamos de 'none' a 'flex' para que siempre sean visibles */
+  flex-direction: column;
+  gap: 0.5rem;
   justify-content: center;
   margin-top: 2rem;
   animation: fadeInUp 1s ease-out;
@@ -1100,7 +1101,9 @@ body {
   }
 
   .game-buttons {
-    display: none; /* Oculta los botones en móvil */
+    display: flex; /* Cambiamos de 'none' a 'flex' para que siempre sean visibles */
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .pixel-btn {

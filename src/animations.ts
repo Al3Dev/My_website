@@ -7,39 +7,39 @@ import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 gsap.registerPlugin(ScrollTrigger, TextPlugin, ScrollToPlugin);
 
 export const initAnimations = () => {
-  // Timeline principal de entrada
+  // Timeline principal de entrada (más suave)
   const mainTimeline = gsap.timeline();
   
-  // Animación de entrada del hero
+  // Animación de entrada del hero (más ligera)
   mainTimeline
     .from('.floating-name h1', {
-      duration: 1.5,
-      y: 100,
+      duration: 1,
+      y: 50,
       opacity: 0,
-      ease: "power3.out"
+      ease: "power2.out"
     })
     .from('.character-overlay', {
-      duration: 1.2,
-      x: -200,
-      opacity: 0,
-      ease: "back.out(1.7)"
-    }, "-=0.8")
-    .from('.star', {
-      duration: 1,
-      scale: 0,
-      opacity: 0,
-      stagger: 0.2,
-      ease: "back.out(1.7)"
-    }, "-=0.5")
-    .from('.game-buttons .pixel-btn', {
       duration: 0.8,
-      y: 50,
+      x: -100,
+      opacity: 0,
+      ease: "power2.out"
+    }, "-=0.5")
+    .from('.star', {
+      duration: 0.6,
+      scale: 0.8,
       opacity: 0,
       stagger: 0.1,
       ease: "power2.out"
-    }, "-=0.3");
+    }, "-=0.3")
+    .from('.game-buttons .pixel-btn', {
+      duration: 0.5,
+      y: 20,
+      opacity: 0,
+      stagger: 0.05,
+      ease: "power2.out"
+    }, "-=0.2");
 
-  // Animaciones de scroll mejoradas para TODAS las secciones
+  // Animaciones de scroll más ligeras y optimizadas
   const sections = [
     '.about-section',
     '.projects-section', 
@@ -58,70 +58,43 @@ export const initAnimations = () => {
 
   sections.forEach((sectionSelector) => {
     gsap.utils.toArray(sectionSelector).forEach((section: any) => {
-      // Animación principal de la sección
+      // Animación principal de la sección (más suave)
       gsap.fromTo(section, 
         {
-          y: 60,
+          y: 30,
           opacity: 0
         },
         {
           y: 0,
           opacity: 1,
-          duration: 1.2,
+          duration: 0.8,
           ease: "power2.out",
           scrollTrigger: {
             trigger: section,
-            start: "top 85%",
-            end: "bottom 15%",
-            toggleActions: "play none none reverse"
+            start: "top 90%",
+            toggleActions: "play none none none"
           }
         }
       );
-
-      // Animación de los elementos internos de cada sección
-      const elements = section.querySelectorAll('h1, h2, h3, p, .project-card, .service-card, .skill-tag, .timeline-item, .product-card, .video-card, .gallery-item');
-      
-      elements.forEach((element: any, index: number) => {
-        gsap.fromTo(element,
-          {
-            y: 30,
-            opacity: 0
-          },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.8,
-            delay: index * 0.1,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: element,
-              start: "top 90%",
-              toggleActions: "play none none reverse"
-            }
-          }
-        );
-      });
     });
   });
 
-  // Animación especial para títulos de sección
+  // Animación especial para títulos de sección (más simple)
   gsap.utils.toArray('.section-title, .about-title, .projects-title, .services-title, .music-title, .game-title, .store-title, .creations-title, .stories-title').forEach((title: any) => {
     gsap.fromTo(title,
       {
-        y: 40,
-        opacity: 0,
-        scale: 0.9
+        y: 20,
+        opacity: 0
       },
       {
         y: 0,
         opacity: 1,
-        scale: 1,
-        duration: 1,
-        ease: "back.out(1.7)",
+        duration: 0.6,
+        ease: "power2.out",
         scrollTrigger: {
           trigger: title,
-          start: "top 85%",
-          toggleActions: "play none none reverse"
+          start: "top 90%",
+          toggleActions: "play none none none"
         }
       }
     );
@@ -129,122 +102,44 @@ export const initAnimations = () => {
 
   // Animación de las estrellas flotantes (más suave)
   gsap.to('.star', {
-    y: -15,
-    duration: 4,
+    y: -10,
+    duration: 3,
     ease: "power1.inOut",
-    stagger: 0.8,
+    stagger: 0.5,
     repeat: -1,
     yoyo: true
   });
 
-  // Animación del navbar (más elegante)
+  // Animación del navbar (más simple)
   gsap.from('.navbar', {
-    duration: 1.2,
-    y: -80,
+    duration: 0.8,
+    y: -50,
     opacity: 0,
-    ease: "power3.out"
+    ease: "power2.out"
   });
 
-  // Animación de los botones del juego (más sutil)
+  // Animación de los botones del juego (más sutil y sin desaparecer)
   gsap.to('.pixel-btn', {
-    scale: 1.02,
-    duration: 2,
+    scale: 1.01,
+    duration: 3,
     ease: "power1.inOut",
-    stagger: 0.2,
+    stagger: 0.3,
     repeat: -1,
     yoyo: true,
-    repeatDelay: 3
+    repeatDelay: 4
   });
 
-  // Animación de texto typing para el título
+  // Animación de texto typing para el título (más rápida)
   gsap.to('.floating-name h1', {
-    duration: 2.5,
+    duration: 1.5,
     text: "AlleRoDI",
     ease: "none",
-    delay: 0.8
+    delay: 0.5
   });
 
-  // Animación mejorada para las tarjetas de proyectos
+  // Animación mejorada para las tarjetas de proyectos (más simple)
   gsap.utils.toArray('.project-card').forEach((card: any, index: number) => {
     gsap.fromTo(card,
-      {
-        scale: 0.9,
-        opacity: 0,
-        rotationY: 15
-      },
-      {
-        scale: 1,
-        opacity: 1,
-        rotationY: 0,
-        duration: 1,
-        ease: "back.out(1.4)",
-        delay: index * 0.15,
-        scrollTrigger: {
-          trigger: card,
-          start: "top 90%",
-          toggleActions: "play none none reverse"
-        }
-      }
-    );
-  });
-
-  // Animación mejorada para las habilidades
-  gsap.utils.toArray('.skill-tag').forEach((skill: any, index: number) => {
-    gsap.fromTo(skill,
-      {
-        x: -30,
-        opacity: 0,
-        scale: 0.8
-      },
-      {
-        x: 0,
-        opacity: 1,
-        scale: 1,
-        duration: 0.7,
-        ease: "back.out(1.7)",
-        delay: index * 0.08,
-        scrollTrigger: {
-          trigger: skill,
-          start: "top 90%",
-          toggleActions: "play none none reverse"
-        }
-      }
-    );
-  });
-
-  // Animación del chatbot (más elegante)
-  gsap.from('.chatbot-fab', {
-    duration: 1.5,
-    scale: 0,
-    rotation: 180,
-    ease: "back.out(1.7)",
-    delay: 2.5
-  });
-
-  // Animación de entrada del chat (más suave)
-  gsap.from('.chatbot-window', {
-    duration: 0.6,
-    scale: 0.9,
-    opacity: 0,
-    ease: "back.out(1.4)"
-  });
-
-  // Animación de las partículas de destrucción
-  gsap.utils.toArray('.particle').forEach((particle: any) => {
-    gsap.to(particle, {
-      x: gsap.utils.random(-150, 150),
-      y: gsap.utils.random(-150, 150),
-      rotation: gsap.utils.random(-360, 360),
-      opacity: 0,
-      duration: 1.2,
-      ease: "power2.out",
-      delay: gsap.utils.random(0, 0.3)
-    });
-  });
-
-  // Animación especial para imágenes
-  gsap.utils.toArray('img').forEach((img: any) => {
-    gsap.fromTo(img,
       {
         scale: 0.95,
         opacity: 0
@@ -252,36 +147,115 @@ export const initAnimations = () => {
       {
         scale: 1,
         opacity: 1,
-        duration: 1,
+        duration: 0.6,
         ease: "power2.out",
+        delay: index * 0.1,
         scrollTrigger: {
-          trigger: img,
-          start: "top 90%",
-          toggleActions: "play none none reverse"
+          trigger: card,
+          start: "top 95%",
+          toggleActions: "play none none none"
         }
       }
     );
   });
 
-  // Animación para el footer
+  // Animación mejorada para las habilidades (más simple)
+  gsap.utils.toArray('.skill-tag').forEach((skill: any, index: number) => {
+    gsap.fromTo(skill,
+      {
+        x: -20,
+        opacity: 0
+      },
+      {
+        x: 0,
+        opacity: 1,
+        duration: 0.5,
+        ease: "power2.out",
+        delay: index * 0.05,
+        scrollTrigger: {
+          trigger: skill,
+          start: "top 95%",
+          toggleActions: "play none none none"
+        }
+      }
+    );
+  });
+
+  // Animación del chatbot (más simple)
+  gsap.from('.chatbot-fab', {
+    duration: 0.8,
+    scale: 0,
+    ease: "back.out(1.4)",
+    delay: 1.5
+  });
+
+  // Animación de entrada del chat (más simple)
+  gsap.from('.chatbot-window', {
+    duration: 0.4,
+    scale: 0.95,
+    opacity: 0,
+    ease: "power2.out"
+  });
+
+  // Animación de las partículas de destrucción (más simple)
+  gsap.utils.toArray('.particle').forEach((particle: any) => {
+    gsap.to(particle, {
+      x: gsap.utils.random(-100, 100),
+      y: gsap.utils.random(-100, 100),
+      rotation: gsap.utils.random(-180, 180),
+      opacity: 0,
+      duration: 0.8,
+      ease: "power2.out",
+      delay: gsap.utils.random(0, 0.2)
+    });
+  });
+
+  // Animación especial para imágenes (más simple)
+  gsap.utils.toArray('img').forEach((img: any) => {
+    gsap.fromTo(img,
+      {
+        scale: 0.98,
+        opacity: 0
+      },
+      {
+        scale: 1,
+        opacity: 1,
+        duration: 0.6,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: img,
+          start: "top 95%",
+          toggleActions: "play none none none"
+        }
+      }
+    );
+  });
+
+  // Animación para el footer (más simple)
   gsap.from('.pixel-footer', {
-    duration: 1,
-    y: 50,
+    duration: 0.6,
+    y: 30,
     opacity: 0,
     ease: "power2.out",
     scrollTrigger: {
       trigger: '.pixel-footer',
-      start: "top 90%",
-      toggleActions: "play none none reverse"
+      start: "top 95%",
+      toggleActions: "play none none none"
     }
+  });
+
+  // Asegurar que los botones del juego siempre sean visibles
+  gsap.set('.game-buttons .pixel-btn', {
+    opacity: 1,
+    visibility: 'visible'
   });
 };
 
 // Función para animar elementos al hacer hover (más suave)
 export const animateHover = (element: HTMLElement) => {
   gsap.to(element, {
-    scale: 1.03,
-    duration: 0.4,
+    scale: 1.02,
+    duration: 0.3,
     ease: "power2.out"
   });
 };
@@ -289,7 +263,7 @@ export const animateHover = (element: HTMLElement) => {
 export const animateHoverOut = (element: HTMLElement) => {
   gsap.to(element, {
     scale: 1,
-    duration: 0.4,
+    duration: 0.3,
     ease: "power2.out"
   });
 };
@@ -297,7 +271,7 @@ export const animateHoverOut = (element: HTMLElement) => {
 // Función para animar el scroll suave (más fluido)
 export const smoothScrollTo = (target: string) => {
   gsap.to(window, {
-    duration: 2,
+    duration: 1.5,
     scrollTo: target,
     ease: "power2.inOut"
   });
