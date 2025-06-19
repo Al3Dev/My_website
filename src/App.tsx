@@ -1,10 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { TextPlugin } from 'gsap/TextPlugin';
 import './App.css';
 import Creations from './Creations';
 import About from './About';
 import Stories from './Stories';
 import Store from './Store';
+
+// Registrar plugins de GSAP
+gsap.registerPlugin(ScrollTrigger, TextPlugin);
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -61,6 +67,16 @@ const App = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Animaciones de GSAP
+  useEffect(() => {
+    if (!loading) {
+      // Importar y ejecutar las animaciones
+      import('./animations').then(({ initAnimations }) => {
+        initAnimations();
+      });
+    }
+  }, [loading]);
 
   const handleScrollDown = () => {
     window.scrollTo({
