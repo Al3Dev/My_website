@@ -295,7 +295,7 @@ export const hideLoadingScreen = () => {
     duration: 0.7,
     ease: 'power2.in',
     onComplete: () => {
-      el.style.display = 'none';
+      (el as HTMLElement).style.display = 'none';
     }
   });
 }; 
