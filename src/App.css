@@ -1,5 +1,37 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
+/* Estilos globales para fondo negro */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  background-color: #000000 !important;
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+#root {
+  background-color: #000000;
+  min-height: 100vh;
+}
+
+/* Asegurar que todas las secciones tengan fondo negro */
+.section, 
+.about-section, 
+.projects-section, 
+.services-section, 
+.music-section, 
+.creations-page, 
+.stories-page, 
+.store-page,
+.game-section,
+.store-project-section {
+  background-color: #000000 !important;
+}
+
 body {
   background-color: #000000;
   color: #ffffff;
