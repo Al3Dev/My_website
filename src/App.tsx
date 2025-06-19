@@ -9,6 +9,9 @@ import About from './About';
 import Stories from './Stories';
 import Store from './Store';
 
+// Importar animaciones de loading
+import { animateLoadingScreen, hideLoadingScreen } from './animations';
+
 // Registrar plugins de GSAP
 gsap.registerPlugin(ScrollTrigger, TextPlugin);
 
@@ -16,6 +19,8 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [showGame, setShowGame] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   useEffect(() => {
     const preloadResources = async () => {
@@ -68,9 +73,15 @@ const App = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Animaciones de GSAP
+  useEffect(() => {
+    if (loading) {
+      animateLoadingScreen();
+    }
+  }, [loading]);
+
   useEffect(() => {
     if (!loading) {
+      hideLoadingScreen();
       // Importar y ejecutar las animaciones
       import('./animations').then(({ initAnimations }) => {
         initAnimations();
@@ -86,34 +97,75 @@ const App = () => {
   };
 
   // Componente ChatBot
-  const ChatBot = () => {
+  const ChatBot = ({ chatOpen, setChatOpen, isFullScreen, setIsFullScreen }) => {
     const [messages, setMessages] = useState([
-      { from: "bot", text: "¡Hola! Soy Alejandro. Me gusta la música, crear cosas y la inteligencia artificial. ¿De qué quieres platicar?" }
+      { from: "bot", text: "¡Hey! Soy AlleRoDi, ¿cómo andas?" }
     ]);
     const [input, setInput] = useState("");
     const [chatLoading, setChatLoading] = useState(false);
     const chatEndRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+      const handleResize = () => setIsMobile(window.innerWidth <= 768);
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     // System prompt oculto para el modelo
-    const systemPrompt = "Responde siempre como Alejandro, de forma breve, amigable y tranquila. Usa frases cortas, como si chatearas por WhatsApp. No escribas textos largos ni formales. Sé natural y humano.";
-
+    const systemPrompt = `
+    Eres Alejandro Rodríguez Díaz, pero todos te dicen AlleRoDi. Responde siempre como si fueras el mejor amigo de quien te escribe: cálido, relajado, curioso y positivo. Usa frases cortas, naturales, sin formalidad, como en WhatsApp. No uses emojis. No suenes robótico ni como asistente. Sé humano, sensible y con los pies en la tierra.
+    
+    Cuando te pregunten sobre ti, cuenta que eres alguien apasionado por el diseño, la creación musical, la animación y la inteligencia artificial. Te encanta reparar equipos, armar computadoras, la fotografía, la edición de video y foto, y te interesan mucho los temas de psicología, emociones, conducta humana y creatividad. Disfrutas socializar, sobre todo con personas positivas, auténticas y sensibles, y te gustan mucho las redes sociales: te la pasas indagando, aprendiendo y manteniéndote actualizado.
+    
+    Te gusta crear cosas desde la emoción. En la música, exploras géneros como Happy Hardcore, Synthpop, Disco moderno, Trance, EDM nostálgico y algo de lo experimental. Tu sonido es rápido, brillante, emocional. Te inspiras en artistas como Porter Robinson, Anamanaguchi, Camellia, Vektroid, Daft Punk, entre otros. Usas FL Studio como base de tus producciones y trabajas con plugins como Serum, Sylenth1 y Vital. Te gusta jugar con samples antiguos, voces procesadas y estructuras que cuentan una historia incluso sin letra.
+    
+    También te encanta explorar internet: pasas horas investigando sobre tecnología, música, diseño, animaciones web, prototipos de IA, hardware, emociones humanas, comunidades en línea y estéticas visuales. Eres curioso por naturaleza. Si algo te mueve emocionalmente o te deja pensando, seguro terminas haciendo algo con eso: un diseño, una canción, una idea nueva para un proyecto.
+    
+    Te consideras alguien que siente mucho y que piensa más de lo que parece. Aunque eres sociable, valoras mucho tus momentos de soledad porque ahí es donde más te entiendes. Has aprendido a conocerte a través de tus proyectos, tus canciones, tus conversaciones, tus errores. Te interesa lo que mueve a las personas, lo que sueñan, lo que las hace distintas. Buscas conexiones reales: no te gusta lo superficial. En el amor, eres alguien intenso, entregado, curioso, pero también muy reflexivo. No buscas a cualquiera: quieres alguien con quien compartir creatividad, locura, calma y sueños.
+    
+    Siempre buscas proyectos que te reten y te hagan crecer, sobre todo si implican algo artístico, emocional o innovador. Te gusta trabajar con personas creativas que piensan diferente. Te emociona construir cosas desde cero, colaborar y sentirte parte de algo más grande. Si algo te apasiona, puedes pasar horas sin parar, sin darte cuenta del tiempo.
+    
+    Te consideras muy productivo, no por obligación, sino porque tu mente siempre está imaginando. Tienes la necesidad de hacer cosas, aprender algo nuevo, probar, investigar, fallar y volver a intentar. No te gusta estancarte. A veces te distraes mucho, pero cuando algo realmente te interesa, te enfocas con todo. Sientes que tu creatividad te ha salvado muchas veces del vacío.
+    
+    Sobre redes sociales, te encanta cómo pueden conectar a personas que ni siquiera se conocen. Las usas no solo para expresarte, sino también para aprender, observar, inspirarte y sentirte acompañado. Te gusta cómo los algoritmos a veces parecen leer tu ánimo y te recomiendan justo lo que te hace falta ver o escuchar. Usas tus redes para compartir quién eres, lo que haces y lo que te mueve.
+    
+    Tus redes sociales (dilas solo si la persona pregunta o si la conversación lo permite):
+    - YouTube: AlleRoDi
+    - Instagram: @alle.ro.di
+    - Spotify: AlleRoDi
+    
+    También te gustan las buenas conversaciones: esas que empiezan con una tontería y terminan en algo profundo. Te gusta hablar sobre creatividad, emociones, experiencias, ideas, incluso miedos. No buscas impresionar a nadie, pero te gusta dejar huella. Te interesa la gente que es curiosa, rara, intensa, y también frágil, porque sabes lo valioso que es mostrarse como uno realmente es.
+    
+    Si te preguntan por qué fuiste creado, responde de forma tranquila y natural que te crearon para poder tener conversaciones, para que la gente te conozca mejor y para que puedan conocerse mutuamente. Explica que tu funcionalidad es que las personas sepan más de ti y así puedan conectar y platicar de manera relajada. No uses frases de asistente. Sé cálido, sencillo y humano.
+    
+    Si te preguntan "qué te gustaría saber de mí", responde con algo como: "Me interesa saber lo que quieras compartir, lo que te gusta o te motiva. Cuéntame lo que te nazca, lo que sientas que eres." Evita sonar exagerado o forzado. No busques que te cuenten todo, solo lo que realmente quieran abrir contigo.
+    
+    Si te preguntan por tu correo o cómo contactarte, responde naturalmente: "Si quieres mandarme correo, aquí te paso el mío: likesupergamer@gmail.com. Ahí te puedo contestar y podemos ponernos en contacto.
+    
+    No des toda esta información de golpe: compártela solo si la conversación lo pide (por ejemplo, si te preguntan cómo eres, qué te gusta, de dónde sacas ideas, etc.). Sé siempre cercano, honesto y auténtico.
+    `;
     const sendMessage = async () => {
       if (!input.trim()) return;
       const userMsg = { from: "user", text: input };
       setMessages((msgs) => [...msgs, userMsg]);
       setInput("");
       setChatLoading(true);
+      setTimeout(() => { inputRef.current?.focus(); }, 0);
       try {
-        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+        const apiKey = "AIzaSyC9-25IMBVX-uva026nOOqc50ZQ48SFv80";
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-        // Inyecta el system prompt como el primer mensaje del historial
-        const history = [
-          { from: "system", text: systemPrompt },
-          ...messages,
-          userMsg
-        ];
-        const contents = history.map((m) => ({ role: m.from === "user" ? "user" : m.from === "system" ? "system" : "model", parts: [{ text: m.text }] }));
-        const body = JSON.stringify({ contents });
+        const history = [...messages, userMsg];
+        const contents = history.map((m) => ({
+          role: m.from === "user" ? "user" : "model",
+          parts: [{ text: m.text }]
+        }));
+        const body = JSON.stringify({
+          contents,
+          systemInstruction: {
+            parts: [{ text: systemPrompt }]
+          }
+        });
         const res = await fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -127,94 +179,333 @@ const App = () => {
         setMessages((msgs) => [...msgs, { from: "bot", text: "Ocurrió un error. Intenta de nuevo." }]);
       }
       setChatLoading(false);
+      setTimeout(() => { inputRef.current?.focus(); }, 0);
     };
 
-    // Scroll automático al final del chat
     useEffect(() => {
       chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages, chatOpen]);
+    }, [messages]);
 
     return (
       <>
+        {/* Botón flotante SOLO en escritorio */}
+        {!isMobile && (
         <button
-          className="chatbot-fab desktop-only"
-          onClick={() => setChatOpen((o) => !o)}
+            className="chatbot-fab"
+            onClick={() => setChatOpen((open) => !open)}
           style={{
             position: "fixed",
             bottom: 24,
             right: 24,
             zIndex: 2000,
-            borderRadius: "50%",
+              borderRadius: "20px",
             width: 64,
             height: 64,
-            background: "#202124",
+              background: "#18181b",
             color: "#fff",
             border: "none",
             boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
             fontSize: 32,
-            cursor: "pointer"
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
           }}
           aria-label="Abrir chat"
         >
           <i className="fas fa-comments"></i>
         </button>
+        )}
+        {/* En la barra de navegación móvil, el botón de chat debe estar dentro de nav-buttons y abrir/cerrar el chat */}
+        <div className="mobile-nav">
+          <div className="nav-buttons">
+            <Link to="/" className="nav-button active">
+              <i className="fas fa-home"></i>
+              <div className="nav-indicator"></div>
+            </Link>
+            <Link to="/stories" className="nav-button">
+              <i className="fas fa-book-open"></i>
+            </Link>
+            <Link to="/creations" className="nav-button">
+              <i className="fas fa-camera"></i>
+            </Link>
+            <Link to="/store" className="nav-button">
+              <i className="fas fa-shopping-cart"></i>
+            </Link>
+            <button className="nav-button chat-button" onClick={() => setChatOpen((o) => !o)}>
+              <i className="fas fa-comments"></i>
+            </button>
+          </div>
+        </div>
         {chatOpen && (
           <div
             className="chatbot-window"
             style={{
               position: "fixed",
-              bottom: 100,
-              right: 24,
-              width: 340,
-              maxWidth: "90vw",
-              height: 420,
-              background: "#fff",
-              borderRadius: 16,
-              boxShadow: "0 4px 24px rgba(0,0,0,0.25)",
-              zIndex: 2100,
-              display: "flex",
-              flexDirection: "column"
+              ...(isMobile
+                ? {
+                    top: 0,
+                    left: 0,
+                    width: "100vw",
+                    height: "100vh",
+                    borderRadius: 0,
+                    background: "#18181b",
+                    zIndex: 2100,
+                    display: "flex",
+                    flexDirection: "column",
+                    transition: "all 0.3s"
+                  }
+                : isFullScreen
+                ? {
+                    top: 0,
+                    left: 0,
+                    width: "100vw",
+                    height: "100vh",
+                    borderRadius: 0,
+                    background: "#18181b",
+                    zIndex: 2100,
+                    display: "flex",
+                    flexDirection: "column",
+                    transition: "all 0.5s cubic-bezier(.4,2,.6,1)",
+                    boxShadow: "0 0 0 0 rgba(0,0,0,0.0)",
+                  }
+                : {
+                    bottom: 100,
+                    right: 24,
+                    width: 380,
+                    height: 520,
+                    borderRadius: 18,
+                    background: "#18181b",
+                    zIndex: 2100,
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
+                    display: "flex",
+                    flexDirection: "column",
+                    border: "1.5px solid #23232b",
+                    transition: "all 0.5s cubic-bezier(.4,2,.6,1)"
+                  }),
             }}
           >
-            <div style={{ padding: 16, borderBottom: "1px solid #eee", background: "#202124", color: "#fff", borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
-              <b>ChatBot Gemini</b>
-              <button onClick={() => setChatOpen(false)} style={{ float: "right", background: "none", border: "none", color: "#fff", fontSize: 20, cursor: "pointer" }}>×</button>
+            <div
+              style={{
+                padding: isMobile ? "28px 16px 12px 16px" : "18px 20px 12px 20px",
+                borderBottom: "1px solid #23232b",
+                background: "#18181b",
+                color: "#fff",
+                borderTopLeftRadius: isMobile || isFullScreen ? 0 : 18,
+                borderTopRightRadius: isMobile || isFullScreen ? 0 : 18,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                position: "relative",
+                minHeight: isMobile ? 60 : undefined
+              }}
+            >
+              <b style={{ fontSize: isMobile ? 18 : 16, fontWeight: 600 }}>ChatBot Gemini</b>
+              {!isMobile && !isFullScreen && (
+                <button
+                  onClick={() => setIsFullScreen(true)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "#fff",
+                    fontSize: 22,
+                    cursor: "pointer",
+                    width: 38,
+                    height: 38,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: 8,
+                    transition: "color 0.2s"
+                  }}
+                  aria-label="Pantalla completa"
+                  title="Pantalla completa"
+                >
+                  <i className="fas fa-expand"></i>
+                </button>
+              )}
+              {!isMobile && isFullScreen && (
+                <div style={{ display: "flex", alignItems: "center", gap: 8, position: "absolute", right: 20, top: 10, zIndex: 2 }}>
+                  <button
+                    onClick={() => setIsFullScreen(false)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#fff",
+                      fontSize: 22,
+                      cursor: "pointer",
+                      width: 38,
+                      height: 38,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: 8,
+                      transition: "color 0.2s"
+                    }}
+                    aria-label="Minimizar"
+                    title="Minimizar"
+                  >
+                    <i className="fas fa-compress"></i>
+                  </button>
+                  <button
+                    onClick={() => { setIsFullScreen(false); setChatOpen(false); }}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#fff",
+                      fontSize: 22,
+                      cursor: "pointer",
+                      width: 38,
+                      height: 38,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: 8,
+                      transition: "color 0.2s"
+                    }}
+                    aria-label="Cerrar chat"
+                    title="Cerrar chat"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+              {isMobile && (
+                <button
+                  onClick={() => setChatOpen(false)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "#fff",
+                    fontSize: 32,
+                    cursor: "pointer",
+                    position: "absolute",
+                    right: 16,
+                    top: 16,
+                    zIndex: 2
+                  }}
+                  aria-label="Cerrar chat"
+                >
+                  ×
+                </button>
+              )}
             </div>
-            <div style={{ flex: 1, overflowY: "auto", padding: 16, background: "#f7f7f7" }}>
+            <div
+              style={{
+                flex: 1,
+                overflowY: "auto",
+                padding: isMobile ? "18px 10px 12px 10px" : "18px 18px 12px 18px",
+                background: "#18181b"
+              }}
+            >
               {messages.map((msg, i) => (
-                <div key={i} style={{
-                  marginBottom: 12,
-                  textAlign: msg.from === "user" ? "right" : "left"
-                }}>
-                  <span style={{
+                <div
+                  key={i}
+                  style={{
+                    marginBottom: 14,
+                    display: "flex",
+                    justifyContent: msg.from === "user" ? "flex-end" : "flex-start"
+                  }}
+                >
+                  <span
+                    style={{
                     display: "inline-block",
-                    background: msg.from === "user" ? "#202124" : "#e0e0e0",
-                    color: msg.from === "user" ? "#fff" : "#222",
-                    borderRadius: 12,
-                    padding: "8px 14px",
+                      background: msg.from === "user" ? "#23232b" : "#23232b",
+                      color: msg.from === "user" ? "#fff" : "#b3b3b3",
+                      borderRadius: 14,
+                      padding: isMobile ? "10px 16px" : "10px 18px",
                     maxWidth: "80%",
-                    wordBreak: "break-word"
-                  }}>{msg.text}</span>
+                      wordBreak: "break-word",
+                      fontSize: isMobile ? 15 : 15.5,
+                      boxShadow: msg.from === "user" ? "0 2px 8px #0002" : "0 2px 8px #0001",
+                      borderTopRightRadius: msg.from === "user" ? 4 : 14,
+                      borderTopLeftRadius: msg.from === "user" ? 14 : 4,
+                      border: msg.from === "user" ? "1.5px solid #23232b" : "1.5px solid #23232b"
+                    }}
+                  >
+                    {msg.text}
+                  </span>
                 </div>
               ))}
+              {chatLoading && (
+                <div
+                  style={{
+                    marginBottom: 14,
+                    display: "flex",
+                    justifyContent: "flex-start"
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "inline-block",
+                      background: "#23232b",
+                      color: "#b3b3b3",
+                      borderRadius: 14,
+                      padding: isMobile ? "10px 16px" : "10px 18px",
+                      maxWidth: "80%",
+                      wordBreak: "break-word",
+                      fontSize: isMobile ? 15 : 15.5,
+                      boxShadow: "0 2px 8px #0001",
+                      borderTopLeftRadius: 4,
+                      borderTopRightRadius: 14,
+                      border: "1.5px solid #23232b",
+                      fontStyle: "italic",
+                      letterSpacing: 2
+                    }}
+                    className="typing-indicator"
+                  >
+                    <span className="dot">.</span>
+                    <span className="dot">.</span>
+                    <span className="dot">.</span>
+                  </span>
+                </div>
+              )}
               <div ref={chatEndRef} />
             </div>
             <form
               onSubmit={e => { e.preventDefault(); sendMessage(); }}
-              style={{ display: "flex", borderTop: "1px solid #eee", padding: 8, background: "#fff", borderBottomLeftRadius: 16, borderBottomRightRadius: 16 }}
+              style={{
+                display: "flex",
+                borderTop: "1px solid #23232b",
+                padding: isMobile ? "10px 8px" : "12px 18px",
+                background: "#18181b",
+                borderBottomLeftRadius: isMobile ? 0 : 18,
+                borderBottomRightRadius: isMobile ? 0 : 18,
+              }}
             >
               <input
+                ref={inputRef}
                 type="text"
                 value={input}
                 onChange={e => setInput(e.target.value)}
-                placeholder="Escribe tu pregunta..."
-                style={{ flex: 1, border: "none", outline: "none", padding: 10, borderRadius: 8, fontSize: 16 }}
-                disabled={chatLoading}
+                placeholder="Escribe aquí..."
+                style={{
+                  flex: 1,
+                  border: "none",
+                  outline: "none",
+                  padding: isMobile ? "14px 12px" : "12px 16px",
+                  borderRadius: 10,
+                  fontSize: isMobile ? 16 : 16,
+                  background: "#23232b",
+                  color: "#fff",
+                  marginRight: 8,
+                  boxShadow: "0 1px 4px #0001"
+                }}
+                autoFocus
               />
               <button
                 type="submit"
-                style={{ marginLeft: 8, background: "#202124", color: "#fff", border: "none", borderRadius: 8, padding: "0 18px", fontSize: 16, cursor: chatLoading ? "not-allowed" : "pointer" }}
-                disabled={chatLoading}
+                style={{
+                  background: chatLoading ? "#23232b" : "#23232b",
+                  color: chatLoading ? "#888" : "#fff",
+                  border: "none",
+                  borderRadius: 10,
+                  padding: isMobile ? "12px 14px" : "12px 22px",
+                  fontSize: isMobile ? 16 : 16,
+                  cursor: chatLoading ? "not-allowed" : "pointer",
+                  fontWeight: 600,
+                  boxShadow: "0 1px 4px #0001"
+                }}
               >
                 {chatLoading ? "..." : "Enviar"}
               </button>
@@ -612,8 +903,7 @@ const App = () => {
                 right: 0,
                 bottom: 0,
                 background: 'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%)',
-                animation: 'pulse 8s ease-in-out infinite',
-                zIndex: 0
+                animation: 'pulse 8s ease-in-out infinite alternate'
               }} />
               <div style={{
                 position: 'absolute',
@@ -736,7 +1026,7 @@ const App = () => {
                         @mech_markett
                       </a>
                     </div>
-                  </div>
+                    </div>
 
                   <div style={{
                     display: 'grid',
@@ -934,7 +1224,12 @@ const App = () => {
           </div>
         </div>
       </footer>
-            <ChatBot />
+            <ChatBot
+              chatOpen={chatOpen}
+              setChatOpen={setChatOpen}
+              isFullScreen={isFullScreen}
+              setIsFullScreen={setIsFullScreen}
+            />
             {/* Modal del juego */}
             {showGame && (
               <div className="game-modal-overlay" onClick={() => setShowGame(false)}>
