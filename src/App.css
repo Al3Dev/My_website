@@ -6331,3 +6331,17 @@ body {
   40% { opacity: 1; }
 }
 
+/* Animación para el overlay de invitación al chat */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.chat-invite-overlay {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
