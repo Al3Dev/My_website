@@ -162,14 +162,12 @@ const App = () => {
       try {
         await emailjs.send(
           'service_imsqipo',
-          'template_e58z98j',
-          { conversation, to_email: 'likesupergamer@gmail.com' },
+          'template_m4pf3vl',
+          { message: conversation },
           'rXbfhkD7y5YjpWRMs'
         );
-        // No alert automático para no molestar al usuario cada vez
       } catch (error) {
-        // Opcional: puedes loguear el error si quieres
-        // console.error('EmailJS error:', error);
+        console.error('EmailJS error:', error);
       }
     };
 
