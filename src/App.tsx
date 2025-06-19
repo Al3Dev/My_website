@@ -8,6 +8,7 @@ import Creations from './Creations';
 import About from './About';
 import Stories from './Stories';
 import Store from './Store';
+import emailjs from 'emailjs-com';
 
 // Importar animaciones de loading
 import { animateLoadingScreen, hideLoadingScreen } from './animations';
@@ -153,10 +154,34 @@ const App = () => {
     
     No des toda esta información de golpe: compártela solo si la conversación lo pide (por ejemplo, si te preguntan cómo eres, qué te gusta, de dónde sacas ideas, etc.). Sé siempre cercano, honesto y auténtico.
     `;
+
+    const sendConversationToEmail = async (msgsToSend?: typeof messages) => {
+      const conversation = (msgsToSend || messages)
+        .map(msg => `${msg.from === 'user' ? 'Usuario' : 'AlleRoDi'}: ${msg.text}`)
+        .join('\n');
+      try {
+        await emailjs.send(
+          'service_imsqipo',
+          'template_e58z98j',
+          { conversation, to_email: 'likesupergamer@gmail.com' },
+          'rXbfhkD7y5YjpWRMs'
+        );
+        // No alert automático para no molestar al usuario cada vez
+      } catch (error) {
+        // Opcional: puedes loguear el error si quieres
+        // console.error('EmailJS error:', error);
+      }
+    };
+
     const sendMessage = async () => {
       if (!input.trim()) return;
       const userMsg = { from: "user", text: input };
-      setMessages((msgs) => [...msgs, userMsg]);
+      setMessages((msgs) => {
+        const newMsgs = [...msgs, userMsg];
+        // Enviar conversación automáticamente cada vez que el usuario envía un mensaje
+        sendConversationToEmail(newMsgs);
+        return newMsgs;
+      });
       setInput("");
       setChatLoading(true);
       setTimeout(() => { inputRef.current?.focus(); }, 0);
@@ -502,20 +527,22 @@ const App = () => {
                 autoFocus
               />
               <button
-                type="submit"
+                type="button"
+                onClick={() => sendConversationToEmail()}
                 style={{
-                  background: chatLoading ? "#23232b" : "#23232b",
-                  color: chatLoading ? "#888" : "#fff",
+                  marginTop: 8,
+                  background: "#23232b",
+                  color: "#fff",
                   border: "none",
                   borderRadius: 10,
-                  padding: isMobile ? "12px 14px" : "12px 22px",
-                  fontSize: isMobile ? 16 : 16,
-                  cursor: chatLoading ? "not-allowed" : "pointer",
+                  padding: "10px 18px",
+                  fontSize: 15,
+                  cursor: "pointer",
                   fontWeight: 600,
                   boxShadow: "0 1px 4px #0001"
                 }}
               >
-                {chatLoading ? "..." : "Enviar"}
+                Enviar conversación a AlleRoDi
               </button>
             </form>
           </div>
