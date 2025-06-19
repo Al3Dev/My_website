@@ -11,33 +11,38 @@ export const initAnimations = () => {
   const mainTimeline = gsap.timeline();
   
   // Animación de entrada del hero (más ligera)
-  mainTimeline
-    .from('.floating-name h1', {
-      duration: 1,
-      y: 50,
-      opacity: 0,
-      ease: "power2.out"
-    })
-    .from('.character-overlay', {
-      duration: 0.8,
-      x: -100,
-      opacity: 0,
-      ease: "power2.out"
-    }, "-=0.5")
-    .from('.star', {
-      duration: 0.6,
-      scale: 0.8,
-      opacity: 0,
-      stagger: 0.1,
-      ease: "power2.out"
-    }, "-=0.3")
-    .from('.game-buttons .pixel-btn', {
-      duration: 0.5,
-      y: 20,
-      opacity: 0,
-      stagger: 0.05,
-      ease: "power2.out"
-    }, "-=0.2");
+  const name = document.querySelector('.floating-name h1');
+  const character = document.querySelector('.character-overlay');
+  const star = document.querySelector('.star');
+  if (name) {
+    mainTimeline
+      .from(name, {
+        duration: 1,
+        y: 50,
+        opacity: 0,
+        ease: "power2.out"
+      })
+      .from(character, {
+        duration: 0.8,
+        x: -100,
+        opacity: 0,
+        ease: "power2.out"
+      }, "-=0.5")
+      .from(star, {
+        duration: 0.6,
+        scale: 0.8,
+        opacity: 0,
+        stagger: 0.1,
+        ease: "power2.out"
+      }, "-=0.3")
+      .from('.game-buttons .pixel-btn', {
+        duration: 0.5,
+        y: 20,
+        opacity: 0,
+        stagger: 0.05,
+        ease: "power2.out"
+      }, "-=0.2");
+  }
 
   // Animaciones de scroll más ligeras y optimizadas
   const sections = [
@@ -57,7 +62,8 @@ export const initAnimations = () => {
   ];
 
   sections.forEach((sectionSelector) => {
-    gsap.utils.toArray(sectionSelector).forEach((section: any) => {
+    const sectionElements = document.querySelectorAll(sectionSelector);
+    sectionElements.forEach((section: any) => {
       // Animación principal de la sección (más suave)
       gsap.fromTo(section, 
         {
@@ -181,21 +187,16 @@ export const initAnimations = () => {
     );
   });
 
-  // Animación del chatbot (más simple)
-  gsap.from('.chatbot-fab', {
-    duration: 0.8,
-    scale: 0,
-    ease: "back.out(1.4)",
-    delay: 1.5
-  });
-
   // Animación de entrada del chat (más simple)
-  gsap.from('.chatbot-window', {
-    duration: 0.4,
-    scale: 0.95,
-    opacity: 0,
-    ease: "power2.out"
-  });
+  const chatWindow = document.querySelector('.chatbot-window');
+  if (chatWindow) {
+    gsap.from(chatWindow, {
+      duration: 0.4,
+      scale: 0.95,
+      opacity: 0,
+      ease: "power2.out"
+    });
+  }
 
   // Animación de las partículas de destrucción (más simple)
   gsap.utils.toArray('.particle').forEach((particle: any) => {
@@ -232,17 +233,20 @@ export const initAnimations = () => {
   });
 
   // Animación para el footer (más simple)
-  gsap.from('.pixel-footer', {
-    duration: 0.6,
-    y: 30,
-    opacity: 0,
-    ease: "power2.out",
-    scrollTrigger: {
-      trigger: '.pixel-footer',
-      start: "top 95%",
-      toggleActions: "play none none none"
-    }
-  });
+  const footer = document.querySelector('.pixel-footer');
+  if (footer) {
+    gsap.from(footer, {
+      duration: 0.6,
+      y: 30,
+      opacity: 0,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: footer,
+        start: "top 95%",
+        toggleActions: "play none none none"
+      }
+    });
+  }
 
   // Asegurar que los botones del juego siempre sean visibles
   gsap.set('.game-buttons .pixel-btn', {
@@ -274,5 +278,24 @@ export const smoothScrollTo = (target: string) => {
     duration: 1.5,
     scrollTo: target,
     ease: "power2.inOut"
+  });
+};
+
+export const animateLoadingScreen = () => {
+  const el = document.querySelector('.loading-screen');
+  if (!el) return;
+  gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power2.out' });
+};
+
+export const hideLoadingScreen = () => {
+  const el = document.querySelector('.loading-screen');
+  if (!el) return;
+  gsap.to(el, {
+    opacity: 0,
+    duration: 0.7,
+    ease: 'power2.in',
+    onComplete: () => {
+      el.style.display = 'none';
+    }
   });
 }; 

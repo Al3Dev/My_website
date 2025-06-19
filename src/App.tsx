@@ -15,6 +15,14 @@ import { animateLoadingScreen, hideLoadingScreen } from './animations';
 // Registrar plugins de GSAP
 gsap.registerPlugin(ScrollTrigger, TextPlugin);
 
+// Define una interfaz para las props del ChatBot
+interface ChatBotProps {
+  chatOpen: boolean;
+  setChatOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isFullScreen: boolean;
+  setIsFullScreen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
 const App = () => {
   const [loading, setLoading] = useState(true);
   const [showGame, setShowGame] = useState(false);
@@ -97,7 +105,7 @@ const App = () => {
   };
 
   // Componente ChatBot
-  const ChatBot = ({ chatOpen, setChatOpen, isFullScreen, setIsFullScreen }) => {
+  const ChatBot = ({ chatOpen, setChatOpen, isFullScreen, setIsFullScreen }: ChatBotProps) => {
     const [messages, setMessages] = useState([
       { from: "bot", text: "¡Hey! Soy AlleRoDi, ¿cómo andas?" }
     ]);
@@ -192,7 +200,7 @@ const App = () => {
         {!isMobile && (
         <button
             className="chatbot-fab"
-            onClick={() => setChatOpen((open) => !open)}
+            onClick={() => setChatOpen((open: boolean) => !open)}
           style={{
             position: "fixed",
             bottom: 24,
@@ -232,7 +240,7 @@ const App = () => {
             <Link to="/store" className="nav-button">
               <i className="fas fa-shopping-cart"></i>
             </Link>
-            <button className="nav-button chat-button" onClick={() => setChatOpen((o) => !o)}>
+            <button className="nav-button chat-button" onClick={() => setChatOpen((o: boolean) => !o)}>
               <i className="fas fa-comments"></i>
             </button>
           </div>
@@ -688,7 +696,7 @@ const App = () => {
                 <Link to="/store" className="nav-button">
                   <i className="fas fa-shopping-cart"></i>
                 </Link>
-                <button className="nav-button chat-button" onClick={() => setChatOpen((o) => !o)}>
+                <button className="nav-button chat-button" onClick={() => setChatOpen((o: boolean) => !o)}>
                   <i className="fas fa-comments"></i>
                 </button>
         </div>
@@ -1226,9 +1234,9 @@ const App = () => {
       </footer>
             <ChatBot
               chatOpen={chatOpen}
-              setChatOpen={setChatOpen}
+              setChatOpen={setChatOpen as React.Dispatch<React.SetStateAction<boolean>>}
               isFullScreen={isFullScreen}
-              setIsFullScreen={setIsFullScreen}
+              setIsFullScreen={setIsFullScreen as React.Dispatch<React.SetStateAction<boolean>>}
             />
             {/* Modal del juego */}
             {showGame && (
