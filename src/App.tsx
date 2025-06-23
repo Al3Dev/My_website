@@ -473,9 +473,11 @@ const App = () => {
       return () => document.removeEventListener('click', handleLinkClick);
     }, []);
 
+    // Función para enviar mensaje con timeout de seguridad
     const sendMessage = async () => {
       if (!inputMessage.trim()) return;
-      
+      if (isLoading) return; // Evitar doble envío
+
       // Verificar si el usuario está bloqueado
       if (isBlocked) {
         const remainingTime = Math.ceil((blockEndTime - Date.now()) / 1000);
@@ -485,18 +487,14 @@ const App = () => {
         }]);
         return;
       }
-      
       // Verificar spam
       const spamResult = detectSpam(inputMessage);
-      
-      // Mostrar advertencia si el score es alto pero no suficiente para bloquear
       if (spamResult.score >= 30 && spamResult.score < 50) {
         setMessages((msgs) => [...msgs, { 
           role: 'assistant' as const, 
           content: `⚠️ Advertencia: Tu comportamiento está siendo monitoreado por el sistema anti-spam (Score: ${spamResult.score}/100). Por favor, mantén una conversación natural.` 
         }]);
       }
-      
       if (spamResult.isSpam) {
         blockUser();
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -507,17 +505,11 @@ const App = () => {
         }]);
         return;
       }
-      
       const userMsg: { role: 'user' | 'assistant', content: string } = { role: 'user', content: inputMessage };
-      
-      // Guardar mensaje del usuario en la base de datos inmediatamente
       await saveUserMessageToDatabase(inputMessage);
-      
-      // Actualizar contadores anti-spam
       setMessageCount(prev => prev + 1);
       setLastMessageTime(Date.now());
-      setRecentMessages(prev => [...prev.slice(-4), inputMessage]); // Mantener solo los últimos 5 mensajes
-      
+      setRecentMessages(prev => [...prev.slice(-4), inputMessage]);
       setMessages((msgs) => {
         const newMsgs: Array<{ role: 'user' | 'assistant', content: string }> = [...msgs, userMsg];
         if (newMsgs.length > 50) {
@@ -525,18 +517,15 @@ const App = () => {
         }
         return newMsgs;
       });
-      
       setInputMessage("");
       setIsLoading(true);
       setIsTyping(true);
-      
       try {
         const history = [...messages, userMsg];
         const contents = history.map((m) => ({
           role: m.role === 'user' ? 'user' : 'model',
           parts: [{ text: m.content }]
         }));
-        
         const body = JSON.stringify({
           contents: [
             {
@@ -551,18 +540,22 @@ const App = () => {
             maxOutputTokens: 1024,
           },
         });
-
-        const res = await fetch(
+        // Timeout de seguridad de 15 segundos
+        const fetchWithTimeout = (url: string, options: RequestInit, timeout = 15000): Promise<Response> => {
+          return Promise.race([
+            fetch(url, options),
+            new Promise<Response>((_, reject) => setTimeout(() => reject(new Error('timeout')), timeout))
+          ]);
+        };
+        const res = await fetchWithTimeout(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
           {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body,
           }
         );
-
         if (res.status === 429) {
-          // Error de rate limit - esperar y reintentar
           setTimeout(() => {
             const rateLimitMsg = { 
               role: 'assistant' as const, 
@@ -574,32 +567,26 @@ const App = () => {
           }, 2000);
           return;
         }
-
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
-
         const data = await res.json();
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const response = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
-        
-        // Simular typing delay
         setTimeout(() => {
           const botMsg = { role: 'assistant' as const, content: response };
           setMessages((msgs) => [...msgs, botMsg]);
           setIsLoading(false);
           setIsTyping(false);
         }, 1000 + Math.random() * 2000);
-        
-      } catch (e) {
-        console.error('Error sending message:', e);
-        const errorMsg = { 
-          role: 'assistant' as const, 
-          content: "Ocurrió un error. Intenta de nuevo en unos segundos." 
-        };
-        setMessages((msgs) => [...msgs, errorMsg]);
+      } catch (e: unknown) {
         setIsLoading(false);
         setIsTyping(false);
+        let errorMsg = "Ocurrió un error. Intenta de nuevo en unos segundos.";
+        if (e instanceof Error && e.message === 'timeout') {
+          errorMsg = "⏰ El servidor tardó demasiado en responder. Intenta de nuevo.";
+        }
+        setMessages((msgs) => [...msgs, { role: 'assistant' as const, content: errorMsg }]);
       }
     };
 
@@ -822,7 +809,11 @@ const App = () => {
                   </button>
                 )}
                 <button
-                  onClick={() => setChatOpen(false)}
+                  onClick={() => {
+                    setIsLoading(false);
+                    setIsTyping(false);
+                    setChatOpen(false);
+                  }}
                   style={{
                     background: "none",
                     border: "none",
