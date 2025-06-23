@@ -1221,7 +1221,7 @@ const App = () => {
                   Los mejores productos tecnológicos con garantía y soporte especializado.
                 </p>
               </div>
-
+              
               <div style={{
                 background: 'rgba(255, 255, 255, 0.05)',
                 padding: window.innerWidth <= 768 ? '1.5rem' : '2rem',
