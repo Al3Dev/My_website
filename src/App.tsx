@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { TextPlugin } from 'gsap/TextPlugin';
@@ -8,13 +8,19 @@ import Creations from './Creations';
 import About from './About';
 import Stories from './Stories';
 import Store from './Store';
-import emailjs from 'emailjs-com';
+import Admin from './Admin';
+import { createClient } from '@supabase/supabase-js';
 
 // Importar animaciones de loading
 import { animateLoadingScreen, hideLoadingScreen } from './animations';
 
 // Registrar plugins de GSAP
 gsap.registerPlugin(ScrollTrigger, TextPlugin);
+
+// Configuración de Supabase
+const supabaseUrl = 'https://gybdxajmoefoivmoxjst.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5YmR4YWptb2Vmb2l2bW94anN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAzODA0NTksImV4cCI6MjA2NTk1NjQ1OX0.2RfDgue1CUeit-MV7XfTxYasrQrNXhrHU-OY9WBeNkQ';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Define una interfaz para las props del ChatBot
 interface ChatBotProps {
@@ -24,6 +30,9 @@ interface ChatBotProps {
   setIsFullScreen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+// API Key para Gemini (oculta en el código)
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyC9-25IMBVX-uva026nOOqc50ZQ48SFv80';
+
 const App = () => {
   const [loading, setLoading] = useState(true);
   const [showGame, setShowGame] = useState(false);
@@ -31,6 +40,11 @@ const App = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [showChatInvite, setShowChatInvite] = useState(true);
+
+  // Debug: Monitorear el estado del chat
+  useEffect(() => {
+    console.log('Estado chatOpen cambiado:', chatOpen);
+  }, [chatOpen]);
 
   useEffect(() => {
     const preloadResources = async () => {
@@ -102,10 +116,11 @@ const App = () => {
   // Efecto para ocultar el overlay de invitación al chat después de 5 segundos
   useEffect(() => {
     if (!loading) {
-      const timer = setTimeout(() => {
-        setShowChatInvite(false);
-      }, 5000);
-      return () => clearTimeout(timer);
+      // Comentamos el timer automático para que el usuario tenga control total
+      // const timer = setTimeout(() => {
+      //   setShowChatInvite(false);
+      // }, 5000);
+      // return () => clearTimeout(timer);
     }
   }, [loading]);
 
@@ -118,11 +133,32 @@ const App = () => {
 
   // Componente ChatBot
   const ChatBot = ({ chatOpen, setChatOpen, isFullScreen, setIsFullScreen }: ChatBotProps) => {
-    const [messages, setMessages] = useState([
-      { from: "bot", text: "¡Hey! Soy AlleRoDi, ¿cómo andas?" }
+    // Estado de mensajes: solo en memoria, se reinicia al recargar/cerrar la página
+    const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant', content: string }>>([
+      { role: 'assistant', content: '¡Hey! Soy AlleRoDi, ¿cómo andas?' }
     ]);
-    const [input, setInput] = useState("");
-    const [chatLoading, setChatLoading] = useState(false);
+    const [inputMessage, setInputMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    const [isTyping, setIsTyping] = useState(false);
+    
+    // Protección contra spam
+    const [messageCount, setMessageCount] = useState(0);
+    const [lastMessageTime, setLastMessageTime] = useState(0);
+    const [isBlocked, setIsBlocked] = useState(false);
+    const [blockEndTime, setBlockEndTime] = useState(0);
+    const [recentMessages, setRecentMessages] = useState<string[]>([]);
+    
+    // Sistema anti-spam profesional
+    const [spamScore, setSpamScore] = useState(0);
+    const [messageTimestamps, setMessageTimestamps] = useState<number[]>([]);
+    const [consecutiveShortMessages, setConsecutiveShortMessages] = useState(0);
+    const [repeatedPatterns, setRepeatedPatterns] = useState<Map<string, number>>(new Map());
+    const [burstMessages, setBurstMessages] = useState(0);
+    const [lastBurstTime, setLastBurstTime] = useState(0);
+    const [suspiciousKeywords, setSuspiciousKeywords] = useState<string[]>([]);
+    
+    // Referencias
     const chatEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -131,6 +167,173 @@ const App = () => {
       window.addEventListener('resize', handleResize);
       return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    // Verificar si el usuario está bloqueado
+    useEffect(() => {
+      if (isBlocked && Date.now() > blockEndTime) {
+        setIsBlocked(false);
+        setMessageCount(0);
+        setRecentMessages([]);
+        setSpamScore(0);
+        setMessageTimestamps([]);
+        setConsecutiveShortMessages(0);
+        setRepeatedPatterns(new Map());
+        setBurstMessages(0);
+        setSuspiciousKeywords([]);
+      }
+    }, [isBlocked, blockEndTime]);
+
+    // Función para detectar spam
+    const detectSpam = (message: string): { isSpam: boolean; reason: string; score: number } => {
+      const now = Date.now();
+      const messageLower = message.toLowerCase().trim();
+      let totalScore = 0;
+      const reasons: string[] = [];
+
+      // 1. Análisis de frecuencia temporal (mensajes por segundo/minuto)
+      const recentTimestamps = [...messageTimestamps, now].filter(time => now - time < 60000); // Último minuto
+      const messagesPerMinute = recentTimestamps.length;
+      
+      if (messagesPerMinute > 8) {
+        totalScore += 30;
+        reasons.push(`Frecuencia excesiva: ${messagesPerMinute} mensajes/minuto`);
+      } else if (messagesPerMinute > 5) {
+        totalScore += 15;
+        reasons.push(`Frecuencia alta: ${messagesPerMinute} mensajes/minuto`);
+      }
+
+      // 2. Detección de ráfagas (bursts) de mensajes
+      const timeSinceLastMessage = now - lastMessageTime;
+      if (timeSinceLastMessage < 2000) { // Menos de 2 segundos entre mensajes
+        setBurstMessages(prev => prev + 1);
+        if (burstMessages >= 3) {
+          totalScore += 25;
+          reasons.push('Ráfaga de mensajes detectada');
+        }
+      } else {
+        setBurstMessages(0);
+      }
+
+      // 3. Análisis de contenido repetitivo
+      const messageHash = messageLower.replace(/\s+/g, ' ').substring(0, 50);
+      const currentCount = repeatedPatterns.get(messageHash) || 0;
+      repeatedPatterns.set(messageHash, currentCount + 1);
+      
+      if (currentCount >= 2) {
+        totalScore += 20;
+        reasons.push('Contenido repetitivo detectado');
+      }
+
+      // 4. Detección de mensajes muy cortos consecutivos
+      if (message.length < 5) {
+        setConsecutiveShortMessages(prev => prev + 1);
+        if (consecutiveShortMessages >= 4) {
+          totalScore += 15;
+          reasons.push('Mensajes muy cortos consecutivos');
+        }
+      } else {
+        setConsecutiveShortMessages(0);
+      }
+
+      // 5. Análisis de palabras clave sospechosas
+      const spamKeywords = [
+        'buy', 'sell', 'click', 'free', 'money', 'cash', 'earn', 'profit', 'investment',
+        'lottery', 'winner', 'prize', 'offer', 'discount', 'limited', 'urgent', 'act now',
+        'comprar', 'vender', 'gratis', 'dinero', 'ganar', 'inversión', 'lotería', 'ganador',
+        'oferta', 'descuento', 'limitado', 'urgente', 'actúa ahora', 'http://', 'https://',
+        'www.', '.com', '.net', '.org', 'bit.ly', 'tinyurl', 'goo.gl'
+      ];
+      
+      const foundKeywords = spamKeywords.filter(keyword => 
+        messageLower.includes(keyword.toLowerCase())
+      );
+      
+      if (foundKeywords.length > 0) {
+        totalScore += foundKeywords.length * 5;
+        reasons.push(`Palabras clave sospechosas: ${foundKeywords.join(', ')}`);
+      }
+
+      // 6. Análisis de patrones de caracteres repetitivos
+      const repeatedChars = message.match(/(.)\1{4,}/g); // 5 o más caracteres iguales
+      if (repeatedChars) {
+        totalScore += 10;
+        reasons.push('Caracteres repetitivos detectados');
+      }
+
+      // 7. Detección de enlaces y URLs
+      const urlPattern = /(https?:\/\/[^\s]+|www\.[^\s]+|[^\s]+\.[a-z]{2,})/gi;
+      if (urlPattern.test(message)) {
+        totalScore += 15;
+        reasons.push('Enlaces detectados');
+      }
+
+      // 8. Análisis de longitud anormal
+      if (message.length > 500) {
+        totalScore += 10;
+        reasons.push('Mensaje demasiado largo');
+      }
+
+      // 9. Detección de mensajes idénticos recientes
+      const identicalMessages = recentMessages.filter(msg => 
+        msg.toLowerCase().trim() === messageLower
+      );
+      if (identicalMessages.length >= 2) {
+        totalScore += 20;
+        reasons.push('Mensajes idénticos repetidos');
+      }
+
+      // 10. Análisis de comportamiento temporal
+      const timeWindow = 30000; // 30 segundos
+      const recentActivity = messageTimestamps.filter(time => now - time < timeWindow);
+      if (recentActivity.length > 6) {
+        totalScore += 15;
+        reasons.push('Actividad excesiva en ventana temporal');
+      }
+
+      // Actualizar estado
+      setMessageTimestamps(prev => [...prev, now].filter(time => now - time < 300000)); // Mantener 5 minutos
+      setSpamScore(totalScore);
+
+      // Criterios de bloqueo
+      const isSpam = totalScore >= 50; // Umbral más alto para evitar falsos positivos
+      
+      return {
+        isSpam,
+        reason: reasons.join('; '),
+        score: totalScore
+      };
+    };
+
+    // Función para bloquear temporalmente al usuario con escalado de duración
+    const blockUser = (duration?: number) => {
+      const baseDuration = 300000; // 5 minutos base
+      const scaledDuration = duration || Math.min(baseDuration * Math.pow(2, Math.floor(spamScore / 25)), 1800000); // Máximo 30 minutos
+      
+      setIsBlocked(true);
+      setBlockEndTime(Date.now() + scaledDuration);
+      
+      // Log del bloqueo para análisis
+      const logData = {
+        timestamp: new Date().toISOString(),
+        spamScore,
+        duration: scaledDuration / 1000,
+        messageCount,
+        burstMessages,
+        consecutiveShortMessages,
+        userAgent: navigator.userAgent,
+        sessionId: Date.now().toString(36)
+      };
+      
+      console.log('🚫 ANTI-SPAM BLOCK:', logData);
+      
+      // Guardar en localStorage para análisis posterior
+      const existingLogs = JSON.parse(localStorage.getItem('spamLogs') || '[]');
+      existingLogs.push(logData);
+      if (existingLogs.length > 100) {
+        existingLogs.splice(0, existingLogs.length - 100); // Mantener solo los últimos 100
+      }
+      localStorage.setItem('spamLogs', JSON.stringify(existingLogs));
+    };
 
     // System prompt oculto para el modelo
     const systemPrompt = `
@@ -166,67 +369,254 @@ const App = () => {
     No des toda esta información de golpe: compártela solo si la conversación lo pide (por ejemplo, si te preguntan cómo eres, qué te gusta, de dónde sacas ideas, etc.). Sé siempre cercano, honesto y auténtico.
     `;
 
-    const sendConversationToEmail = async (msgsToSend?: typeof messages) => {
-      const conversation = (msgsToSend || messages)
-        .map(msg => `${msg.from === 'user' ? 'Usuario' : 'AlleRoDi'}: ${msg.text}`)
-        .join('\n');
+    // Guardar mensajes en localStorage cada vez que cambian
+    useEffect(() => {
+      localStorage.setItem('chatMessages', JSON.stringify(messages));
+    }, [messages]);
+
+    // Guardar conversación en la base de datos y limpiar chat al salir de la página
+    useEffect(() => {
+      const handleBeforeUnload = async () => {
+        if (messages.length > 1) {
+          // Guardar en Supabase
+          await saveConversationToDatabase(messages);
+        }
+        // Limpiar chat visualmente (pero no localStorage)
+        setMessages([{ role: 'assistant', content: '¡Hey! Soy AlleRoDi, ¿cómo andas?' }]);
+      };
+      window.addEventListener('beforeunload', handleBeforeUnload);
+      return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [messages]);
+
+    // Función para guardar mensajes individuales del usuario en la base de datos
+    const saveUserMessageToDatabase = async (message: string) => {
       try {
-        await emailjs.send(
-          'service_imsqipo',
-          'template_m4pf3vl',
-          { message: conversation },
-          'rXbfhkD7y5YjpWRMs'
-        );
+        const { data, error } = await supabase.from('user_messages').insert([
+          { 
+            message: message,
+            timestamp: new Date().toISOString(),
+            user_agent: navigator.userAgent,
+            session_id: Date.now().toString(36)
+          }
+        ]);
+        
+        if (error) {
+          console.error('❌ Error guardando mensaje del usuario:', error);
+          // Si la tabla no existe, guardar en localStorage como fallback
+          if (error.code === '42P01') {
+            const fallbackMessages = JSON.parse(localStorage.getItem('userMessagesFallback') || '[]');
+            fallbackMessages.push({
+              message: message,
+              timestamp: new Date().toISOString(),
+              user_agent: navigator.userAgent,
+              session_id: Date.now().toString(36)
+            });
+            localStorage.setItem('userMessagesFallback', JSON.stringify(fallbackMessages));
+            console.log('📱 Mensaje guardado en localStorage como fallback');
+          }
+        }
+        // Removido el console.log de confirmación exitosa
       } catch (error) {
-        console.error('EmailJS error:', error);
+        console.error('❌ Error guardando mensaje del usuario:', error);
+        // Fallback a localStorage en caso de cualquier error
+        const fallbackMessages = JSON.parse(localStorage.getItem('userMessagesFallback') || '[]');
+        fallbackMessages.push({
+          message: message,
+          timestamp: new Date().toISOString(),
+          user_agent: navigator.userAgent,
+          session_id: Date.now().toString(36)
+        });
+        localStorage.setItem('userMessagesFallback', JSON.stringify(fallbackMessages));
+        console.log('📱 Mensaje guardado en localStorage como fallback');
       }
     };
 
+    // Función para guardar la conversación en Supabase
+    const saveConversationToDatabase = async (msgsToSend?: typeof messages) => {
+      const conversation = (msgsToSend || messages).map(m => `${m.role}: ${m.content}`).join('\n');
+      try {
+        await supabase.from('conversations').insert([
+          { conversation, timestamp: new Date().toISOString() }
+        ]);
+      } catch (error) {
+        // Puedes manejar el error si lo deseas
+      }
+    };
+
+    // Interceptar clicks en enlaces externos para borrar el chat
+    useEffect(() => {
+      const handleLinkClick = (e: MouseEvent) => {
+        const target = e.target as HTMLElement;
+        if (target.tagName === 'A') {
+          const anchor = target as HTMLAnchorElement;
+          const href = anchor.getAttribute('href');
+          if (href && !href.startsWith(window.location.origin) && !href.startsWith('/') && !href.startsWith('#')) {
+            localStorage.removeItem('chatMessages');
+          }
+        }
+      };
+      document.addEventListener('click', handleLinkClick);
+      return () => document.removeEventListener('click', handleLinkClick);
+    }, []);
+
     const sendMessage = async () => {
-      if (!input.trim()) return;
-      const userMsg = { from: "user", text: input };
+      if (!inputMessage.trim()) return;
+      
+      // Verificar si el usuario está bloqueado
+      if (isBlocked) {
+        const remainingTime = Math.ceil((blockEndTime - Date.now()) / 1000);
+        setMessages((msgs) => [...msgs, { 
+          role: 'assistant' as const, 
+          content: `Has sido bloqueado temporalmente por spam. Intenta de nuevo en ${remainingTime} segundos.` 
+        }]);
+        return;
+      }
+      
+      // Verificar spam
+      const spamResult = detectSpam(inputMessage);
+      
+      // Mostrar advertencia si el score es alto pero no suficiente para bloquear
+      if (spamResult.score >= 30 && spamResult.score < 50) {
+        setMessages((msgs) => [...msgs, { 
+          role: 'assistant' as const, 
+          content: `⚠️ Advertencia: Tu comportamiento está siendo monitoreado por el sistema anti-spam (Score: ${spamResult.score}/100). Por favor, mantén una conversación natural.` 
+        }]);
+      }
+      
+      if (spamResult.isSpam) {
+        blockUser();
+        const blockDuration = Math.ceil((blockEndTime - Date.now()) / 1000);
+        setMessages((msgs) => [...msgs, { 
+          role: 'assistant' as const, 
+          content: `🚫 Sistema Anti-Spam Activado\n\nScore de Spam: ${spamResult.score}/100\nRazón: ${spamResult.reason}\n\nHas sido bloqueado temporalmente por comportamiento sospechoso. El bloqueo se levantará automáticamente.` 
+        }]);
+        return;
+      }
+      
+      const userMsg: { role: 'user' | 'assistant', content: string } = { role: 'user', content: inputMessage };
+      
+      // Guardar mensaje del usuario en la base de datos inmediatamente
+      await saveUserMessageToDatabase(inputMessage);
+      
+      // Actualizar contadores anti-spam
+      setMessageCount(prev => prev + 1);
+      setLastMessageTime(Date.now());
+      setRecentMessages(prev => [...prev.slice(-4), inputMessage]); // Mantener solo los últimos 5 mensajes
+      
       setMessages((msgs) => {
-        const newMsgs = [...msgs, userMsg];
-        // Enviar conversación automáticamente cada vez que el usuario envía un mensaje
-        sendConversationToEmail(newMsgs);
+        const newMsgs: Array<{ role: 'user' | 'assistant', content: string }> = [...msgs, userMsg];
+        if (newMsgs.length > 50) {
+          return newMsgs.slice(-50);
+        }
         return newMsgs;
       });
-      setInput("");
-      setChatLoading(true);
-      setTimeout(() => { inputRef.current?.focus(); }, 0);
+      
+      setInputMessage("");
+      setIsLoading(true);
+      setIsTyping(true);
+      
       try {
-        const apiKey = "AIzaSyC9-25IMBVX-uva026nOOqc50ZQ48SFv80";
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
         const history = [...messages, userMsg];
         const contents = history.map((m) => ({
-          role: m.from === "user" ? "user" : "model",
-          parts: [{ text: m.text }]
+          role: m.role === 'user' ? 'user' : 'model',
+          parts: [{ text: m.content }]
         }));
+        
         const body = JSON.stringify({
-          contents,
-          systemInstruction: {
-            parts: [{ text: systemPrompt }]
-          }
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: systemPrompt + "\n\nConversación actual:\n" + contents.map(c => `${c.role}: ${c.parts[0].text}`).join('\n') }]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 1024,
+          },
         });
-        const res = await fetch(url, {
+
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
+          {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body
-        });
-        if (!res.ok) throw new Error("API error");
+            body,
+          }
+        );
+
+        if (res.status === 429) {
+          // Error de rate limit - esperar y reintentar
+          setTimeout(() => {
+            const rateLimitMsg = { 
+              role: 'assistant' as const, 
+              content: "El servidor está ocupado. Intenta de nuevo en unos segundos." 
+            };
+            setMessages((msgs) => [...msgs, rateLimitMsg]);
+            setIsLoading(false);
+            setIsTyping(false);
+          }, 2000);
+          return;
+        }
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
         const data = await res.json();
         const response = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
-        setMessages((msgs) => [...msgs, { from: "bot", text: response }]);
+        
+        // Simular typing delay
+        setTimeout(() => {
+          const botMsg = { role: 'assistant' as const, content: response };
+          setMessages((msgs) => [...msgs, botMsg]);
+          setIsLoading(false);
+          setIsTyping(false);
+        }, 1000 + Math.random() * 2000);
+        
       } catch (e) {
-        setMessages((msgs) => [...msgs, { from: "bot", text: "Ocurrió un error. Intenta de nuevo." }]);
+        console.error('Error sending message:', e);
+        const errorMsg = { 
+          role: 'assistant' as const, 
+          content: "Ocurrió un error. Intenta de nuevo en unos segundos." 
+        };
+        setMessages((msgs) => [...msgs, errorMsg]);
+        setIsLoading(false);
+        setIsTyping(false);
       }
-      setChatLoading(false);
-      setTimeout(() => { inputRef.current?.focus(); }, 0);
     };
 
     useEffect(() => {
       chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
+
+    // Función para verificar y crear la tabla user_messages si no existe
+    const ensureUserMessagesTable = async () => {
+      try {
+        // Intentar hacer una consulta simple para verificar si la tabla existe
+        const { data, error } = await supabase
+          .from('user_messages')
+          .select('*')
+          .limit(1);
+        
+        if (error && error.code === '42P01') { // Tabla no existe
+          console.log('📋 Tabla user_messages no existe, creando...');
+          // Nota: En Supabase, las tablas se crean desde el dashboard
+          // Aquí solo mostramos un mensaje informativo
+          console.log('⚠️ Por favor, crea la tabla user_messages en Supabase con las columnas: message (text), timestamp (timestamp), user_agent (text), session_id (text)');
+        } else {
+          console.log('✅ Tabla user_messages existe y está accesible');
+        }
+      } catch (error) {
+        console.error('❌ Error verificando tabla user_messages:', error);
+      }
+    };
+
+    // Verificar la tabla al inicializar el ChatBot
+    useEffect(() => {
+      ensureUserMessagesTable();
+    }, []);
 
     return (
       <>
@@ -258,27 +648,6 @@ const App = () => {
           <i className="fas fa-comments"></i>
         </button>
         )}
-        {/* En la barra de navegación móvil, el botón de chat debe estar dentro de nav-buttons y abrir/cerrar el chat */}
-        <div className="mobile-nav">
-          <div className="nav-buttons">
-            <Link to="/" className="nav-button active">
-              <i className="fas fa-home"></i>
-              <div className="nav-indicator"></div>
-            </Link>
-            <Link to="/stories" className="nav-button">
-              <i className="fas fa-book-open"></i>
-            </Link>
-            <Link to="/creations" className="nav-button">
-              <i className="fas fa-camera"></i>
-            </Link>
-            <Link to="/store" className="nav-button">
-              <i className="fas fa-shopping-cart"></i>
-            </Link>
-            <button className="nav-button chat-button" onClick={() => setChatOpen((o: boolean) => !o)}>
-              <i className="fas fa-comments"></i>
-            </button>
-          </div>
-        </div>
         {chatOpen && (
           <div
             className="chatbot-window"
@@ -312,15 +681,15 @@ const App = () => {
                     boxShadow: "0 0 0 0 rgba(0,0,0,0.0)",
                   }
                 : {
-                    bottom: 100,
-                    right: 24,
+              bottom: 100,
+              right: 24,
                     width: 380,
                     height: 520,
                     borderRadius: 18,
                     background: "#18181b",
-                    zIndex: 2100,
+              zIndex: 2100,
                     boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
-                    display: "flex",
+              display: "flex",
                     flexDirection: "column",
                     border: "1.5px solid #23232b",
                     transition: "all 0.5s cubic-bezier(.4,2,.6,1)"
@@ -342,32 +711,50 @@ const App = () => {
                 minHeight: isMobile ? 60 : undefined
               }}
             >
-              <b style={{ fontSize: isMobile ? 18 : 16, fontWeight: 600 }}>ChatBot Gemini</b>
-              {!isMobile && !isFullScreen && (
-                <button
-                  onClick={() => setIsFullScreen(true)}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "#fff",
-                    fontSize: 22,
-                    cursor: "pointer",
-                    width: 38,
-                    height: 38,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    borderRadius: 8,
-                    transition: "color 0.2s"
-                  }}
-                  aria-label="Pantalla completa"
-                  title="Pantalla completa"
-                >
-                  <i className="fas fa-expand"></i>
-                </button>
-              )}
-              {!isMobile && isFullScreen && (
-                <div style={{ display: "flex", alignItems: "center", gap: 8, position: "absolute", right: 20, top: 10, zIndex: 2 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <b style={{ fontSize: isMobile ? 18 : 16, fontWeight: 600 }}>ChatBot Gemini</b>
+                {spamScore > 0 && (
+                  <div 
+                    style={{
+                      background: spamScore >= 50 ? '#ff4444' : spamScore >= 30 ? '#ffaa00' : '#44aa44',
+                      color: '#fff',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      transition: 'all 0.3s ease'
+                    }}
+                    title={`Spam Score: ${spamScore}/100`}
+                  >
+                    {spamScore >= 50 ? '🚫 BLOQUEADO' : spamScore >= 30 ? '⚠️ RIESGO' : '✅ SEGURO'}
+                  </div>
+                )}
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                {!isMobile && !isFullScreen && (
+                  <button
+                    onClick={() => setIsFullScreen(true)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#fff",
+                      fontSize: 22,
+                      cursor: "pointer",
+                      width: 38,
+                      height: 38,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: 8,
+                      transition: "color 0.2s"
+                    }}
+                    aria-label="Pantalla completa"
+                    title="Pantalla completa"
+                  >
+                    <i className="fas fa-expand"></i>
+                  </button>
+                )}
+                {!isMobile && isFullScreen && (
                   <button
                     onClick={() => setIsFullScreen(false)}
                     style={{
@@ -389,48 +776,28 @@ const App = () => {
                   >
                     <i className="fas fa-compress"></i>
                   </button>
-                  <button
-                    onClick={() => { setIsFullScreen(false); setChatOpen(false); }}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      color: "#fff",
-                      fontSize: 22,
-                      cursor: "pointer",
-                      width: 38,
-                      height: 38,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderRadius: 8,
-                      transition: "color 0.2s"
-                    }}
-                    aria-label="Cerrar chat"
-                    title="Cerrar chat"
-                  >
-                    ×
-                  </button>
-                </div>
-              )}
-              {isMobile && (
+                )}
                 <button
                   onClick={() => setChatOpen(false)}
                   style={{
                     background: "none",
                     border: "none",
                     color: "#fff",
-                    fontSize: 32,
+                    fontSize: 24,
                     cursor: "pointer",
-                    position: "absolute",
-                    right: 16,
-                    top: 16,
-                    zIndex: 2
+                    width: 38,
+                    height: 38,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: 8,
+                    transition: "color 0.2s"
                   }}
                   aria-label="Cerrar chat"
                 >
                   ×
                 </button>
-              )}
+              </div>
             </div>
             <div
               style={{
@@ -446,30 +813,30 @@ const App = () => {
                   style={{
                     marginBottom: 14,
                     display: "flex",
-                    justifyContent: msg.from === "user" ? "flex-end" : "flex-start"
+                    justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start'
                   }}
                 >
                   <span
                     style={{
                     display: "inline-block",
-                      background: msg.from === "user" ? "#23232b" : "#23232b",
-                      color: msg.from === "user" ? "#fff" : "#b3b3b3",
+                      background: msg.role === 'user' ? "#23232b" : "#23232b",
+                      color: msg.role === 'user' ? "#fff" : "#b3b3b3",
                       borderRadius: 14,
                       padding: isMobile ? "10px 16px" : "10px 18px",
                     maxWidth: "80%",
                       wordBreak: "break-word",
                       fontSize: isMobile ? 15 : 15.5,
-                      boxShadow: msg.from === "user" ? "0 2px 8px #0002" : "0 2px 8px #0001",
-                      borderTopRightRadius: msg.from === "user" ? 4 : 14,
-                      borderTopLeftRadius: msg.from === "user" ? 14 : 4,
-                      border: msg.from === "user" ? "1.5px solid #23232b" : "1.5px solid #23232b"
+                      boxShadow: msg.role === 'user' ? "0 2px 8px #0002" : "0 2px 8px #0001",
+                      borderTopRightRadius: msg.role === 'user' ? 4 : 14,
+                      borderTopLeftRadius: msg.role === 'user' ? 14 : 4,
+                      border: msg.role === 'user' ? "1.5px solid #23232b" : "1.5px solid #23232b"
                     }}
                   >
-                    {msg.text}
+                    {msg.content}
                   </span>
                 </div>
               ))}
-              {chatLoading && (
+              {isLoading && (
                 <div
                   style={{
                     marginBottom: 14,
@@ -518,8 +885,8 @@ const App = () => {
               <input
                 ref={inputRef}
                 type="text"
-                value={input}
-                onChange={e => setInput(e.target.value)}
+                value={inputMessage}
+                onChange={e => setInputMessage(e.target.value)}
                 placeholder="Escribe aquí..."
                 style={{
                   flex: 1,
@@ -536,8 +903,7 @@ const App = () => {
                 autoFocus
               />
               <button
-                type="button"
-                onClick={() => sendConversationToEmail()}
+                type="submit"
                 style={{
                   marginTop: 8,
                   background: "#23232b",
@@ -551,7 +917,7 @@ const App = () => {
                   boxShadow: "0 1px 4px #0001"
                 }}
               >
-                Enviar conversación a AlleRoDi
+                Enviar
               </button>
             </form>
           </div>
@@ -657,89 +1023,237 @@ const App = () => {
               left: 0,
               width: '100vw',
               height: '100vh',
-              background: 'rgba(0, 0, 0, 0.95)',
+              background: 'rgba(0, 0, 0, 0.85)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               zIndex: 9999,
-              animation: 'fadeIn 0.5s ease-in-out'
+              animation: 'fadeIn 0.6s ease-in-out',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)'
             }}
           >
             <div 
               className="chat-invite-content"
               style={{
+                background: '#000',
+                border: '2px solid #fff',
+                borderRadius: '20px',
+                padding: isMobile ? '40px 30px' : '60px 50px',
+                maxWidth: isMobile ? '90vw' : '500px',
+                width: '100%',
                 textAlign: 'center',
-                color: '#fff',
-                maxWidth: '500px',
-                padding: '40px 20px'
+                position: 'relative',
+                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+                animation: 'scaleIn 0.5s ease-out 0.2s both'
               }}
             >
+              {/* Título principal */}
               <h2 
                 style={{
-                  fontSize: '2.5rem',
+                  fontSize: isMobile ? '2rem' : '2.5rem',
                   marginBottom: '20px',
                   fontWeight: 'bold',
-                  background: 'linear-gradient(45deg, #ff6b6b, #4ecdc4)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
+                  color: '#fff',
+                  fontFamily: "'Press Start 2P', cursive",
+                  letterSpacing: '2px',
+                  textShadow: '0 0 10px rgba(255, 255, 255, 0.5)',
+                  lineHeight: '1.2'
                 }}
               >
-                ¡Hey! Soy AlleRoDi
+                AlleRoDi
               </h2>
+              
+              {/* Descripción */}
               <p 
                 style={{
-                  fontSize: '1.2rem',
-                  marginBottom: '30px',
+                  fontSize: isMobile ? '1rem' : '1.1rem',
+                  marginBottom: '40px',
                   lineHeight: '1.6',
-                  opacity: 0.9
+                  color: '#fff',
+                  fontWeight: '300',
+                  letterSpacing: '0.5px',
+                  fontFamily: 'system-ui, -apple-system, sans-serif',
+                  opacity: 0.9,
+                  maxWidth: '400px',
+                  margin: '0 auto 40px auto'
                 }}
               >
                 ¿Te interesa la música, el diseño o la tecnología? 
                 <br />
-                ¡Chatea conmigo para saber más sobre mis proyectos y pasiones! 🎵✨
+                Chatea conmigo para conocer mis proyectos.
               </p>
-              <button
-                onClick={() => {
-                  setShowChatInvite(false);
-                  setChatOpen(true);
-                }}
+              
+              {/* Contenedor de botones usando Grid */}
+              <div 
                 style={{
-                  background: 'linear-gradient(45deg, #ff6b6b, #4ecdc4)',
-                  color: '#fff',
-                  border: 'none',
-                  padding: '15px 30px',
-                  fontSize: '1.1rem',
-                  borderRadius: '25px',
-                  cursor: 'pointer',
-                  fontWeight: 'bold',
-                  boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.05)';
-                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
+                  display: 'grid',
+                  gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+                  gap: isMobile ? '15px' : '20px',
+                  maxWidth: '400px',
+                  margin: '0 auto'
                 }}
               >
-                ¡Chatear ahora! 💬
-              </button>
+                {/* Botón Chatear */}
+                <button
+                  onClick={() => {
+                    console.log('=== BOTÓN CHATEAR CLICKEADO ===');
+                    console.log('Estado actual chatOpen:', chatOpen);
+                    console.log('Estado actual showChatInvite:', showChatInvite);
+                    
+                    // Cerrar el overlay
+                    setShowChatInvite(false);
+                    console.log('showChatInvite establecido en false');
+                    
+                    // Abrir el chat
+                    setChatOpen(true);
+                    console.log('chatOpen establecido en true');
+                    
+                    // Verificar después de un momento
+                    setTimeout(() => {
+                      console.log('Estado después de 100ms - chatOpen:', chatOpen);
+                    }, 100);
+                  }}
+                  style={{
+                    background: '#fff',
+                    color: '#000',
+                    border: '2px solid #fff',
+                    padding: isMobile ? '15px 20px' : '18px 25px',
+                    fontSize: isMobile ? '0.9rem' : '1rem',
+                    borderRadius: '10px',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    letterSpacing: '1px',
+                    transition: 'all 0.3s ease',
+                    textTransform: 'uppercase',
+                    fontFamily: "'Press Start 2P', cursive",
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#000';
+                    e.currentTarget.style.color = '#fff';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 8px 25px rgba(255, 255, 255, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#fff';
+                    e.currentTarget.style.color = '#000';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <i className="fas fa-comments" style={{ marginRight: '8px' }}></i>
+                  Chatear
+                </button>
+                
+                {/* Botón Salir */}
+                <button
+                  onClick={() => setShowChatInvite(false)}
+                  style={{
+                    background: 'transparent',
+                    color: '#fff',
+                    border: '2px solid #fff',
+                    padding: isMobile ? '15px 20px' : '18px 25px',
+                    fontSize: isMobile ? '0.9rem' : '1rem',
+                    borderRadius: '10px',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    letterSpacing: '1px',
+                    transition: 'all 0.3s ease',
+                    textTransform: 'uppercase',
+                    fontFamily: "'Press Start 2P', cursive",
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#fff';
+                    e.currentTarget.style.color = '#000';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 8px 25px rgba(255, 255, 255, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = '#fff';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <i className="fas fa-times" style={{ marginRight: '8px' }}></i>
+                  Salir
+                </button>
+              </div>
+              
+              {/* Texto informativo */}
               <p 
                 style={{
-                  fontSize: '0.9rem',
-                  marginTop: '20px',
+                  fontSize: '0.75rem',
+                  marginTop: '30px',
+                  color: '#666',
+                  fontWeight: '300',
+                  letterSpacing: '1px',
+                  fontFamily: 'system-ui, -apple-system, sans-serif',
                   opacity: 0.7
                 }}
               >
-                (Esta invitación desaparecerá en unos segundos)
+                Esta invitación desaparecerá en unos segundos
               </p>
+              
+              {/* Efectos decorativos */}
+              <div 
+                style={{
+                  position: 'absolute',
+                  top: '-2px',
+                  left: '-2px',
+                  right: '-2px',
+                  bottom: '-2px',
+                  background: 'linear-gradient(45deg, #fff, transparent, #fff)',
+                  borderRadius: '20px',
+                  zIndex: -1,
+                  opacity: 0.1,
+                  animation: 'glow 3s ease-in-out infinite alternate'
+                }}
+              />
             </div>
           </div>
         )}
 
+        {/* Barra de navegación principal para desktop */}
+        <nav className="navbar navbar-expand-lg navbar-light fixed-top" role="navigation" aria-label="Navegación principal">
+        <div className="container">
+            <Link className="navbar-brand" to="/" aria-label="Ir a inicio">AlleRoDi</Link>
+          <button 
+            className="navbar-toggler" 
+            type="button" 
+            data-bs-toggle="collapse" 
+            data-bs-target="#navbarNav" 
+            aria-controls="navbarNav" 
+            aria-expanded="false" 
+            aria-label="Toggle navigation"
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className="collapse navbar-collapse" id="navbarNav">
+            <ul className="navbar-nav ms-auto">
+              <li className="nav-item">
+                  <Link to="/" className="nav-link" aria-current="page">Home</Link>
+              </li>
+              <li className="nav-item">
+                  <Link to="/creations" className="nav-link">Creations</Link>
+              </li>
+              <li className="nav-item">
+                  <Link to="/stories" className="nav-link">Stories</Link>
+              </li>
+              <li className="nav-item">
+                  <Link to="/store" className="nav-link cart-link" aria-label="Ir a la tienda">
+                    <i className="fas fa-shopping-cart" aria-hidden="true"></i>
+                  </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      
         <Routes>
           <Route path="/" element={
             <>
@@ -829,167 +1343,167 @@ const App = () => {
   </div>
 </div>
 
-      {/* Nueva sección de Actualizaciones */}
-      <section className="inspiration-section">
-        <div className="inspiration-container">
-          <div className="update-content">
-            <div className="update-image">
-              <img src="/assets/AloneInside.jpeg" alt="Próximo Lanzamiento" />
-            </div>
-            <div className="update-text">
-              <h2 className="update-title">Actualización</h2>
-              <p className="update-description">
-                Estamos trabajando en algo especial. Un nuevo proyecto que fusiona música, tecnología y arte digital. 
-                Una experiencia inmersiva que cambiará la forma en que interactúas con la música.
-              </p>
-              <div className="update-details">
-                <div className="update-detail">
-                  <i className="fas fa-music"></i>
-                  <span>Nuevo Álbum</span>
-          </div>
-                  <div className="update-detail">
-                    <i className="fas fa-calendar"></i>
-                    <span>Próximamente</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-      {/* Reemplazar la sección about existente con el nuevo componente */}
-      <About />
-
-      {/* Nueva sección de Galería */}
-      <section className="gallery-section">
-        <div className="gallery-container">
-          <div className="video-container">
-            <iframe
-              src="https://www.youtube.com/embed/cN1zF62wHVU?si=Q_ZRD6cfaK-8ZMA9"
-              title="YouTube video player"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-        </div>
-          <div className="gallery-content">
-            <h2 className="gallery-title">Galería de Creaciones</h2>
-            <p className="gallery-description">
-              Explora mi colección de trabajos digitales, donde cada pieza cuenta una historia única a través de la fusión de arte y tecnología.
-            </p>
-            <div className="gallery-grid">
-              <div className="gallery-item">
-                <div className="gallery-image" style={{ backgroundImage: "url('/assets/Life.jpeg')" }}></div>
-                <div className="gallery-item-title">AlleRoDI</div>
-      </div>
-              <div className="gallery-item">
-                <div className="gallery-image" style={{ backgroundImage: "url('/assets/AloneInside.jpeg')" }}></div>
-                <div className="gallery-item-title">Proyecto 2</div>
-        </div>
-              <div className="gallery-item">
-                <div className="gallery-image" style={{ backgroundImage: "url('/assets/Angry.jpeg')" }}></div>
-                <div className="gallery-item-title">Proyecto 3</div>
-      </div>
-              <div className="gallery-item">
-                <div className="gallery-image" style={{ backgroundImage: "url('/assets/Fight.jpeg')" }}></div>
-                <div className="gallery-item-title">Proyecto 4</div>
-        </div>
-      </div>
-            <div className="gallery-more">
-              <a href="/creations" className="gallery-more-btn">
-                Ver más <i className="fas fa-arrow-right"></i>
-              </a>
-        </div>
-      </div>
-        </div>
-      </section>
-
-      {/* Nueva sección de Música */}
-      <section className="music-section">
-        <div className="music-container">
-          <div className="music-image">
-            <img src="/assets/Albums.png" alt="AlleRoDI Albums" />
-        </div>
-          <div className="music-content">
-            <h2 className="music-title">Mi Música</h2>
-            <p className="music-description">
-              Mi música está disponible en todas las plataformas digitales. 
-              Explora mis álbumes y singles en tu plataforma favorita.
-            </p>
-            <div className="music-buttons">
-              <a href="https://store.allerodi.com" target="_blank" rel="noopener noreferrer" className="pixel-btn">
-                <i className="fas fa-shopping-cart"></i>
-                <span>Comprar</span>
-              </a>
-              <a href="https://open.spotify.com/artist/2zU4sGIwSViMGRnwMSlD1j" target="_blank" rel="noopener noreferrer" className="pixel-btn">
-                <i className="fab fa-spotify"></i>
-                <span>Escuchar</span>
-              </a>
-</div>
-</div>
-</div>
-</section>
-
-      {/* Nueva sección de Personaje */}
-      <section className="character-section">
-        <div className="character-container">
-          <div className="character-image">
-            <img src="/assets/Personaje.jpeg" alt="Mi Personaje" />
-      </div>
-          <div className="character-content">
-            <h2 className="character-title">Este es mi Personaje</h2>
-            <p className="character-description">
-              Un ser digital que representa mi esencia creativa. Cada píxel cuenta una historia, 
-              cada movimiento refleja mi pasión por la música y la tecnología. Este personaje 
-              es la fusión perfecta entre mi amor por la programación y mi espíritu artístico.
-            </p>
-    </div>
-  </div>
-</section>
-
-      {/* Nueva sección de Videojuego */}
-      <section className="game-section">
-        <div className="game-container">
-          <div className="game-image">
-            <video 
-              controls
-              autoPlay
-              loop
-              muted
-              playsInline
-              style={{ 
-                width: '100%', 
-                borderRadius: '20px', 
-                boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-                maxHeight: '500px',
-                objectFit: 'cover'
-              }}
-            >
-              <source src="/assets/Mivideojuego.mp4" type="video/mp4" />
-              Tu navegador no soporta el elemento de video.
-            </video>
-          </div>
-          <div className="game-content">
-            <h2 className="game-title">Mi Videojuego</h2>
-            <p className="game-description">
-              Estoy trabajando en un emocionante proyecto de videojuego que combina música, 
-              arte digital y narrativa interactiva. Una experiencia única que te transportará 
-              a un mundo donde la música cobra vida y cada decisión cuenta.
-            </p>
-            <div className="game-details">
-              <div className="game-detail">
-                <i className="fas fa-gamepad"></i>
-                <span>Próximamente</span>
-              </div>
-              <div className="game-detail">
-                <i className="fas fa-code"></i>
-                <span>Desarrollo en Progreso</span>
+            {/* Nueva sección de Actualizaciones */}
+            <section className="inspiration-section">
+              <div className="inspiration-container">
+                <div className="update-content">
+                  <div className="update-image">
+                    <img src="/assets/AloneInside.jpeg" alt="Próximo Lanzamiento" />
+                  </div>
+                  <div className="update-text">
+                    <h2 className="update-title">Actualización</h2>
+                    <p className="update-description">
+                      Estamos trabajando en algo especial. Un nuevo proyecto que fusiona música, tecnología y arte digital. 
+                      Una experiencia inmersiva que cambiará la forma en que interactúas con la música.
+                    </p>
+                    <div className="update-details">
+                      <div className="update-detail">
+                        <i className="fas fa-music"></i>
+                        <span>Nuevo Álbum</span>
+                </div>
+                      <div className="update-detail">
+                        <i className="fas fa-calendar"></i>
+                        <span>Próximamente</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Proyecto de Ventas */}
+            {/* Reemplazar la sección about existente con el nuevo componente */}
+            <About />
+
+            {/* Nueva sección de Galería */}
+            <section className="gallery-section">
+              <div className="gallery-container">
+                <div className="video-container">
+                  <iframe
+                    src="https://www.youtube.com/embed/cN1zF62wHVU?si=Q_ZRD6cfaK-8ZMA9"
+                    title="YouTube video player"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+              </div>
+                <div className="gallery-content">
+                  <h2 className="gallery-title">Galería de Creaciones</h2>
+                  <p className="gallery-description">
+                    Explora mi colección de trabajos digitales, donde cada pieza cuenta una historia única a través de la fusión de arte y tecnología.
+                  </p>
+                  <div className="gallery-grid">
+                    <div className="gallery-item">
+                      <div className="gallery-image" style={{ backgroundImage: "url('/assets/Life.jpeg')" }}></div>
+                      <div className="gallery-item-title">AlleRoDI</div>
+            </div>
+                    <div className="gallery-item">
+                      <div className="gallery-image" style={{ backgroundImage: "url('/assets/AloneInside.jpeg')" }}></div>
+                      <div className="gallery-item-title">Proyecto 2</div>
+              </div>
+                    <div className="gallery-item">
+                      <div className="gallery-image" style={{ backgroundImage: "url('/assets/Angry.jpeg')" }}></div>
+                      <div className="gallery-item-title">Proyecto 3</div>
+            </div>
+                    <div className="gallery-item">
+                      <div className="gallery-image" style={{ backgroundImage: "url('/assets/Fight.jpeg')" }}></div>
+                      <div className="gallery-item-title">Proyecto 4</div>
+              </div>
+            </div>
+                  <div className="gallery-more">
+                    <a href="/creations" className="gallery-more-btn">
+                      Ver más <i className="fas fa-arrow-right"></i>
+                    </a>
+              </div>
+            </div>
+              </div>
+            </section>
+
+            {/* Nueva sección de Música */}
+            <section className="music-section">
+              <div className="music-container">
+                <div className="music-image">
+                  <img src="/assets/Albums.png" alt="AlleRoDI Albums" />
+              </div>
+                <div className="music-content">
+                  <h2 className="music-title">Mi Música</h2>
+                  <p className="music-description">
+                    Mi música está disponible en todas las plataformas digitales. 
+                    Explora mis álbumes y singles en tu plataforma favorita.
+                  </p>
+                  <div className="music-buttons">
+                    <a href="https://store.allerodi.com" target="_blank" rel="noopener noreferrer" className="pixel-btn">
+                      <i className="fas fa-shopping-cart"></i>
+                      <span>Comprar</span>
+                    </a>
+                    <a href="https://open.spotify.com/artist/2zU4sGIwSViMGRnwMSlD1j" target="_blank" rel="noopener noreferrer" className="pixel-btn">
+                      <i className="fab fa-spotify"></i>
+                      <span>Escuchar</span>
+                    </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+            {/* Nueva sección de Personaje */}
+            <section className="character-section">
+              <div className="character-container">
+                <div className="character-image">
+                  <img src="/assets/Personaje.jpeg" alt="Mi Personaje" />
+            </div>
+                <div className="character-content">
+                  <h2 className="character-title">Este es mi Personaje</h2>
+                  <p className="character-description">
+                    Un ser digital que representa mi esencia creativa. Cada píxel cuenta una historia, 
+                    cada movimiento refleja mi pasión por la música y la tecnología. Este personaje 
+                    es la fusión perfecta entre mi amor por la programación y mi espíritu artístico.
+                  </p>
+          </div>
+        </div>
+      </section>
+
+            {/* Nueva sección de Videojuego */}
+            <section className="game-section">
+              <div className="game-container">
+                <div className="game-image">
+                  <video 
+                    controls
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    style={{ 
+                      width: '100%', 
+                      borderRadius: '20px', 
+                      boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+                      maxHeight: '500px',
+                      objectFit: 'cover'
+                    }}
+                  >
+                    <source src="/assets/Mivideojuego.mp4" type="video/mp4" />
+                    Tu navegador no soporta el elemento de video.
+                  </video>
+                </div>
+                <div className="game-content">
+                  <h2 className="game-title">Mi Videojuego</h2>
+                  <p className="game-description">
+                    Estoy trabajando en un emocionante proyecto de videojuego que combina música, 
+                    arte digital y narrativa interactiva. Una experiencia única que te transportará 
+                    a un mundo donde la música cobra vida y cada decisión cuenta.
+                  </p>
+                  <div className="game-details">
+                    <div className="game-detail">
+                      <i className="fas fa-gamepad"></i>
+                      <span>Próximamente</span>
+                    </div>
+                    <div className="game-detail">
+                      <i className="fas fa-code"></i>
+                      <span>Desarrollo en Progreso</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Proyecto de Ventas */}
       <section id="store-project" style={{
         padding: window.innerWidth <= 768 ? '3rem 1.5rem' : '4rem 2rem',
         background: 'linear-gradient(135deg, #1a0f3c 0%, #2d1b69 50%, #4a2b8a 100%)',
@@ -1055,7 +1569,7 @@ const App = () => {
                 zIndex: 1
               }} 
             />
-          </div>
+                </div>
 
           <div style={{
             flex: '1.5',
@@ -1127,8 +1641,8 @@ const App = () => {
                   </svg>
                   @mech_markett
                 </a>
-              </div>
-              </div>
+                    </div>
+                    </div>
 
             <div style={{
               display: 'grid',
@@ -1177,7 +1691,7 @@ const App = () => {
                 }}>
                   Descubre las últimas tendencias en moda y accesorios exclusivos.
                 </p>
-              </div>
+                    </div>
 
               <div style={{
                 background: 'rgba(255, 255, 255, 0.05)',
@@ -1221,7 +1735,7 @@ const App = () => {
                   Los mejores productos tecnológicos con garantía y soporte especializado.
                 </p>
               </div>
-              
+
               <div style={{
                 background: 'rgba(255, 255, 255, 0.05)',
                 padding: window.innerWidth <= 768 ? '1.5rem' : '2rem',
@@ -1264,93 +1778,94 @@ const App = () => {
                   Compra segura y envíos rápidos a todo el país.
                 </p>
               </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Nueva sección Servicios - ahora con música de Spotify */}
+            <section id="services" className="services-section artist-spotify-bg">
+        <div className="container">
+                <div className="artist-spotify-card">
+                  <div className="artist-spotify-left">
+                    <iframe
+                      src="https://open.spotify.com/embed/artist/2zU4sGIwSViMGRnwMSlD1j?utm_source=generator"
+                      width="100%"
+                      height="380"
+                      frameBorder="0"
+                      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                      loading="lazy"
+                      style={{ borderRadius: '16px', border: '3px solid #202124', minWidth: '220px', background: '#121212' }}
+                      title="Spotify AlleRoDI"
+                    ></iframe>
+                </div>
+                  <div className="artist-spotify-right">
+                    <h3 className="artist-title">AlleRoDI</h3>
+                    <p className="artist-bio">
+                      Soy AlleRoDI, artista y creador digital apasionado por la música electrónica y la innovación. Mi sonido fusiona creatividad, tecnología y emociones, buscando siempre romper límites y conectar con quienes escuchan. ¡Dale play y acompáñame en este viaje musical!
+                    </p>
+                    <a href="https://open.spotify.com/artist/2zU4sGIwSViMGRnwMSlD1j" target="_blank" rel="noopener noreferrer" className="spotify-link">
+                      Escúchame en Spotify
+                    </a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Nueva sección Servicios - ahora con música de Spotify */}
-      <section id="services" className="services-section artist-spotify-bg">
-    <div className="container">
-            <div className="artist-spotify-card">
-              <div className="artist-spotify-left">
-                <iframe
-                  src="https://open.spotify.com/embed/artist/2zU4sGIwSViMGRnwMSlD1j?utm_source=generator"
-                  width="100%"
-                  height="380"
-                  frameBorder="0"
-                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                  loading="lazy"
-                  style={{ borderRadius: '16px', border: '3px solid #202124', minWidth: '220px', background: '#121212' }}
-                  title="Spotify AlleRoDI"
-                ></iframe>
+      {/* Footer mejorado */}
+            <footer className="pixel-footer pro-footer">
+              <div className="footer-container">
+                <div className="footer-main">
+                  <div className="footer-col footer-contact">
+                    <h3 className="footer-title">Contacto</h3>
+                    <p className="footer-text">Email: <a href="mailto:allerodi.music@gmail.com">allerodi.music@gmail.com</a></p>
+                    <div className="footer-social">
+                      <a href="https://github.com/allerodi" target="_blank" rel="noopener noreferrer" className="footer-social-link"><i className="fab fa-github"></i></a>
+                      <a href="https://www.linkedin.com/in/allerodi" target="_blank" rel="noopener noreferrer" className="footer-social-link"><i className="fab fa-linkedin"></i></a>
+                      <a href="https://twitter.com/allerodi" target="_blank" rel="noopener noreferrer" className="footer-social-link"><i className="fab fa-twitter"></i></a>
+                      <a href="https://open.spotify.com/artist/2zU4sGIwSViMGRnwMSlD1j" target="_blank" rel="noopener noreferrer" className="footer-social-link"><i className="fab fa-spotify"></i></a>
+              </div>
             </div>
-              <div className="artist-spotify-right">
-                <h3 className="artist-title">AlleRoDI</h3>
-                <p className="artist-bio">
-                  Soy AlleRoDI, artista y creador digital apasionado por la música electrónica y la innovación. Mi sonido fusiona creatividad, tecnología y emociones, buscando siempre romper límites y conectar con quienes escuchan. ¡Dale play y acompáñame en este viaje musical!
-                </p>
-                <a href="https://open.spotify.com/artist/2zU4sGIwSViMGRnwMSlD1j" target="_blank" rel="noopener noreferrer" className="spotify-link">
-                  Escúchame en Spotify
-                </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  {/* Footer mejorado */}
-        <footer className="pixel-footer pro-footer">
-          <div className="footer-container">
-            <div className="footer-main">
-              <div className="footer-col footer-contact">
-                <h3 className="footer-title">Contacto</h3>
-                <p className="footer-text">Email: <a href="mailto:allerodi.music@gmail.com">allerodi.music@gmail.com</a></p>
-                <div className="footer-social">
-                  <a href="https://github.com/allerodi" target="_blank" rel="noopener noreferrer" className="footer-social-link"><i className="fab fa-github"></i></a>
-                  <a href="https://www.linkedin.com/in/allerodi" target="_blank" rel="noopener noreferrer" className="footer-social-link"><i className="fab fa-linkedin"></i></a>
-                  <a href="https://twitter.com/allerodi" target="_blank" rel="noopener noreferrer" className="footer-social-link"><i className="fab fa-twitter"></i></a>
-                  <a href="https://open.spotify.com/artist/2zU4sGIwSViMGRnwMSlD1j" target="_blank" rel="noopener noreferrer" className="footer-social-link"><i className="fab fa-spotify"></i></a>
+                  <div className="footer-col footer-newsletter">
+                    <h3 className="footer-title">Newsletter</h3>
+                    <form className="footer-form">
+                      <input type="email" placeholder="Tu email" className="footer-input" />
+                      <button type="submit" className="footer-btn">Suscribirse</button>
+              </form>
+                    <p className="footer-text">Recibe novedades y lanzamientos de AlleRoDi.</p>
+            </div>
+          </div>
+          <div className="footer-bottom">
+              <p className="footer-copyright">&copy; 2024 AlleRoDi. Todos los derechos reservados. | <a href="/admin" style={{color: '#666', textDecoration: 'none', fontSize: '0.8rem'}}>Admin</a></p>
           </div>
         </div>
-              <div className="footer-col footer-newsletter">
-                <h3 className="footer-title">Newsletter</h3>
-                <form className="footer-form">
-                  <input type="email" placeholder="Tu email" className="footer-input" />
-                  <button type="submit" className="footer-btn">Suscribirse</button>
-          </form>
-                  <p className="footer-text">Recibe novedades y lanzamientos de AlleRoDi.</p>
-        </div>
-      </div>
-      <div className="footer-bottom">
-              <p className="footer-copyright">&copy; 2024 AlleRoDi. Todos los derechos reservados.</p>
-      </div>
-    </div>
-  </footer>
+      </footer>
         <ChatBot
           chatOpen={chatOpen}
           setChatOpen={setChatOpen as React.Dispatch<React.SetStateAction<boolean>>}
           isFullScreen={isFullScreen}
           setIsFullScreen={setIsFullScreen as React.Dispatch<React.SetStateAction<boolean>>}
         />
-        {/* Modal del juego */}
-        {showGame && (
-          <div className="game-modal-overlay" onClick={() => setShowGame(false)}>
-            <div className="game-modal" onClick={e => e.stopPropagation()}>
-              <button className="game-modal-close" onClick={() => setShowGame(false)}>×</button>
-              <h2 className="game-modal-title">Mini Game</h2>
-              <MiniGame />
-            </div>
-  </div>
-        )}
-      </>
-    } />
-    <Route path="/creations" element={<Creations />} />
-    <Route path="/stories" element={<Stories />} />
-    <Route path="/store" element={<Store />} />
-  </Routes>
-</div>
-</Router>
-);
+            {/* Modal del juego */}
+            {showGame && (
+              <div className="game-modal-overlay" onClick={() => setShowGame(false)}>
+                <div className="game-modal" onClick={e => e.stopPropagation()}>
+                  <button className="game-modal-close" onClick={() => setShowGame(false)}>×</button>
+                  <h2 className="game-modal-title">Mini Game</h2>
+                  <MiniGame />
+                </div>
+    </div>
+            )}
+          </>
+        } />
+        <Route path="/creations" element={<Creations />} />
+        <Route path="/stories" element={<Stories />} />
+        <Route path="/store" element={<Store />} />
+    <Route path="/admin" element={<Admin />} />
+      </Routes>
+    </div>
+  </Router>
+  );
 };
 
 export default App;
