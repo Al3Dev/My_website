@@ -373,20 +373,30 @@ const App = () => {
     No des toda esta información de golpe: compártela solo si la conversación lo pide (por ejemplo, si te preguntan cómo eres, qué te gusta, de dónde sacas ideas, etc.). Sé siempre cercano, honesto y auténtico.
     `;
 
+    // Al montar, cargar mensajes desde localStorage si existen
+    useEffect(() => {
+      const saved = localStorage.getItem('chatMessages');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setMessages(parsed);
+          }
+        } catch {}
+      }
+    }, []);
+
     // Guardar mensajes en localStorage cada vez que cambian
     useEffect(() => {
       localStorage.setItem('chatMessages', JSON.stringify(messages));
     }, [messages]);
 
-    // Guardar conversación en la base de datos y limpiar chat al salir de la página
+    // Guardar conversación en la base de datos al salir de la página (pero NO limpiar el chat)
     useEffect(() => {
       const handleBeforeUnload = async () => {
         if (messages.length > 1) {
-          // Guardar en Supabase
           await saveConversationToDatabase(messages);
         }
-        // Limpiar chat visualmente (pero no localStorage)
-        setMessages([{ role: 'assistant', content: '¡Hey! Soy AlleRoDi, ¿cómo andas?' }]);
       };
       window.addEventListener('beforeunload', handleBeforeUnload);
       return () => window.removeEventListener('beforeunload', handleBeforeUnload);
@@ -691,7 +701,6 @@ const App = () => {
                     top: 0,
                     left: 0,
                     width: "100vw",
-                    // Usar 100dvh si está disponible, fallback a 100vh
                     height: typeof window !== 'undefined' && 'visualViewport' in window ? '100dvh' : '100vh',
                     borderRadius: 0,
                     background: "#18181b",
@@ -730,6 +739,110 @@ const App = () => {
                   }),
             }}
           >
+            {/* Header del chat SIEMPRE visible y ordenado */}
+            <div
+              style={{
+                padding: isMobile ? "28px 16px 12px 16px" : "18px 20px 12px 20px",
+                borderBottom: "1px solid #23232b",
+                background: "#18181b",
+                color: "#fff",
+                borderTopLeftRadius: isMobile || isFullScreen ? 0 : 18,
+                borderTopRightRadius: isMobile || isFullScreen ? 0 : 18,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                position: "relative",
+                minHeight: isMobile ? 60 : undefined
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <b style={{ fontSize: isMobile ? 18 : 16, fontWeight: 600 }}>ChatBot Gemini</b>
+                {spamScore > 0 && (
+                  <div 
+                    style={{
+                      background: spamScore >= 50 ? '#ff4444' : spamScore >= 30 ? '#ffaa00' : '#44aa44',
+                      color: '#fff',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      transition: 'all 0.3s ease'
+                    }}
+                    title={`Spam Score: ${spamScore}/100`}
+                  >
+                    {spamScore >= 50 ? '🚫 BLOQUEADO' : spamScore >= 30 ? '⚠️ RIESGO' : '✅ SEGURO'}
+                  </div>
+                )}
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                {!isMobile && !isFullScreen && (
+                  <button
+                    onClick={() => setIsFullScreen(true)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#fff",
+                      fontSize: 22,
+                      cursor: "pointer",
+                      width: 38,
+                      height: 38,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: 8,
+                      transition: "color 0.2s"
+                    }}
+                    aria-label="Pantalla completa"
+                    title="Pantalla completa"
+                  >
+                    <i className="fas fa-expand"></i>
+                  </button>
+                )}
+                {!isMobile && isFullScreen && (
+                  <button
+                    onClick={() => setIsFullScreen(false)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#fff",
+                      fontSize: 22,
+                      cursor: "pointer",
+                      width: 38,
+                      height: 38,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: 8,
+                      transition: "color 0.2s"
+                    }}
+                    aria-label="Minimizar"
+                    title="Minimizar"
+                  >
+                    <i className="fas fa-compress"></i>
+                  </button>
+                )}
+                <button
+                  onClick={() => setChatOpen(false)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "#fff",
+                    fontSize: 24,
+                    cursor: "pointer",
+                    width: 38,
+                    height: 38,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: 8,
+                    transition: "color 0.2s"
+                  }}
+                  aria-label="Cerrar chat"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
             <div
               style={{
                 flex: 1,
