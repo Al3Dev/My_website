@@ -41,6 +41,7 @@ const App = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [showChatInvite, setShowChatInvite] = useState(true);
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
   // Debug: Monitorear el estado del chat
   useEffect(() => {
@@ -623,6 +624,33 @@ const App = () => {
       ensureUserMessagesTable();
     }, []);
 
+    // Detectar focus/blur en el input para móviles
+    useEffect(() => {
+      if (!isMobile) return;
+      const handleFocus = () => setIsInputFocused(true);
+      const handleBlur = () => setIsInputFocused(false);
+      const input = inputRef.current;
+      if (input) {
+        input.addEventListener('focus', handleFocus);
+        input.addEventListener('blur', handleBlur);
+      }
+      return () => {
+        if (input) {
+          input.removeEventListener('focus', handleFocus);
+          input.removeEventListener('blur', handleBlur);
+        }
+      };
+    }, [isMobile]);
+
+    // Scroll automático al final cuando el input recibe foco o cambia el valor
+    useEffect(() => {
+      if (isInputFocused) {
+        setTimeout(() => {
+          chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+    }, [isInputFocused, inputMessage]);
+
     return (
       <>
         {/* Botón flotante SOLO en escritorio */}
@@ -663,13 +691,14 @@ const App = () => {
                     top: 0,
                     left: 0,
                     width: "100vw",
-                    height: "100vh",
+                    // Usar 100dvh si está disponible, fallback a 100vh
+                    height: typeof window !== 'undefined' && 'visualViewport' in window ? '100dvh' : '100vh',
                     borderRadius: 0,
                     background: "#18181b",
                     zIndex: 2100,
                     display: "flex",
                     flexDirection: "column",
-                    transition: "all 0.3s"
+                    transition: "all 0.3s",
                   }
                 : isFullScreen
                 ? {
@@ -686,15 +715,15 @@ const App = () => {
                     boxShadow: "0 0 0 0 rgba(0,0,0,0.0)",
                   }
                 : {
-              bottom: 100,
-              right: 24,
+                    bottom: 100,
+                    right: 24,
                     width: 380,
                     height: 520,
                     borderRadius: 18,
                     background: "#18181b",
-              zIndex: 2100,
+                    zIndex: 2100,
                     boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
-              display: "flex",
+                    display: "flex",
                     flexDirection: "column",
                     border: "1.5px solid #23232b",
                     transition: "all 0.5s cubic-bezier(.4,2,.6,1)"
@@ -703,113 +732,12 @@ const App = () => {
           >
             <div
               style={{
-                padding: isMobile ? "28px 16px 12px 16px" : "18px 20px 12px 20px",
-                borderBottom: "1px solid #23232b",
-                background: "#18181b",
-                color: "#fff",
-                borderTopLeftRadius: isMobile || isFullScreen ? 0 : 18,
-                borderTopRightRadius: isMobile || isFullScreen ? 0 : 18,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                position: "relative",
-                minHeight: isMobile ? 60 : undefined
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <b style={{ fontSize: isMobile ? 18 : 16, fontWeight: 600 }}>ChatBot Gemini</b>
-                {spamScore > 0 && (
-                  <div 
-                    style={{
-                      background: spamScore >= 50 ? '#ff4444' : spamScore >= 30 ? '#ffaa00' : '#44aa44',
-                      color: '#fff',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      transition: 'all 0.3s ease'
-                    }}
-                    title={`Spam Score: ${spamScore}/100`}
-                  >
-                    {spamScore >= 50 ? '🚫 BLOQUEADO' : spamScore >= 30 ? '⚠️ RIESGO' : '✅ SEGURO'}
-                  </div>
-                )}
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                {!isMobile && !isFullScreen && (
-                  <button
-                    onClick={() => setIsFullScreen(true)}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      color: "#fff",
-                      fontSize: 22,
-                      cursor: "pointer",
-                      width: 38,
-                      height: 38,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderRadius: 8,
-                      transition: "color 0.2s"
-                    }}
-                    aria-label="Pantalla completa"
-                    title="Pantalla completa"
-                  >
-                    <i className="fas fa-expand"></i>
-                  </button>
-                )}
-                {!isMobile && isFullScreen && (
-                  <button
-                    onClick={() => setIsFullScreen(false)}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      color: "#fff",
-                      fontSize: 22,
-                      cursor: "pointer",
-                      width: 38,
-                      height: 38,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderRadius: 8,
-                      transition: "color 0.2s"
-                    }}
-                    aria-label="Minimizar"
-                    title="Minimizar"
-                  >
-                    <i className="fas fa-compress"></i>
-                  </button>
-                )}
-                <button
-                  onClick={() => setChatOpen(false)}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "#fff",
-                    fontSize: 24,
-                    cursor: "pointer",
-                    width: 38,
-                    height: 38,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    borderRadius: 8,
-                    transition: "color 0.2s"
-                  }}
-                  aria-label="Cerrar chat"
-                >
-                  ×
-                </button>
-              </div>
-            </div>
-            <div
-              style={{
                 flex: 1,
                 overflowY: "auto",
                 padding: isMobile ? "18px 10px 12px 10px" : "18px 18px 12px 18px",
-                background: "#18181b"
+                background: "#18181b",
+                // Añadir padding-bottom extra si el input está enfocado en móvil
+                paddingBottom: isMobile && isInputFocused ? 80 : undefined,
               }}
             >
               {messages.map((msg, i) => (
@@ -906,6 +834,10 @@ const App = () => {
                   boxShadow: "0 1px 4px #0001"
                 }}
                 autoFocus
+                // Para Android/iOS: asegurar que el input siempre sea visible
+                inputMode={isMobile ? "text" : undefined}
+                onFocus={() => setIsInputFocused(true)}
+                onBlur={() => setIsInputFocused(false)}
               />
               <button
                 type="submit"
