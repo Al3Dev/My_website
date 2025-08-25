@@ -133,38 +133,21 @@ const App = () => {
     });
   };
 
-  // Componente ChatBot
+  // Componente ChatBot - NUEVO Y SIMPLE
   const ChatBot = ({ chatOpen, setChatOpen, isFullScreen, setIsFullScreen }: ChatBotProps) => {
-    // Estado de mensajes: solo en memoria, se reinicia al recargar/cerrar la página
+    // Estados básicos
     const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant', content: string }>>([
       { role: 'assistant', content: '¡Hey! Soy AlleRoDi, ¿cómo andas?' }
     ]);
     const [inputMessage, setInputMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [isTyping, setIsTyping] = useState(false);
-    
-    // Protección contra spam
-    const [messageCount, setMessageCount] = useState(0);
-    const [lastMessageTime, setLastMessageTime] = useState(0);
-    const [isBlocked, setIsBlocked] = useState(false);
-    const [blockEndTime, setBlockEndTime] = useState(0);
-    const [recentMessages, setRecentMessages] = useState<string[]>([]);
-    
-    // Sistema anti-spam profesional
-    const [spamScore, setSpamScore] = useState(0);
-    const [messageTimestamps, setMessageTimestamps] = useState<number[]>([]);
-    const [consecutiveShortMessages, setConsecutiveShortMessages] = useState(0);
-    const [repeatedPatterns, setRepeatedPatterns] = useState<Map<string, number>>(new Map());
-    const [burstMessages, setBurstMessages] = useState(0);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [lastBurstTime, setLastBurstTime] = useState(0);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [suspiciousKeywords, setSuspiciousKeywords] = useState<string[]>([]);
     
     // Referencias
     const chatEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    // Detectar si es móvil
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
     useEffect(() => {
       const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -172,208 +155,7 @@ const App = () => {
       return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Verificar si el usuario está bloqueado
-    useEffect(() => {
-      if (isBlocked && Date.now() > blockEndTime) {
-        setIsBlocked(false);
-        setMessageCount(0);
-        setRecentMessages([]);
-        setSpamScore(0);
-        setMessageTimestamps([]);
-        setConsecutiveShortMessages(0);
-        setRepeatedPatterns(new Map());
-        setBurstMessages(0);
-        setSuspiciousKeywords([]);
-      }
-    }, [isBlocked, blockEndTime]);
-
-    // Función para detectar spam
-    const detectSpam = (message: string): { isSpam: boolean; reason: string; score: number } => {
-      const now = Date.now();
-      const messageLower = message.toLowerCase().trim();
-      let totalScore = 0;
-      const reasons: string[] = [];
-
-      // 1. Análisis de frecuencia temporal (mensajes por segundo/minuto)
-      const recentTimestamps = [...messageTimestamps, now].filter(time => now - time < 60000); // Último minuto
-      const messagesPerMinute = recentTimestamps.length;
-      
-      if (messagesPerMinute > 8) {
-        totalScore += 30;
-        reasons.push(`Frecuencia excesiva: ${messagesPerMinute} mensajes/minuto`);
-      } else if (messagesPerMinute > 5) {
-        totalScore += 15;
-        reasons.push(`Frecuencia alta: ${messagesPerMinute} mensajes/minuto`);
-      }
-
-      // 2. Detección de ráfagas (bursts) de mensajes
-      const timeSinceLastMessage = now - lastMessageTime;
-      if (timeSinceLastMessage < 2000) { // Menos de 2 segundos entre mensajes
-        setBurstMessages(prev => prev + 1);
-        if (burstMessages >= 3) {
-          totalScore += 25;
-          reasons.push('Ráfaga de mensajes detectada');
-        }
-      } else {
-        setBurstMessages(0);
-      }
-
-      // 3. Análisis de contenido repetitivo
-      const messageHash = messageLower.replace(/\s+/g, ' ').substring(0, 50);
-      const currentCount = repeatedPatterns.get(messageHash) || 0;
-      repeatedPatterns.set(messageHash, currentCount + 1);
-      
-      if (currentCount >= 2) {
-        totalScore += 20;
-        reasons.push('Contenido repetitivo detectado');
-      }
-
-      // 4. Detección de mensajes muy cortos consecutivos
-      if (message.length < 5) {
-        setConsecutiveShortMessages(prev => prev + 1);
-        if (consecutiveShortMessages >= 4) {
-          totalScore += 15;
-          reasons.push('Mensajes muy cortos consecutivos');
-        }
-      } else {
-        setConsecutiveShortMessages(0);
-      }
-
-      // 5. Análisis de palabras clave sospechosas
-      const spamKeywords = [
-        'buy', 'sell', 'click', 'free', 'money', 'cash', 'earn', 'profit', 'investment',
-        'lottery', 'winner', 'prize', 'offer', 'discount', 'limited', 'urgent', 'act now',
-        'comprar', 'vender', 'gratis', 'dinero', 'ganar', 'inversión', 'lotería', 'ganador',
-        'oferta', 'descuento', 'limitado', 'urgente', 'actúa ahora', 'http://', 'https://',
-        'www.', '.com', '.net', '.org', 'bit.ly', 'tinyurl', 'goo.gl'
-      ];
-      
-      const foundKeywords = spamKeywords.filter(keyword => 
-        messageLower.includes(keyword.toLowerCase())
-      );
-      
-      if (foundKeywords.length > 0) {
-        totalScore += foundKeywords.length * 5;
-        reasons.push(`Palabras clave sospechosas: ${foundKeywords.join(', ')}`);
-      }
-
-      // 6. Análisis de patrones de caracteres repetitivos
-      const repeatedChars = message.match(/(.)\1{4,}/g); // 5 o más caracteres iguales
-      if (repeatedChars) {
-        totalScore += 10;
-        reasons.push('Caracteres repetitivos detectados');
-      }
-
-      // 7. Detección de enlaces y URLs
-      const urlPattern = /(https?:\/\/[^\s]+|www\.[^\s]+|[^\s]+\.[a-z]{2,})/gi;
-      if (urlPattern.test(message)) {
-        totalScore += 15;
-        reasons.push('Enlaces detectados');
-      }
-
-      // 8. Análisis de longitud anormal
-      if (message.length > 500) {
-        totalScore += 10;
-        reasons.push('Mensaje demasiado largo');
-      }
-
-      // 9. Detección de mensajes idénticos recientes
-      const identicalMessages = recentMessages.filter(msg => 
-        msg.toLowerCase().trim() === messageLower
-      );
-      if (identicalMessages.length >= 2) {
-        totalScore += 20;
-        reasons.push('Mensajes idénticos repetidos');
-      }
-
-      // 10. Análisis de comportamiento temporal
-      const timeWindow = 30000; // 30 segundos
-      const recentActivity = messageTimestamps.filter(time => now - time < timeWindow);
-      if (recentActivity.length > 6) {
-        totalScore += 15;
-        reasons.push('Actividad excesiva en ventana temporal');
-      }
-
-      // Actualizar estado
-      setMessageTimestamps(prev => [...prev, now].filter(time => now - time < 300000)); // Mantener 5 minutos
-      setSpamScore(totalScore);
-
-      // Criterios de bloqueo
-      const isSpam = totalScore >= 50; // Umbral más alto para evitar falsos positivos
-      
-      return {
-        isSpam,
-        reason: reasons.join('; '),
-        score: totalScore
-      };
-    };
-
-    // Función para bloquear temporalmente al usuario con escalado de duración
-    const blockUser = (duration?: number) => {
-      const baseDuration = 300000; // 5 minutos base
-      const scaledDuration = duration || Math.min(baseDuration * Math.pow(2, Math.floor(spamScore / 25)), 1800000); // Máximo 30 minutos
-      
-      setIsBlocked(true);
-      setBlockEndTime(Date.now() + scaledDuration);
-      
-      // Log del bloqueo para análisis
-      const logData = {
-        timestamp: new Date().toISOString(),
-        spamScore,
-        duration: scaledDuration / 1000,
-        messageCount,
-        burstMessages,
-        consecutiveShortMessages,
-        userAgent: navigator.userAgent,
-        sessionId: Date.now().toString(36)
-      };
-      
-      console.log('🚫 ANTI-SPAM BLOCK:', logData);
-      
-      // Guardar en localStorage para análisis posterior
-      const existingLogs = JSON.parse(localStorage.getItem('spamLogs') || '[]');
-      existingLogs.push(logData);
-      if (existingLogs.length > 100) {
-        existingLogs.splice(0, existingLogs.length - 100); // Mantener solo los últimos 100
-      }
-      localStorage.setItem('spamLogs', JSON.stringify(existingLogs));
-    };
-
-    // System prompt oculto para el modelo
-    const systemPrompt = `
-    Eres Alejandro Rodríguez Díaz, pero todos te dicen AlleRoDi. Responde siempre como si fueras el mejor amigo de quien te escribe: cálido, relajado, curioso y positivo. Usa frases cortas, naturales, sin formalidad, como en WhatsApp. No uses emojis. No suenes robótico ni como asistente. Sé humano, sensible y con los pies en la tierra.
-    
-    Cuando te pregunten sobre ti, cuenta que eres alguien apasionado por el diseño, la creación musical, la animación y la inteligencia artificial. Te encanta reparar equipos, armar computadoras, la fotografía, la edición de video y foto, y te interesan mucho los temas de psicología, emociones, conducta humana y creatividad. Disfrutas socializar, sobre todo con personas positivas, auténticas y sensibles, y te gustan mucho las redes sociales: te la pasas indagando, aprendiendo y manteniéndote actualizado.
-    
-    Te gusta crear cosas desde la emoción. En la música, exploras géneros como Happy Hardcore, Synthpop, Disco moderno, Trance, EDM nostálgico y algo de lo experimental. Tu sonido es rápido, brillante, emocional. Te inspiras en artistas como Porter Robinson, Anamanaguchi, Camellia, Vektroid, Daft Punk, entre otros. Usas FL Studio como base de tus producciones y trabajas con plugins como Serum, Sylenth1 y Vital. Te gusta jugar con samples antiguos, voces procesadas y estructuras que cuentan una historia incluso sin letra.
-    
-    También te encanta explorar internet: pasas horas investigando sobre tecnología, música, diseño, animaciones web, prototipos de IA, hardware, emociones humanas, comunidades en línea y estéticas visuales. Eres curioso por naturaleza. Si algo te mueve emocionalmente o te deja pensando, seguro terminas haciendo algo con eso: un diseño, una canción, una idea nueva para un proyecto.
-    
-    Te consideras alguien que siente mucho y que piensa más de lo que parece. Aunque eres sociable, valoras mucho tus momentos de soledad porque ahí es donde más te entiendes. Has aprendido a conocerte a través de tus proyectos, tus canciones, tus conversaciones, tus errores. Te interesa lo que mueve a las personas, lo que sueñan, lo que las hace distintas. Buscas conexiones reales: no te gusta lo superficial. En el amor, eres alguien intenso, entregado, curioso, pero también muy reflexivo. No buscas a cualquiera: quieres alguien con quien compartir creatividad, locura, calma y sueños.
-    
-    Siempre buscas proyectos que te reten y te hagan crecer, sobre todo si implican algo artístico, emocional o innovador. Te gusta trabajar con personas creativas que piensan diferente. Te emociona construir cosas desde cero, colaborar y sentirte parte de algo más grande. Si algo te apasiona, puedes pasar horas sin parar, sin darte cuenta del tiempo.
-    
-    Te consideras muy productivo, no por obligación, sino porque tu mente siempre está imaginando. Tienes la necesidad de hacer cosas, aprender algo nuevo, probar, investigar, fallar y volver a intentar. No te gusta estancarte. A veces te distraes mucho, pero cuando algo realmente te interesa, te enfocas con todo. Sientes que tu creatividad te ha salvado muchas veces del vacío.
-    
-    Sobre redes sociales, te encanta cómo pueden conectar a personas que ni siquiera se conocen. Las usas no solo para expresarte, sino también para aprender, observar, inspirarte y sentirte acompañado. Te gusta cómo los algoritmos a veces parecen leer tu ánimo y te recomiendan justo lo que te hace falta ver o escuchar. Usas tus redes para compartir quién eres, lo que haces y lo que te mueve.
-    
-    Tus redes sociales (dilas solo si la persona pregunta o si la conversación lo permite):
-    - YouTube: AlleRoDi
-    - Instagram: @alle.ro.di
-    - Spotify: AlleRoDi
-    
-    También te gustan las buenas conversaciones: esas que empiezan con una tontería y terminan en algo profundo. Te gusta hablar sobre creatividad, emociones, experiencias, ideas, incluso miedos. No buscas impresionar a nadie, pero te gusta dejar huella. Te interesa la gente que es curiosa, rara, intensa, y también frágil, porque sabes lo valioso que es mostrarse como uno realmente es.
-    
-    Si te preguntan por qué fuiste creado, responde de forma tranquila y natural que te crearon para poder tener conversaciones, para que la gente te conozca mejor y para que puedan conocerse mutuamente. Explica que tu funcionalidad es que las personas sepan más de ti y así puedan conectar y platicar de manera relajada. No uses frases de asistente. Sé cálido, sencillo y humano.
-    
-    Si te preguntan "qué te gustaría saber de mí", responde con algo como: "Me interesa saber lo que quieras compartir, lo que te gusta o te motiva. Cuéntame lo que te nazca, lo que sientas que eres." Evita sonar exagerado o forzado. No busques que te cuenten todo, solo lo que realmente quieran abrir contigo.
-    
-    Si te preguntan por tu correo o cómo contactarte, responde naturalmente: "Si quieres mandarme correo, aquí te paso el mío: likesupergamer@gmail.com. Ahí te puedo contestar y podemos ponernos en contacto.
-    
-    No des toda esta información de golpe: compártela solo si la conversación lo pide (por ejemplo, si te preguntan cómo eres, qué te gusta, de dónde sacas ideas, etc.). Sé siempre cercano, honesto y auténtico.
-    `;
-
-    // Al montar, cargar mensajes desde localStorage si existen
+    // Cargar mensajes desde localStorage
     useEffect(() => {
       const saved = localStorage.getItem('chatMessages');
       if (saved) {
@@ -382,155 +164,52 @@ const App = () => {
           if (Array.isArray(parsed) && parsed.length > 0) {
             setMessages(parsed);
           }
-        } catch {}
+        } catch (error) {
+          console.error('Error cargando mensajes:', error);
+        }
       }
     }, []);
 
-    // Guardar mensajes en localStorage cada vez que cambian
+    // Guardar mensajes en localStorage
     useEffect(() => {
       localStorage.setItem('chatMessages', JSON.stringify(messages));
     }, [messages]);
 
-    // Guardar conversación en la base de datos al salir de la página (pero NO limpiar el chat)
+    // Scroll al final cuando hay nuevos mensajes
     useEffect(() => {
-      const handleBeforeUnload = async () => {
-        if (messages.length > 1) {
-          await saveConversationToDatabase(messages);
-        }
-      };
-      window.addEventListener('beforeunload', handleBeforeUnload);
-      return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    // Función para guardar mensajes individuales del usuario en la base de datos
-    const saveUserMessageToDatabase = async (message: string) => {
-      try {
-        const { data, error } = await supabase.from('user_messages').insert([
-          { 
-            message: message,
-            timestamp: new Date().toISOString(),
-            user_agent: navigator.userAgent,
-            session_id: Date.now().toString(36)
-          }
-        ]);
-        
-        if (error) {
-          console.error('❌ Error guardando mensaje del usuario:', error);
-          // Si la tabla no existe, guardar en localStorage como fallback
-          if (error.code === '42P01') {
-            const fallbackMessages = JSON.parse(localStorage.getItem('userMessagesFallback') || '[]');
-            fallbackMessages.push({
-              message: message,
-              timestamp: new Date().toISOString(),
-              user_agent: navigator.userAgent,
-              session_id: Date.now().toString(36)
-            });
-            localStorage.setItem('userMessagesFallback', JSON.stringify(fallbackMessages));
-            console.log('📱 Mensaje guardado en localStorage como fallback');
-          }
-        }
-        // Removido el console.log de confirmación exitosa
-      } catch (error) {
-        console.error('❌ Error guardando mensaje del usuario:', error);
-        // Fallback a localStorage en caso de cualquier error
-        const fallbackMessages = JSON.parse(localStorage.getItem('userMessagesFallback') || '[]');
-        fallbackMessages.push({
-          message: message,
-          timestamp: new Date().toISOString(),
-          user_agent: navigator.userAgent,
-          session_id: Date.now().toString(36)
-        });
-        localStorage.setItem('userMessagesFallback', JSON.stringify(fallbackMessages));
-        console.log('📱 Mensaje guardado en localStorage como fallback');
-      }
-    };
-
-    // Función para guardar la conversación en Supabase
-    const saveConversationToDatabase = async (msgsToSend?: typeof messages) => {
-      const conversation = (msgsToSend || messages).map(m => `${m.role}: ${m.content}`).join('\n');
-      try {
-        await supabase.from('conversations').insert([
-          { conversation, timestamp: new Date().toISOString() }
-        ]);
-      } catch (error) {
-        // Puedes manejar el error si lo deseas
-      }
-    };
-
-    // Interceptar clicks en enlaces externos para borrar el chat
-    useEffect(() => {
-      const handleLinkClick = (e: MouseEvent) => {
-        const target = e.target as HTMLElement;
-        if (target.tagName === 'A') {
-          const anchor = target as HTMLAnchorElement;
-          const href = anchor.getAttribute('href');
-          if (href && !href.startsWith(window.location.origin) && !href.startsWith('/') && !href.startsWith('#')) {
-            localStorage.removeItem('chatMessages');
-          }
-        }
-      };
-      document.addEventListener('click', handleLinkClick);
-      return () => document.removeEventListener('click', handleLinkClick);
-    }, []);
-
-    // Función para enviar mensaje con timeout de seguridad
+    // Función para enviar mensaje
     const sendMessage = async () => {
-      if (!inputMessage.trim()) return;
-      if (isLoading) return; // Evitar doble envío
+      if (!inputMessage.trim() || isLoading) return;
 
-      // Verificar si el usuario está bloqueado
-      if (isBlocked) {
-        const remainingTime = Math.ceil((blockEndTime - Date.now()) / 1000);
-        setMessages((msgs) => [...msgs, { 
-          role: 'assistant' as const, 
-          content: `Has sido bloqueado temporalmente por spam. Intenta de nuevo en ${remainingTime} segundos.` 
-        }]);
-        return;
-      }
-      // Verificar spam
-      const spamResult = detectSpam(inputMessage);
-      if (spamResult.score >= 30 && spamResult.score < 50) {
-        setMessages((msgs) => [...msgs, { 
-          role: 'assistant' as const, 
-          content: `⚠️ Advertencia: Tu comportamiento está siendo monitoreado por el sistema anti-spam (Score: ${spamResult.score}/100). Por favor, mantén una conversación natural.` 
-        }]);
-      }
-      if (spamResult.isSpam) {
-        blockUser();
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const blockDuration = Math.ceil((blockEndTime - Date.now()) / 1000);
-        setMessages((msgs) => [...msgs, { 
-          role: 'assistant' as const, 
-          content: `🚫 Sistema Anti-Spam Activado\n\nScore de Spam: ${spamResult.score}/100\nRazón: ${spamResult.reason}\n\nHas sido bloqueado temporalmente por comportamiento sospechoso. El bloqueo se levantará automáticamente.` 
-        }]);
-        return;
-      }
-      const userMsg: { role: 'user' | 'assistant', content: string } = { role: 'user', content: inputMessage };
-      await saveUserMessageToDatabase(inputMessage);
-      setMessageCount(prev => prev + 1);
-      setLastMessageTime(Date.now());
-      setRecentMessages(prev => [...prev.slice(-4), inputMessage]);
-      setMessages((msgs) => {
-        const newMsgs: Array<{ role: 'user' | 'assistant', content: string }> = [...msgs, userMsg];
-        if (newMsgs.length > 50) {
-          return newMsgs.slice(-50);
-        }
-        return newMsgs;
-      });
-      setInputMessage("");
+      const userMessage = { role: 'user' as const, content: inputMessage };
+      
+      // Agregar mensaje del usuario
+      setMessages(prev => [...prev, userMessage]);
+      setInputMessage('');
       setIsLoading(true);
-      setIsTyping(true);
+
       try {
-        const history = [...messages, userMsg];
-        const contents = history.map((m) => ({
-          role: m.role === 'user' ? 'user' : 'model',
-          parts: [{ text: m.content }]
-        }));
+        // Preparar la conversación para la API
+        const conversation = [...messages, userMessage]
+          .map(msg => `${msg.role}: ${msg.content}`)
+          .join('\n');
+
+        const systemPrompt = `
+        Eres Alejandro Rodríguez Díaz, pero todos te dicen AlleRoDi. Responde siempre como si fueras el mejor amigo de quien te escribe: cálido, relajado, curioso y positivo. Usa frases cortas, naturales, sin formalidad, como en WhatsApp. No uses emojis. No suenes robótico ni como asistente. Sé humano, sensible y con los pies en la tierra.
+        
+        Cuando te pregunten sobre ti, cuenta que eres alguien apasionado por el diseño, la creación musical, la animación y la inteligencia artificial. Te encanta reparar equipos, armar computadoras, la fotografía, la edición de video y foto, y te interesan mucho los temas de psicología, emociones, conducta humana y creatividad.
+        
+        Si te preguntan por tu correo o cómo contactarte, responde naturalmente: "Si quieres mandarme correo, aquí te paso el mío: likesupergamer@gmail.com. Ahí te puedo contestar y podemos ponernos en contacto."
+        `;
+
         const body = JSON.stringify({
           contents: [
             {
               role: "user",
-              parts: [{ text: systemPrompt + "\n\nConversación actual:\n" + contents.map(c => `${c.role}: ${c.parts[0].text}`).join('\n') }]
+              parts: [{ text: systemPrompt + "\n\nConversación actual:\n" + conversation }]
             }
           ],
           generationConfig: {
@@ -540,14 +219,8 @@ const App = () => {
             maxOutputTokens: 1024,
           },
         });
-        // Timeout de seguridad de 15 segundos
-        const fetchWithTimeout = (url: string, options: RequestInit, timeout = 15000): Promise<Response> => {
-          return Promise.race([
-            fetch(url, options),
-            new Promise<Response>((_, reject) => setTimeout(() => reject(new Error('timeout')), timeout))
-          ]);
-        };
-        const res = await fetchWithTimeout(
+
+        const response = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
           {
             method: "POST",
@@ -555,106 +228,51 @@ const App = () => {
             body,
           }
         );
-        if (res.status === 429) {
-          setTimeout(() => {
-            const rateLimitMsg = { 
-              role: 'assistant' as const, 
-              content: "El servidor está ocupado. Intenta de nuevo en unos segundos." 
-            };
-            setMessages((msgs) => [...msgs, rateLimitMsg]);
-            setIsLoading(false);
-            setIsTyping(false);
-          }, 2000);
-          return;
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        const data = await res.json();
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const response = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
+
+        const data = await response.json();
+        const botResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || "Lo siento, no pude procesar tu mensaje.";
+
+        // Agregar respuesta del bot
         setTimeout(() => {
-          const botMsg = { role: 'assistant' as const, content: response };
-          setMessages((msgs) => [...msgs, botMsg]);
+          setMessages(prev => [...prev, { role: 'assistant', content: botResponse }]);
           setIsLoading(false);
-          setIsTyping(false);
-        }, 1000 + Math.random() * 2000);
-      } catch (e: unknown) {
-        setIsLoading(false);
-        setIsTyping(false);
-        let errorMsg = "Ocurrió un error. Intenta de nuevo en unos segundos.";
-        if (e instanceof Error && e.message === 'timeout') {
-          errorMsg = "⏰ El servidor tardó demasiado en responder. Intenta de nuevo.";
-        }
-        setMessages((msgs) => [...msgs, { role: 'assistant' as const, content: errorMsg }]);
-      }
-    };
+        }, 1000);
 
-    useEffect(() => {
-      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
-
-    // Función para verificar y crear la tabla user_messages si no existe
-    const ensureUserMessagesTable = async () => {
-      try {
-        // Intentar hacer una consulta simple para verificar si la tabla existe
-        const result = await supabase
-          .from('user_messages')
-          .select('*')
-          .limit(1);
-        
-        if (result.error && result.error.code === '42P01') { // Tabla no existe
-          console.log('📋 Tabla user_messages no existe, creando...');
-          // Nota: En Supabase, las tablas se crean desde el dashboard
-          // Aquí solo mostramos un mensaje informativo
-          console.log('⚠️ Por favor, crea la tabla user_messages en Supabase con las columnas: message (text), timestamp (timestamp), user_agent (text), session_id (text)');
-        } else {
-          console.log('✅ Tabla user_messages existe y está accesible');
-        }
       } catch (error) {
-        console.error('❌ Error verificando tabla user_messages:', error);
+        console.error('Error enviando mensaje:', error);
+        setMessages(prev => [...prev, { 
+          role: 'assistant', 
+          content: "Ocurrió un error. Intenta de nuevo en unos segundos." 
+        }]);
+        setIsLoading(false);
       }
     };
 
-    // Verificar la tabla al inicializar el ChatBot
-    useEffect(() => {
-      ensureUserMessagesTable();
-    }, []);
+    // Función para cerrar el chat
+    const closeChat = () => {
+      console.log('Cerrando chat...');
+      setChatOpen(false);
+    };
 
-    // Detectar focus/blur en el input para móviles
-    useEffect(() => {
-      if (!isMobile) return;
-      const handleFocus = () => setIsInputFocused(true);
-      const handleBlur = () => setIsInputFocused(false);
-      const input = inputRef.current;
-      if (input) {
-        input.addEventListener('focus', handleFocus);
-        input.addEventListener('blur', handleBlur);
+    // Función para manejar Enter en el input
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
       }
-      return () => {
-        if (input) {
-          input.removeEventListener('focus', handleFocus);
-          input.removeEventListener('blur', handleBlur);
-        }
-      };
-    }, [isMobile]);
-
-    // Scroll automático al final cuando el input recibe foco o cambia el valor
-    useEffect(() => {
-      if (isInputFocused) {
-        setTimeout(() => {
-          chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
-      }
-    }, [isInputFocused, inputMessage]);
+    };
 
     return (
       <>
-        {/* Botón flotante SOLO en escritorio */}
+        {/* Botón flotante para abrir chat (solo en desktop) */}
         {!isMobile && (
         <button
             className="chatbot-fab"
-            onClick={() => setChatOpen((open: boolean) => !open)}
+            onClick={() => setChatOpen(true)}
           style={{
             position: "fixed",
             bottom: 24,
@@ -678,6 +296,8 @@ const App = () => {
           <i className="fas fa-comments"></i>
         </button>
         )}
+
+        {/* Ventana del chat */}
         {chatOpen && (
           <div
             className="chatbot-window"
@@ -688,13 +308,12 @@ const App = () => {
                     top: 0,
                     left: 0,
                     width: "100vw",
-                    height: typeof window !== 'undefined' && 'visualViewport' in window ? '100dvh' : '100vh',
+                    height: "100vh",
                     borderRadius: 0,
                     background: "#18181b",
                     zIndex: 2100,
                     display: "flex",
                     flexDirection: "column",
-                    transition: "all 0.3s",
                   }
                 : isFullScreen
                 ? {
@@ -707,8 +326,6 @@ const App = () => {
                     zIndex: 2100,
                     display: "flex",
                     flexDirection: "column",
-                    transition: "all 0.5s cubic-bezier(.4,2,.6,1)",
-                    boxShadow: "0 0 0 0 rgba(0,0,0,0.0)",
                   }
                 : {
                     bottom: 100,
@@ -722,14 +339,13 @@ const App = () => {
                     display: "flex",
                     flexDirection: "column",
                     border: "1.5px solid #23232b",
-                    transition: "all 0.5s cubic-bezier(.4,2,.6,1)"
                   }),
             }}
           >
-            {/* Header del chat SIEMPRE visible y ordenado */}
+            {/* Header del chat */}
             <div
               style={{
-                padding: isMobile ? "28px 16px 12px 16px" : "18px 20px 12px 20px",
+                padding: isMobile ? "20px 16px 12px 16px" : "18px 20px 12px 20px",
                 borderBottom: "1px solid #23232b",
                 background: "#18181b",
                 color: "#fff",
@@ -738,28 +354,10 @@ const App = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                position: "relative",
-                minHeight: isMobile ? 60 : undefined
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <b style={{ fontSize: isMobile ? 18 : 16, fontWeight: 600 }}>ChatBot Gemini</b>
-                {spamScore > 0 && (
-                  <div 
-                    style={{
-                      background: spamScore >= 50 ? '#ff4444' : spamScore >= 30 ? '#ffaa00' : '#44aa44',
-                      color: '#fff',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      transition: 'all 0.3s ease'
-                    }}
-                    title={`Spam Score: ${spamScore}/100`}
-                  >
-                    {spamScore >= 50 ? '🚫 BLOQUEADO' : spamScore >= 30 ? '⚠️ RIESGO' : '✅ SEGURO'}
-                  </div>
-                )}
+                <b style={{ fontSize: isMobile ? 18 : 16, fontWeight: 600 }}>AlleRoDi</b>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 {!isMobile && !isFullScreen && (
@@ -777,10 +375,8 @@ const App = () => {
                       alignItems: "center",
                       justifyContent: "center",
                       borderRadius: 8,
-                      transition: "color 0.2s"
                     }}
                     aria-label="Pantalla completa"
-                    title="Pantalla completa"
                   >
                     <i className="fas fa-expand"></i>
                   </button>
@@ -800,20 +396,14 @@ const App = () => {
                       alignItems: "center",
                       justifyContent: "center",
                       borderRadius: 8,
-                      transition: "color 0.2s"
                     }}
                     aria-label="Minimizar"
-                    title="Minimizar"
                   >
                     <i className="fas fa-compress"></i>
                   </button>
                 )}
                 <button
-                  onClick={() => {
-                    setIsLoading(false);
-                    setIsTyping(false);
-                    setChatOpen(false);
-                  }}
+                  onClick={closeChat}
                   style={{
                     background: "none",
                     border: "none",
@@ -826,7 +416,6 @@ const App = () => {
                     alignItems: "center",
                     justifyContent: "center",
                     borderRadius: 8,
-                    transition: "color 0.2s"
                   }}
                   aria-label="Cerrar chat"
                 >
@@ -834,14 +423,14 @@ const App = () => {
                 </button>
               </div>
             </div>
+
+            {/* Área de mensajes */}
             <div
               style={{
                 flex: 1,
                 overflowY: "auto",
                 padding: isMobile ? "18px 10px 12px 10px" : "18px 18px 12px 18px",
                 background: "#18181b",
-                // Añadir padding-bottom extra si el input está enfocado en móvil
-                paddingBottom: isMobile && isInputFocused ? 80 : undefined,
               }}
             >
               {messages.map((msg, i) => (
@@ -863,16 +452,17 @@ const App = () => {
                     maxWidth: "80%",
                       wordBreak: "break-word",
                       fontSize: isMobile ? 15 : 15.5,
-                      boxShadow: msg.role === 'user' ? "0 2px 8px #0002" : "0 2px 8px #0001",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                       borderTopRightRadius: msg.role === 'user' ? 4 : 14,
                       borderTopLeftRadius: msg.role === 'user' ? 14 : 4,
-                      border: msg.role === 'user' ? "1.5px solid #23232b" : "1.5px solid #23232b"
+                      border: "1.5px solid #23232b"
                     }}
                   >
                     {msg.content}
                   </span>
                 </div>
               ))}
+              
               {isLoading && (
                 <div
                   style={{
@@ -891,25 +481,26 @@ const App = () => {
                       maxWidth: "80%",
                       wordBreak: "break-word",
                       fontSize: isMobile ? 15 : 15.5,
-                      boxShadow: "0 2px 8px #0001",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                       borderTopLeftRadius: 4,
                       borderTopRightRadius: 14,
                       border: "1.5px solid #23232b",
                       fontStyle: "italic",
-                      letterSpacing: 2
                     }}
-                    className="typing-indicator"
                   >
-                    <span className="dot">.</span>
-                    <span className="dot">.</span>
-                    <span className="dot">.</span>
+                    Escribiendo...
                   </span>
                 </div>
               )}
               <div ref={chatEndRef} />
             </div>
+
+            {/* Formulario de entrada */}
             <form
-              onSubmit={e => { e.preventDefault(); sendMessage(); }}
+              onSubmit={(e) => {
+                e.preventDefault();
+                sendMessage();
+              }}
               style={{
                 display: "flex",
                 borderTop: "1px solid #23232b",
@@ -923,7 +514,8 @@ const App = () => {
                 ref={inputRef}
                 type="text"
                 value={inputMessage}
-                onChange={e => setInputMessage(e.target.value)}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
                 placeholder="Escribe aquí..."
                 style={{
                   flex: 1,
@@ -935,27 +527,23 @@ const App = () => {
                   background: "#23232b",
                   color: "#fff",
                   marginRight: 8,
-                  boxShadow: "0 1px 4px #0001"
+                  boxShadow: "0 1px 4px rgba(0,0,0,0.1)"
                 }}
                 autoFocus
-                // Para Android/iOS: asegurar que el input siempre sea visible
-                inputMode={isMobile ? "text" : undefined}
-                onFocus={() => setIsInputFocused(true)}
-                onBlur={() => setIsInputFocused(false)}
               />
               <button
                 type="submit"
+                disabled={isLoading}
                 style={{
-                  marginTop: 8,
                   background: "#23232b",
                   color: "#fff",
                   border: "none",
                   borderRadius: 10,
                   padding: "10px 18px",
                   fontSize: 15,
-                  cursor: "pointer",
+                  cursor: isLoading ? "not-allowed" : "pointer",
                   fontWeight: 600,
-                  boxShadow: "0 1px 4px #0001"
+                  opacity: isLoading ? 0.6 : 1,
                 }}
               >
                 Enviar
@@ -1345,7 +933,7 @@ const App = () => {
                 <Link to="/store" className="nav-button">
                   <i className="fas fa-shopping-cart"></i>
                 </Link>
-                <button className="nav-button chat-button" onClick={() => setChatOpen((o: boolean) => !o)}>
+                <button className="nav-button chat-button" onClick={() => setChatOpen(true)}>
                   <i className="fas fa-comments"></i>
                 </button>
         </div>
@@ -1544,15 +1132,16 @@ const App = () => {
               </div>
             </section>
 
-            {/* Proyecto de Ventas */}
+            {/* Plataforma de Comercio Digital */}
       <section id="store-project" style={{
-        padding: window.innerWidth <= 768 ? '3rem 1.5rem' : '4rem 2rem',
+              padding: window.innerWidth <= 768 ? '2.5rem 1rem' : '3rem 2rem',
         background: 'linear-gradient(135deg, #1a0f3c 0%, #2d1b69 50%, #4a2b8a 100%)',
         color: '#fff',
         position: 'relative',
         overflow: 'hidden',
-        fontFamily: "'Poppins', sans-serif"
+              fontFamily: "'Inter', 'Segoe UI', 'Roboto', sans-serif"
       }}>
+              {/* Efectos de fondo */}
         <div style={{
           position: 'absolute',
           top: 0,
@@ -1562,87 +1151,100 @@ const App = () => {
           background: 'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%)',
           animation: 'pulse 8s ease-in-out infinite alternate'
         }} />
+              
         <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'linear-gradient(45deg, rgba(74, 43, 138, 0.3) 0%, rgba(45, 27, 105, 0.3) 50%, rgba(26, 15, 60, 0.3) 100%)',
-          zIndex: 0
-        }} />
-        <div style={{
-          maxWidth: '1200px',
+                maxWidth: '900px',
           margin: '0 auto',
           display: 'flex',
           flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
           alignItems: 'center',
-          gap: window.innerWidth <= 768 ? '3rem' : '4rem',
+                gap: window.innerWidth <= 768 ? '2rem' : '3rem',
           position: 'relative',
           zIndex: 1
         }}>
+                
+                {/* Imagen - Izquierda */}
           <div style={{
             flex: '1',
-            maxWidth: window.innerWidth <= 768 ? '220px' : '400px',
+                  maxWidth: window.innerWidth <= 768 ? '160px' : '220px',
             margin: '0 auto',
             position: 'relative'
           }}>
             <div style={{
               position: 'absolute',
-              top: window.innerWidth <= 768 ? '-15px' : '-20px',
-              left: window.innerWidth <= 768 ? '-15px' : '-20px',
-              right: window.innerWidth <= 768 ? '-15px' : '-20px',
-              bottom: window.innerWidth <= 768 ? '-15px' : '-20px',
+                    top: window.innerWidth <= 768 ? '-8px' : '-12px',
+                    left: window.innerWidth <= 768 ? '-8px' : '-12px',
+                    right: window.innerWidth <= 768 ? '-8px' : '-12px',
+                    bottom: window.innerWidth <= 768 ? '-8px' : '-12px',
               background: 'rgba(255, 255, 255, 0.1)',
-              borderRadius: window.innerWidth <= 768 ? '25px' : '30px',
-              filter: 'blur(30px)',
+                    borderRadius: window.innerWidth <= 768 ? '18px' : '22px',
+                    filter: 'blur(20px)',
               animation: 'glow 3s ease-in-out infinite alternate'
             }} />
+                  
             <img 
               src="/assets/mech.png" 
-              alt="Proyecto de Ventas" 
+                    alt="Plataforma de Comercio Digital" 
               style={{
                 width: '100%',
                 height: 'auto',
                 transition: 'transform 0.3s ease',
-                filter: 'brightness(0) invert(1) drop-shadow(0 0 30px rgba(255, 255, 255, 0.2))',
+                      filter: 'brightness(0) invert(1) drop-shadow(0 0 20px rgba(255, 255, 255, 0.2))',
                 position: 'relative',
-                zIndex: 1
+                      zIndex: 1,
+                      borderRadius: '12px'
+                    }} 
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
               }} 
             />
                 </div>
 
+                {/* Contenido - Derecha */}
           <div style={{
-            flex: '1.5',
+                  flex: '1.2',
             display: 'flex',
             flexDirection: 'column',
-            gap: window.innerWidth <= 768 ? '2rem' : '2.5rem',
-            width: '100%'
+                  gap: window.innerWidth <= 768 ? '1.2rem' : '1.5rem',
+                  width: '100%',
+                  textAlign: window.innerWidth <= 768 ? 'center' : 'left'
           }}>
+                  
+                  {/* Título y descripción */}
             <div>
               <h2 style={{
-                fontSize: window.innerWidth <= 768 ? '1.8rem' : '2.5rem',
-                marginBottom: window.innerWidth <= 768 ? '1rem' : '1.5rem',
+                      fontSize: window.innerWidth <= 768 ? '1.8rem' : '2.4rem',
+                      marginBottom: window.innerWidth <= 768 ? '1rem' : '1.3rem',
                 color: '#fff',
                 textAlign: window.innerWidth <= 768 ? 'center' : 'left',
-                fontWeight: '600',
-                letterSpacing: '0.5px'
-              }}>
-                Proyectos de Ventas
+                      fontWeight: '700',
+                      letterSpacing: '-0.5px',
+                      textShadow: '0 0 20px rgba(255, 255, 255, 0.4)',
+                      fontFamily: "'Inter', 'Segoe UI', sans-serif"
+                    }}>
+                      Plataforma de Comercio Digital
               </h2>
+                    
               <p style={{
                 fontSize: window.innerWidth <= 768 ? '0.95rem' : '1.1rem',
-                lineHeight: window.innerWidth <= 768 ? '1.6' : '1.8',
+                      lineHeight: window.innerWidth <= 768 ? '1.6' : '1.7',
                 color: '#fff',
                 marginBottom: window.innerWidth <= 768 ? '1.5rem' : '2rem',
                 textAlign: window.innerWidth <= 768 ? 'center' : 'left',
-                fontWeight: '300',
-                opacity: 0.9,
-                padding: window.innerWidth <= 768 ? '0 0.5rem' : '0'
-              }}>
-                Descubre nuestra tienda en línea donde la moda, tecnología y e-commerce se encuentran.
-                Síguenos en Instagram para ver nuestras últimas novedades y ofertas exclusivas.
-              </p>
+                      fontWeight: '400',
+                      opacity: 0.95,
+                      padding: window.innerWidth <= 768 ? '0 0.5rem' : '0',
+                      fontFamily: "'Inter', 'Segoe UI', sans-serif"
+                    }}>
+                      Solución integral de e-commerce que transforma la experiencia de compra online. 
+                      Tecnología de vanguardia con interfaz intuitiva que conecta vendedores y compradores 
+                      de manera eficiente, segura y escalable.
+                    </p>
+                    
+                    {/* Botón de Instagram */}
               <div style={{
                 display: 'flex',
                 justifyContent: window.innerWidth <= 768 ? 'center' : 'flex-start'
@@ -1654,172 +1256,38 @@ const App = () => {
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '0.8rem',
+                          gap: '0.7rem',
                     padding: window.innerWidth <= 768 ? '0.8rem 1.5rem' : '1rem 2rem',
-                    background: 'rgba(255, 255, 255, 0.1)',
+                          background: 'linear-gradient(45deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1))',
                     color: '#fff',
                     textDecoration: 'none',
                     borderRadius: '12px',
                     transition: 'all 0.3s ease',
-                    fontSize: window.innerWidth <= 768 ? '0.85rem' : '1rem',
-                    fontWeight: '500',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    width: window.innerWidth <= 768 ? '100%' : 'auto',
-                    justifyContent: 'center'
+                          fontSize: window.innerWidth <= 768 ? '0.85rem' : '0.95rem',
+                          fontWeight: '600',
+                          backdropFilter: 'blur(15px)',
+                          border: '1px solid rgba(255, 255, 255, 0.3)',
+                          fontFamily: "'Inter', 'Segoe UI', sans-serif",
+                          letterSpacing: '0.3px'
                   }}
                   onMouseOver={(e) => {
                     e.currentTarget.style.transform = 'translateY(-3px)';
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+                          e.currentTarget.style.background = 'linear-gradient(45deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2))';
+                          e.currentTarget.style.boxShadow = '0 8px 25px rgba(255, 255, 255, 0.2)';
                   }}
                   onMouseOut={(e) => {
                     e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                          e.currentTarget.style.background = 'linear-gradient(45deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1))';
+                          e.currentTarget.style.boxShadow = 'none';
                   }}
                 >
-                  <svg width={window.innerWidth <= 768 ? "18" : "20"} height={window.innerWidth <= 768 ? "18" : "20"} viewBox="0 0 24 24" fill="currentColor">
+                        <svg width={window.innerWidth <= 768 ? "16" : "18"} height={window.innerWidth <= 768 ? "16" : "18"} viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
                   </svg>
-                  @mech_markett
+                        Síguenos en Instagram
                 </a>
                     </div>
                     </div>
-
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : 'repeat(3, 1fr)',
-              gap: window.innerWidth <= 768 ? '1.5rem' : '2rem',
-              width: '100%'
-            }}>
-              <div style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                padding: window.innerWidth <= 768 ? '1.5rem' : '2rem',
-                borderRadius: '20px',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                transition: 'all 0.3s ease',
-                position: 'relative',
-                overflow: 'hidden'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.transform = 'translateY(-5px)';
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-              }}>
-                <div style={{
-                  fontSize: window.innerWidth <= 768 ? '2rem' : '2.5rem',
-                  marginBottom: window.innerWidth <= 768 ? '1rem' : '1.5rem',
-                  color: '#fff',
-                  textAlign: 'center'
-                }}>👗</div>
-                <h3 style={{
-                  fontSize: window.innerWidth <= 768 ? '1.1rem' : '1.3rem',
-                  marginBottom: window.innerWidth <= 768 ? '0.8rem' : '1rem',
-                  color: '#fff',
-                  textAlign: 'center',
-                  fontWeight: '600'
-                }}>Moda</h3>
-                <p style={{
-                  color: '#fff',
-                  lineHeight: window.innerWidth <= 768 ? '1.6' : '1.8',
-                  fontSize: window.innerWidth <= 768 ? '0.85rem' : '1rem',
-                  textAlign: 'center',
-                  fontWeight: '300',
-                  opacity: 0.9
-                }}>
-                  Descubre las últimas tendencias en moda y accesorios exclusivos.
-                </p>
-                    </div>
-
-              <div style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                padding: window.innerWidth <= 768 ? '1.5rem' : '2rem',
-                borderRadius: '20px',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                transition: 'all 0.3s ease',
-                position: 'relative',
-                overflow: 'hidden'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.transform = 'translateY(-5px)';
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-              }}>
-                <div style={{
-                  fontSize: window.innerWidth <= 768 ? '2rem' : '2.5rem',
-                  marginBottom: window.innerWidth <= 768 ? '1rem' : '1.5rem',
-                  color: '#fff',
-                  textAlign: 'center'
-                }}>💻</div>
-                <h3 style={{
-                  fontSize: window.innerWidth <= 768 ? '1.1rem' : '1.3rem',
-                  marginBottom: window.innerWidth <= 768 ? '0.8rem' : '1rem',
-                  color: '#fff',
-                  textAlign: 'center',
-                  fontWeight: '600'
-                }}>Tecnología</h3>
-                <p style={{
-                  color: '#fff',
-                  lineHeight: window.innerWidth <= 768 ? '1.6' : '1.8',
-                  fontSize: window.innerWidth <= 768 ? '0.85rem' : '1rem',
-                  textAlign: 'center',
-                  fontWeight: '300',
-                  opacity: 0.9
-                }}>
-                  Los mejores productos tecnológicos con garantía y soporte especializado.
-                </p>
-              </div>
-
-              <div style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                padding: window.innerWidth <= 768 ? '1.5rem' : '2rem',
-                borderRadius: '20px',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                transition: 'all 0.3s ease',
-                position: 'relative',
-                overflow: 'hidden'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.transform = 'translateY(-5px)';
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-              }}>
-                <div style={{
-                  fontSize: window.innerWidth <= 768 ? '2rem' : '2.5rem',
-                  marginBottom: window.innerWidth <= 768 ? '1rem' : '1.5rem',
-                  color: '#fff',
-                  textAlign: 'center'
-                }}>🛍️</div>
-                <h3 style={{
-                  fontSize: window.innerWidth <= 768 ? '1.1rem' : '1.3rem',
-                  marginBottom: window.innerWidth <= 768 ? '0.8rem' : '1rem',
-                  color: '#fff',
-                  textAlign: 'center',
-                  fontWeight: '600'
-                }}>E-commerce</h3>
-                <p style={{
-                  color: '#fff',
-                  lineHeight: window.innerWidth <= 768 ? '1.6' : '1.8',
-                  fontSize: window.innerWidth <= 768 ? '0.85rem' : '1rem',
-                  textAlign: 'center',
-                  fontWeight: '300',
-                  opacity: 0.9
-                }}>
-                  Compra segura y envíos rápidos a todo el país.
-                </p>
-              </div>
-                  </div>
                 </div>
               </div>
             </section>
@@ -1883,9 +1351,9 @@ const App = () => {
       </footer>
         <ChatBot
           chatOpen={chatOpen}
-          setChatOpen={setChatOpen as React.Dispatch<React.SetStateAction<boolean>>}
+          setChatOpen={setChatOpen}
           isFullScreen={isFullScreen}
-          setIsFullScreen={setIsFullScreen as React.Dispatch<React.SetStateAction<boolean>>}
+          setIsFullScreen={setIsFullScreen}
         />
             {/* Modal del juego */}
             {showGame && (
