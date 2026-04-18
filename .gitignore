@@ -10,6 +10,9 @@
 # /build
 # /dist
 
+# Vite (evitar duplicar config: Vite prioriza vite.config.js sobre .ts)
+vite.config.js
+
 # Misc
 .DS_Store
 .env
