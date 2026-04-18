@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import '../../App.css';
-import { LASTFM_API_KEY as API_KEY, LASTFM_USER as USER } from '../../config/lastfm';
+import {
+  LASTFM_API_KEY as API_KEY,
+  LASTFM_USER as USER,
+  lastFmConfigError,
+} from '../../config/lastfm';
 const BASE = 'https://ws.audioscrobbler.com/2.0/';
 const RECENT_URL = `${BASE}?method=user.getrecenttracks&user=${USER}&api_key=${API_KEY}&format=json&limit=10`;
 const TOP_TRACKS_URL = `${BASE}?method=user.gettoptracks&user=${USER}&api_key=${API_KEY}&format=json&period=7day&limit=8`;
@@ -71,8 +75,9 @@ const MusicPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchAll = useCallback(async () => {
-    if (!API_KEY || !USER) {
-      setError('Missing Last.fm config');
+    const cfgErr = lastFmConfigError();
+    if (cfgErr) {
+      setError(cfgErr);
       setLoading(false);
       return;
     }

@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LASTFM_API_KEY as API_KEY, LASTFM_USER as USER } from '../../config/lastfm';
+import {
+  LASTFM_API_KEY as API_KEY,
+  LASTFM_USER as USER,
+  lastFmConfigError,
+} from '../../config/lastfm';
 const API_URL = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${USER}&api_key=${API_KEY}&format=json&limit=1`;
 
 interface TrackImage {
@@ -43,8 +47,9 @@ function LastFmWidget() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchNowPlaying = useCallback(async () => {
-    if (!API_KEY || !USER) {
-      setError('Missing Last.fm config');
+    const cfgErr = lastFmConfigError();
+    if (cfgErr) {
+      setError(cfgErr);
       setLoading(false);
       return;
     }
