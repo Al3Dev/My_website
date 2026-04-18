@@ -10,21 +10,19 @@ export const initAnimations = () => {
   // Timeline principal de entrada (más suave)
   const mainTimeline = gsap.timeline();
   
-  // Animación de entrada del hero (más ligera)
-  const name = document.querySelector('.floating-name h1');
-  const character = document.querySelector('.character-overlay');
+  // Animación de entrada del hero: solo fade in (sin translate para no romper el layout split)
+  const name = document.querySelector('.floating-name h1, .hero-title');
+  const character = document.querySelector('.character-overlay, .character-img');
   const star = document.querySelector('.star');
   if (name) {
     mainTimeline
       .from(name, {
         duration: 1,
-        y: 50,
         opacity: 0,
         ease: "power2.out"
       })
       .from(character, {
         duration: 0.8,
-        x: -100,
         opacity: 0,
         ease: "power2.out"
       }, "-=0.5")
@@ -37,7 +35,6 @@ export const initAnimations = () => {
       }, "-=0.3")
       .from('.game-buttons .pixel-btn', {
         duration: 0.5,
-        y: 20,
         opacity: 0,
         stagger: 0.05,
         ease: "power2.out"
@@ -51,7 +48,6 @@ export const initAnimations = () => {
     '.services-section',
     '.music-section',
     '.game-section',
-    '.store-project-section',
     '.creations-page',
     '.stories-page',
     '.store-page',

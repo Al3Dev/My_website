@@ -1,0 +1,75 @@
+.social-page {
+  background-color: #000;
+  min-height: 100vh;
+  padding: 100px 20px 80px;
+}
+
+.social-title {
+  font-family: 'Press Start 2P', cursive;
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  color: #fff;
+  margin: 0 0 0.5rem;
+}
+
+.social-subtitle {
+  color: #888;
+  font-size: 0.9rem;
+  margin: 0 0 2rem;
+}
+
+.social-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1.25rem;
+  max-width: 600px;
+  margin-bottom: 2rem;
+}
+
+.social-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  color: #fff;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.social-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.social-card-icon {
+  font-size: 2rem;
+  color: #fff;
+}
+
+.social-card-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.social-card-desc {
+  font-size: 0.75rem;
+  color: #a0a0a0;
+}
+
+.social-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #888;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.social-back:hover {
+  color: #fff;
+}

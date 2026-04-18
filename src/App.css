@@ -11,6 +11,7 @@ html, body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  cursor: url('./assets/star.png') 16 16, auto;
 }
 
 #root {
@@ -22,14 +23,222 @@ html, body {
 .section, 
 .about-section, 
 .projects-section, 
+/* ========== Sistema de Contenedor Unificado ========== */
+.section-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+  box-sizing: border-box;
+}
+
+/* ========== Reset de Fondos de Secciones ========== */
 .services-section, 
-.music-section, 
 .creations-page, 
 .stories-page, 
 .store-page,
+.music-page,
+.store-project-section,
+.gallery-section,
+.inspiration-section {
+  position: relative;
+}
+
+/* Eliminar overlays y pseudo-elementos de fondo */
+.character-section::before,
+.game-section::before,
+.music-section::before,
+.gallery-section::before,
+.inspiration-section::before,
+.services-section::before {
+  display: none !important;
+}
+
+/* ========== Estilos Unificados para Secciones con Imagen + Texto ========== */
+.character-section,
 .game-section,
-.store-project-section {
-  background-color: #000000 !important;
+.music-section {
+  padding: 4rem 0 !important;
+  position: relative !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  overflow: visible !important;
+}
+
+/* Layout Zig-Zag: Character normal, Game reverse, Music normal */
+.character-container,
+.music-container {
+  max-width: 1100px !important;
+  margin: 0 auto !important;
+  padding: 0 2rem !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4rem !important;
+  position: relative !important;
+  z-index: 2 !important;
+  justify-content: flex-start !important;
+}
+
+.game-container {
+  max-width: 1100px !important;
+  margin: 0 auto !important;
+  padding: 0 2rem !important;
+  display: flex !important;
+  flex-direction: row-reverse !important;
+  align-items: center !important;
+  gap: 4rem !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* Padding aumentado entre secciones para que respire */
+.character-section,
+.game-section,
+.music-section {
+  padding: 6rem 0 !important;
+}
+
+/* Control de Imágenes: Tamaño máximo y estilo */
+.character-image img,
+.music-image img,
+.game-image video,
+.game-image img {
+  max-width: 450px !important;
+  width: 100% !important;
+  height: auto !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  object-fit: cover !important;
+}
+
+.character-image,
+.music-image,
+.game-image {
+  flex: 0 0 auto !important;
+  max-width: 40% !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 0 !important;
+  text-align: center !important;
+}
+
+/* Contenido de texto */
+.character-content,
+.game-content,
+.music-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Tipografía Unificada */
+.character-title,
+.game-title,
+.music-title {
+  font-family: 'Press Start 2P', cursive !important;
+  font-size: clamp(1.5rem, 3vw, 2rem) !important;
+  margin-bottom: 1.5rem !important;
+  color: #ffffff !important;
+  text-align: left !important;
+  text-shadow: none !important;
+}
+
+.character-title::after,
+.music-title::after {
+  display: none !important;
+}
+
+.character-description,
+.game-description,
+.music-description {
+  font-size: 1rem !important;
+  line-height: 1.7 !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  margin-bottom: 1.5rem !important;
+  text-align: left !important;
+}
+
+/* Gallery Section - Unificada */
+.gallery-section {
+  padding: 6rem 0;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.6) 100%),
+              url('assets/allerodi1.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.gallery-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Inspiration Section - Unificada (background set via component with CyberCat.png) */
+.inspiration-section {
+  padding: 6rem 0;
+  background-size: cover !important;
+  background-position: center !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Services Section - Unificada */
+.services-section {
+  padding: 4rem 0;
+  background: #000000 !important;
+}
+
+.services-grid {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+/* Responsive: Stack vertical en móvil */
+@media (max-width: 768px) {
+  .section-container {
+    padding: 3rem 1.5rem;
+  }
+
+  .character-container,
+  .game-container,
+  .music-container {
+    flex-direction: column !important;
+    gap: 2rem;
+    padding: 0 1.5rem;
+  }
+
+  .character-image,
+  .music-image,
+  .game-image {
+    max-width: 100%;
+  }
+
+  .character-image img,
+  .music-image img,
+  .game-image video,
+  .game-image img {
+    max-width: 100%;
+  }
+
+  .character-title,
+  .game-title,
+  .music-title {
+    text-align: center;
+    font-size: 1.3rem;
+  }
+
+  .character-description,
+  .game-description,
+  .music-description {
+    text-align: center;
+    font-size: 0.9rem;
+  }
 }
 
 body {
@@ -54,6 +263,31 @@ body {
   right: 0;
   z-index: 1000;
   transition: top 0.3s ease-in-out;
+}
+
+/* Glassmorphism capsule navbar (desktop) */
+.navbar.fixed-top {
+  margin-top: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  background: transparent;
+}
+
+.navbar.fixed-top .container {
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  background: rgba(20, 20, 20, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50px;
+  padding: 0.6rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
 }
 
 .navbar-brand {
@@ -87,17 +321,30 @@ body {
   color: #ffffff !important;
   font-weight: 500;
   position: relative;
-  padding: 0.5rem 1rem !important;
-  transition: all 0.3s ease;
+  padding: 0.5rem 1.25rem !important;
+  transition: all 0.25s ease;
   text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
   animation: textGlow 2s ease-in-out infinite;
 }
 
 .nav-link:hover {
+  color: #e0e0ff !important;
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
                0 0 20px rgba(255, 255, 255, 0.6),
                0 0 30px rgba(255, 255, 255, 0.4);
   transform: translateY(-2px);
+}
+
+.nav-link:hover::after {
+  width: 100%;
+  background: linear-gradient(90deg, transparent, #fff, transparent);
+  animation: navGlitch 0.3s ease;
+}
+
+@keyframes navGlitch {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-1px); }
+  75% { transform: translateX(1px); }
 }
 
 @keyframes textGlow {
@@ -166,16 +413,800 @@ body {
 .hero-section {
   height: 100vh;
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: center;
-  background-image: url('./assets/background.png'); /* Reemplaza con tu imagen */
+  align-items: stretch;
+  background-image: url('./assets/background.png');
   background-size: cover;
   background-position: center;
-  background-attachment: fixed;
+  background-repeat: no-repeat;
   position: relative;
   overflow: hidden;
-  animation: backgroundMove 30s ease infinite;
-  padding-bottom: 80px; /* Espacio para el navbar móvil */
+  padding-bottom: 80px;
+}
+
+/* Overlay para reducir ruido del fondo y mejorar legibilidad (Y2K/Webcore) */
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Split-screen layout: 2 columns – cohesive hero unit */
+.hero-split {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  width: 100%;
+  max-width: 1220px;
+  margin: 0 auto;
+  justify-content: center;
+  gap: 60px;
+  min-height: 0;
+  position: relative;
+  z-index: 3;
+}
+
+.hero-left,
+.hero-right {
+  transform: none !important;
+  left: auto !important;
+  position: relative !important;
+}
+
+.hero-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  text-align: center;
+  padding: 2rem 3rem;
+  padding-right: 0;
+  box-sizing: border-box;
+  min-height: 600px;
+  height: 100%;
+}
+
+.hero-right {
+  flex: 1.2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 3rem;
+  padding-left: 0;
+  box-sizing: border-box;
+}
+
+/* Glassmorphism panel (right column) – Last.fm Winamp widget */
+.hero-glass-panel {
+  width: 100%;
+  max-width: 600px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 30px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.hero-model-wrapper {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  word-break: break-word;
+  font-size: clamp(0.5rem, 4vw, 1rem);
+}
+
+/* ========== Last.fm Widget – Pixel Art Monocromático (B&W) ========== */
+.hero-right .hero-glass-panel .lastfm-widget {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #000000;
+  font-family: 'Press Start 2P', 'Courier New', 'Consolas', monospace;
+  color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* Fondo: imagen del álbum */
+.lastfm-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #000000;
+  border-radius: inherit;
+  z-index: 0;
+}
+
+/* Overlay negro semi-transparente para legibilidad (OBLIGATORIO) */
+.lastfm-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 1;
+}
+
+.lastfm-scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.3) 2px,
+    rgba(0, 0, 0, 0.3) 4px
+  );
+  z-index: 2;
+  border-radius: inherit;
+}
+
+/* Contenido centrado (stack: portada → status → título → artista) */
+.lastfm-content {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 1rem 1.25rem 4rem;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.lastfm-content:hover {
+  opacity: 0.9;
+}
+
+.lastfm-widget {
+  cursor: pointer;
+}
+
+/* Portada centrada, borde blanco sólido */
+.lastfm-art-center {
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 2px solid #FFFFFF;
+  margin-bottom: 0.9rem;
+}
+
+.lastfm-art-center-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.lastfm-art-center-placeholder {
+  width: 100%;
+  height: 100%;
+  background: #111111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #AAAAAA;
+  font-size: 1.6rem;
+}
+
+/* Estado (NOW PLAYING / LAST PLAYED) en blanco */
+.lastfm-status {
+  font-size: 0.65rem;
+  font-weight: bold;
+  letter-spacing: 0.12em;
+  color: #FFFFFF;
+  margin-bottom: 0.4rem;
+  text-align: center;
+}
+
+.lastfm-status--live {
+  animation: lastfmStatusBlink 1.2s steps(2, start) infinite;
+}
+
+@keyframes lastfmStatusBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.lastfm-track-wrap {
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.3rem;
+}
+
+.lastfm-title-marquee {
+  display: flex;
+  width: max-content;
+  justify-content: center;
+}
+
+.lastfm-title-marquee--scroll {
+  animation: lastfmMarquee 18s linear infinite;
+}
+
+.lastfm-title-marquee--scroll:hover {
+  animation-play-state: paused;
+}
+
+/* Título: Blanco, Grande, Centrado, Monospace/Pixel */
+.lastfm-title-text {
+  white-space: nowrap;
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  font-weight: bold;
+  line-height: 1.2;
+  color: #FFFFFF;
+  text-align: center;
+}
+
+.lastfm-title-dupe {
+  padding-left: 1.5rem;
+}
+
+.lastfm-title-sep {
+  color: #FFFFFF;
+  padding: 0 0.25rem;
+}
+
+/* Artista: Gris claro, centrado */
+.lastfm-artist {
+  font-size: 0.9rem;
+  color: #AAAAAA;
+  line-height: 1.3;
+  text-align: center;
+}
+
+
+.lastfm-loading,
+.lastfm-error {
+  position: absolute;
+  bottom: 3.5rem;
+  left: 1rem;
+  right: 1rem;
+  font-size: 0.7rem;
+  color: #AAAAAA;
+  text-align: center;
+  z-index: 4;
+}
+
+.lastfm-error {
+  color: #FF6666;
+}
+
+@keyframes lastfmMarquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ========== Music Page – Clean Dark Mode (Last.fm / Spotify style) ========== */
+.music-page {
+  min-height: 100vh;
+  padding-top: 100px;
+  padding-bottom: 3rem;
+  position: relative;
+  overflow: hidden;
+  background-image: url('./assets/background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Overlay para reducir ruido del fondo (igual que hero-section) */
+.music-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.music-page-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.music-page-inner {
+  position: relative;
+  z-index: 3;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+.music-page-title {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  font-size: clamp(1.75rem, 5vw, 2.25rem);
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  margin: 0 0 2.5rem;
+}
+
+/* .music-page-title--glitch - Sin efecto glitch en Clean Dark Mode, estilos heredados del título principal */
+
+.music-loading,
+.music-error {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 1.5rem;
+}
+
+.music-loading-pixel {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0.2) 100%);
+  background-size: 200% 100%;
+  animation: musicLoadingPixel 1s linear infinite;
+  border-radius: 6px;
+}
+
+@keyframes musicLoadingPixel {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.music-loading-text {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.15em;
+  color: #a0a0a0;
+  margin: 0;
+  animation: musicLoadingBlink 0.8s ease-in-out infinite;
+}
+
+@keyframes musicLoadingBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.music-error p {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #e57373;
+  margin: 0;
+}
+
+/* ——— Secciones (RECENT TRACKS / TOP ARTISTS / TOP ALBUMS) ——— */
+.music-section-block {
+  margin-bottom: 2.5rem;
+}
+
+.music-section-title {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  margin: 0 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.music-section-empty {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 0.9rem;
+  color: #a0a0a0;
+  margin: 0;
+}
+
+/* Sección 1: Lista RECENT TRACKS (CSS Grid, columnas rectas) */
+.music-recent-list {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.music-recent-row {
+  display: grid;
+  grid-template-columns: 40px 50px 1fr 1fr 80px;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  padding: 0.6rem 1rem;
+  min-width: 0;
+  transition: background 0.2s ease;
+}
+
+.music-recent-row:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.music-recent-play,
+.music-recent-like {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: #f0f0f0;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.music-recent-play:hover,
+.music-recent-like:hover {
+  color: #39ff14;
+  border-color: rgba(57, 255, 20, 0.5);
+  background: rgba(57, 255, 20, 0.08);
+}
+
+.music-recent-art {
+  width: 50px;
+  height: 50px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #1a1a1a;
+}
+
+.music-recent-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.music-recent-art-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1a1a1a;
+  color: #606060;
+  font-size: 1rem;
+}
+
+.music-recent-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.music-recent-artist {
+  font-size: 0.875rem;
+  color: #a0a0a0;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.music-recent-time {
+  font-size: 0.8rem;
+  color: #a0a0a0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.music-recent-sep {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0 1rem;
+  grid-column: 1 / -1;
+}
+
+/* Sección 2: Grid TOP ARTISTS (7 days) – tarjetas limpias */
+.music-artists-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.music-artist-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.music-artist-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.music-artist-card-bg {
+  position: absolute;
+  inset: 0;
+  min-height: 100%;
+}
+
+.music-artist-card-bg img {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  vertical-align: middle;
+}
+
+.music-artist-card-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1a1a1a;
+  color: #606060;
+  font-size: 2rem;
+}
+
+.music-artist-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 25%, rgba(0, 0, 0, 0.75) 70%, rgba(0, 0, 0, 0.9) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0.75rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.music-artist-card-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.music-artist-card-count {
+  font-size: 0.75rem;
+  color: #a0a0a0;
+  margin-top: 0.2rem;
+}
+
+/* Sección 3: Grid TOP ALBUMS (7 days) – tarjetas limpias */
+.music-albums-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.music-album-card {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.music-album-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.music-album-card-bg {
+  position: absolute;
+  inset: 0;
+}
+
+.music-album-card-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.music-album-card-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1a1a1a;
+  color: #606060;
+  font-size: 2rem;
+}
+
+.music-album-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 25%, rgba(0, 0, 0, 0.75) 70%, rgba(0, 0, 0, 0.9) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0.75rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.music-album-card-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.music-album-card-artist {
+  font-size: 0.8rem;
+  color: #a0a0a0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.music-album-card-count {
+  font-size: 0.75rem;
+  color: #a0a0a0;
+  margin-top: 0.2rem;
+}
+
+@media (max-width: 768px) {
+  .music-artists-grid,
+  .music-albums-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .music-recent-row {
+    grid-template-columns: 40px 50px 1fr 72px;
+    grid-template-rows: auto auto;
+    gap: 0.25rem 0.5rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .music-recent-play {
+    grid-row: 1 / -1;
+    align-self: center;
+  }
+
+  .music-recent-art {
+    grid-row: 1 / -1;
+    align-self: center;
+  }
+
+  .music-recent-like {
+    display: none;
+  }
+
+  .music-recent-title {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .music-recent-artist {
+    grid-column: 3;
+    grid-row: 2;
+  }
+
+  .music-recent-time {
+    grid-column: 4;
+    grid-row: 1 / -1;
+    align-self: center;
+    text-align: right;
+  }
+}
+
+/* Hero split: stack on tablet/mobile */
+@media (max-width: 991px) {
+  .hero-split {
+    flex-direction: column;
+    justify-content: center;
+    padding: 1rem 0;
+    gap: 2rem;
+  }
+
+  .hero-left,
+  .hero-right {
+    flex: none;
+    width: 100%;
+    padding: 1rem 1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .hero-left {
+    align-items: center;
+  }
+
+  .hero-left .floating-name {
+    align-items: center;
+    text-align: center;
+  }
+
+  .hero-left .floating-name h1 {
+    text-align: center;
+  }
+
+  .hero-left .game-buttons {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-split {
+    flex-direction: column;
+  }
+
+  .hero-left {
+    min-height: 400px;
+  }
+
+  .hero-left .character-overlay,
+  .hero-left .character-img {
+    width: 280px;
+    height: 280px;
+  }
+
+  .hero-left .hero-title {
+    margin-top: 0;
+  }
 }
 
 .stars-layer {
@@ -195,48 +1226,67 @@ body {
   background-size: contain;
   background-repeat: no-repeat;
   opacity: 0.7;
-  animation: floatSlow 6s ease-in-out infinite, rotate 20s linear infinite;
+  top: -20%;
+  animation: starRain 8s linear infinite;
 }
 
-/* Ajuste de las posiciones y animaciones de las estrellas */
+/* Lluvia de estrellas - cada estrella con posición y velocidad diferente */
 .star:nth-child(1) { 
-  top: 2%; 
-  left: 1%; 
-  width: 400px; 
-  height: 400px;
-  animation: floatStar1 6s ease-in-out infinite, rotate 25s linear infinite;
+  left: 10%; 
+  width: 200px; 
+  height: 200px;
+  animation: starRain 6s linear infinite;
+  animation-delay: 0s;
 }
 
 .star:nth-child(2) { 
-  top: 10%; 
-  left: 60%; 
-  width: 200px;
-  height: 200px;
-  animation: floatStar2 8s ease-in-out infinite, rotate 30s linear infinite reverse;
+  left: 30%; 
+  width: 150px;
+  height: 150px;
+  animation: starRain 7s linear infinite;
+  animation-delay: 1s;
 }
 
 .star:nth-child(3) { 
-  top: 60%; 
-  left: 15%; 
-  width: 300px;
-  height: 300px;
-  animation: floatStar3 7s ease-in-out infinite, rotate 20s linear infinite;
+  left: 50%; 
+  width: 180px;
+  height: 180px;
+  animation: starRain 8s linear infinite;
+  animation-delay: 2s;
 }
 
 .star:nth-child(4) { 
-  top: 30%; 
-  left: 80%; 
-  width: 150px;
-  height: 150px;
-  animation: floatStar4 9s ease-in-out infinite, rotate 15s linear infinite reverse;
+  left: 70%; 
+  width: 120px;
+  height: 120px;
+  animation: starRain 9s linear infinite;
+  animation-delay: 0.5s;
 }
 
 .star:nth-child(5) { 
-  top: 60%; 
-  left: 70%; 
-  width: 250px;
-  height: 250px;
-  animation: floatStar5 10s ease-in-out infinite, rotate 22s linear infinite;
+  left: 85%; 
+  width: 160px;
+  height: 160px;
+  animation: starRain 7.5s linear infinite;
+  animation-delay: 1.5s;
+}
+
+/* Animación de lluvia: cae desde arriba hasta abajo */
+@keyframes starRain {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(120vh) rotate(360deg);
+    opacity: 0;
+  }
 }
 
 .scroll-arrow {
@@ -257,22 +1307,69 @@ body {
 .floating-name {
   position: relative;
   z-index: 4;
-
-  text-align: center;
-  padding: 2rem;
+  text-align: left;
+  padding: 2rem 0;
   border-radius: 10px;
-  margin-top: 150px; /* Ajustamos la posición hacia abajo */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
 }
 
-.floating-name h1 {
+.hero-left .floating-name {
+  text-align: center;
+  align-items: center;
+}
+
+.floating-name h1,
+.hero-title {
   font-family: 'Press Start 2P', cursive;
   font-size: 4rem;
   font-weight: bold;
   color: #ffffff;
-  text-align: center;
-  margin: 0;
+  text-align: left;
+  margin: 0 0 0.5rem 0;
   position: relative;
-  z-index: 1; /* Ahora queda atrás */
+  z-index: 1;
+  filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.9));
+  text-shadow: 
+    0 0 6px rgba(255, 255, 255, 0.55),
+    0 0 12px rgba(255, 255, 255, 0.45),
+    0 0 18px rgba(255, 255, 255, 0.25);
+}
+
+.hero-left .floating-name h1,
+.hero-left .floating-name .hero-title {
+  text-align: center;
+}
+
+/* "Sitting on the logo" effect (desktop): title overlaps under character's feet */
+.hero-left .hero-title {
+  margin-top: -63px;
+  z-index: 1;
+}
+
+/* Character image on top so boots cover the text – drop-shadow para contraste Y2K */
+.hero-left .character-img {
+  display: block;
+  width: 400px;
+  height: 400px;
+  object-fit: contain;
+  object-position: center;
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.9));
+  animation: characterFloat 3s ease-in-out infinite;
+}
+
+@keyframes characterFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
 }
 
 .character-overlay {
@@ -282,11 +1379,18 @@ body {
   background-position: center;
   width: 400px;
   height: 400px;
-  position: absolute;
-  top: -290px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2; /* Ahora está al frente */
+  position: relative;
+  top: 0;
+  left: 0;
+  transform: none;
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+.hero-left .game-buttons {
+  justify-content: center;
+  margin-top: 20px;
+  align-self: center;
 }
 
 .loading-screen {
@@ -307,18 +1411,6 @@ body {
   font-family: 'Press Start 2P', cursive;
   font-size: 4rem;
   color: #ffffff;
-  text-shadow: 
-    0 0 5px #ffffff,
-    0 0 10px #ffffff,
-    0 0 15px #ffffff,
-    0 0 20px #ffffff,
-    0 0 25px #ffffff,
-    0 0 30px #ffffff,
-    0 0 35px #ffffff,
-    0 0 40px #ffffff,
-    0 0 45px #ffffff,
-    0 0 50px #ffffff;
-  animation: glow 2s ease-in-out infinite alternate;
   margin-bottom: 0;
   letter-spacing: 4px;
   font-weight: bold;
@@ -455,23 +1547,14 @@ body {
 /* Projects Section */
 .projects-section {
   position: relative;
-  padding: 120px 0;
-  background-image: url('./assets/Background2.png');
-  background-color: #f8f9fa;
-  background-size: 1000px 1000px;
-  background-position: center;
+  padding: 6rem 0;
+  background-color: #000000 !important;
+  background-image: none !important;
   overflow: hidden;
 }
 
 .projects-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(45deg, rgba(66, 133, 244, 0.05), rgba(219, 68, 55, 0.05));
-  z-index: 1;
+  display: none !important;
 }
 
 .projects-grid {
@@ -575,12 +1658,7 @@ body {
 }
 
 /* Services Section */
-.services-section {
-  padding: 100px 0;
-  background: #121212;
-  position: relative;
-  overflow: hidden;
-}
+/* Services Section - Estilos movidos a sistema unificado arriba */
 
 .services-grid {
   display: grid;
@@ -644,7 +1722,7 @@ body {
 /* Estilos para la sección de música */
 .music-section {
   padding: 40px 0;
-  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(45, 45, 45, 0.8) 100%), url('./assets/Albums.png');
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(45, 45, 45, 0.8) 100%), url('');
   background-size: cover;
   background-position: center;
   position: relative;
@@ -878,6 +1956,12 @@ body {
   text-decoration: none;
 }
 
+/* Ensure anchor tags with pixel-btn class work like buttons */
+a.pixel-btn {
+  text-decoration: none;
+  color: #ffffff;
+}
+
 .pixel-btn i {
   font-size: 1.5rem;
   margin-bottom: 0.3rem;
@@ -957,13 +2041,13 @@ body {
 
 @keyframes characterFloat {
   0% {
-    transform: translate(-50%, 0px);
+    transform: translate(0, 0);
   }
   50% {
-    transform: translate(-50%, -15px);
+    transform: translate(0, -15px);
   }
   100% {
-    transform: translate(-50%, 0px);
+    transform: translate(0, 0);
   }
 }
 
@@ -1042,16 +2126,17 @@ body {
 }
 
 /* Sliding Text Section */
+/* Sliding text anchored to bottom of hero-section (parent has position: relative) */
 .sliding-text-container {
-  position: fixed;
+  position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
+  z-index: 10;
   background: #000000;
   overflow: hidden;
   padding: 8px 0;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
-  z-index: 1000;
   display: flex;
 }
 
@@ -1103,6 +2188,46 @@ body {
   }
 }
 
+/* Glassmorphism navbar: reset on tablet/mobile so pill doesn't break */
+@media (max-width: 991px) {
+  .navbar.fixed-top {
+    margin-top: 12px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .navbar.fixed-top .container {
+    max-width: 100%;
+    border-radius: 24px;
+    padding: 0.5rem 1rem;
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar.fixed-top {
+    margin-top: 0;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .navbar.fixed-top .container {
+    border-radius: 16px;
+    padding: 0.5rem 0.75rem;
+    /* Móvil: sin fondo para que solo se vea el nombre AlleRoDi (mobile-nav abajo) */
+    background: transparent !important;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  /* Móvil: ocultar el toggler, la navegación está en mobile-nav */
+  .navbar-toggler {
+    display: none !important;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .navbar {
@@ -1117,7 +2242,7 @@ body {
 
   .floating-name {
     font-size: 2rem;
-    margin-top: 100px; /* Menos margen en móviles */
+    margin-top: 0;
   }
 
   .about-content {
@@ -1130,10 +2255,6 @@ body {
 
   .section {
     padding: 60px 0;
-  }
-
-  .music-grid {
-    grid-template-columns: 1fr;
   }
 
   .footer-content {
@@ -1170,9 +2291,15 @@ body {
     font-size: 0.6rem;
   }
 
-  .character-overlay {
-    top: -200px;
-    width: 300px;
+  .hero-left .character-overlay,
+  .hero-left .character-img {
+    top: 0;
+    width: 280px;
+    height: 280px;
+  }
+
+  .hero-left .hero-title {
+    margin-top: 0;
   }
 
   .star {
@@ -1535,7 +2662,7 @@ body {
   display: flex;
   gap: 2rem;
   background: #181818;
-  border: 4px solid #202124;
+  border: 0;
   border-radius: 24px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.18);
   padding: 2rem;
@@ -1723,7 +2850,7 @@ body {
 
   .floating-name h1 {
     font-size: 2.5rem;
-    margin-top: 50px;
+    margin-top: 0;
   }
 
   .game-buttons {
@@ -1884,20 +3011,7 @@ body {
 }
 
 /* Galería con Video */
-.gallery-section {
-  padding: 40px 0;
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(26, 26, 26, 0.7) 100%), url('./assets/StarPlus.jpg');
-  background-size: cover;
-  background-position: center;
-  min-height: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-  margin-bottom: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
+/* Gallery Section - Estilos movidos a sistema unificado arriba */
 
 @keyframes slowBackgroundMove {
   0% {
@@ -2144,28 +3258,154 @@ body {
 }
 
 /* Sección de Actualizaciones */
-.inspiration-section {
-  padding: 80px 0;
-  background: linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(42, 42, 42, 0.8) 100%), url('/assets/AloneInside.jpeg');
+/* Inspiration Section - Estilos movidos a sistema unificado arriba */
+
+/* New 3D character model announcement section */
+.new-3d-model-section {
+  width: 100%;
+  min-height: 600px;
   background-size: cover;
-  background-position: center;
+  background-position: center right;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 2rem;
   position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  box-sizing: border-box;
 }
 
-.inspiration-section::before {
+.new-3d-model-section::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background-color: rgb(0 0 0 / 15%);
+  z-index: 0;
+}
+
+.new-3d-model-section > * {
+  position: relative;
   z-index: 1;
+}
+
+/* Split layout: text box on left zone, character on right – balanced separation */
+.model-section-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 2rem;
+}
+
+.model-left-zone {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-right: 1rem;
+}
+
+.model-right-zone {
+  min-height: 200px;
+}
+
+.model-text-content {
+  max-width: 380px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 2rem 2.25rem;
+  border-radius: 4px;
+  position: relative;
+  z-index: 2;
+  font-family: 'Press Start 2P', cursive;
+  text-align: left;
+  margin: 0;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.level-up-box {
+  display: inline-block;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 400;
+  padding: 0.4rem 0;
+  margin-bottom: 1.5rem;
+  letter-spacing: 2px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.model-text-content p {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.55rem;
+  line-height: 2;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Móvil: cuadro a la derecha; misma altura/padding que escritorio; tipografía unificada */
+@media (max-width: 768px) {
+  .new-3d-model-section {
+    align-items: center;
+    justify-content: center;
+    padding: 6rem 1.25rem;
+    min-height: 600px;
+    background-size: cover !important;
+    background-position: center right !important;
+    background-repeat: no-repeat !important;
+  }
+
+  .model-section-split {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    justify-items: end;
+    width: 100%;
+    max-width: 1200px;
+  }
+
+  .model-right-zone {
+    display: none;
+  }
+
+  .model-left-zone {
+    width: 100%;
+    padding: 0;
+    justify-content: flex-end;
+  }
+
+  /* Mismo ancho y padding base que .model-text-content en escritorio */
+  .model-text-content {
+    width: 100%;
+    max-width: 380px;
+    margin: 0 0 0 auto;
+    padding: 2rem 2.25rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    overflow: visible;
+  }
+
+  /* Mismas medidas tipográficas que en escritorio (.level-up-box / párrafo) */
+  .model-text-content .level-up-box {
+    font-size: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding: 0.4rem 0;
+    letter-spacing: 2px;
+  }
+
+  .model-text-content p {
+    font-size: 0.55rem;
+    line-height: 2;
+  }
 }
 
 .inspiration-container {
@@ -3511,10 +4751,6 @@ body {
 }
 
 @media (max-width: 768px) {
-  .floating-name {
-    margin-top: 20vh !important;
-  }
-  
   .store-hero-container {
     flex-direction: column;
   }
@@ -5556,10 +6792,6 @@ body {
 }
 
 @media (max-width: 768px) {
-  .floating-name {
-    margin-top: 20vh !important;
-  }
-  
   .store-hero-container {
     flex-direction: column;
   }
@@ -6377,7 +7609,7 @@ body {
     opacity: 1;
   }
 }
-
+ 
 @keyframes scaleIn {
   from {
     opacity: 0;
@@ -6434,3 +7666,210 @@ body {
   }
 }
 
+/* --- Fondos Refinados con Overlay Gradiente (Izquierda Oscura → Derecha Transparente) --- */
+.game-section {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.6) 100%), url('assets/allerodi4.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  padding: 6rem 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.music-section {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.6) 100%), url('assets/allerodi2.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  padding: 6rem 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.character-section {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.6) 100%), url('assets/allerodi3.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  padding: 6rem 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Separadores de Sección (Estilo Pixel Art) */
+.gallery-section,
+.inspiration-section,
+.projects-section {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  padding: 6rem 0 !important;
+}
+
+.services-section {
+  border-bottom: 0 !important;
+  padding: 6rem 0 !important;
+}
+
+/* =========================================
+   FIX FINAL: FONDOS Y LAYOUT (Comercio & Spotify)
+   ========================================= */
+
+/* 1. Plataforma de Comercio Digital */
+#store-project,
+.projects-section {
+  background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8)),
+              url('/src/assets/StarPlus.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  padding: 6rem 2rem !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Layout Interno (Flexbox) para Comercio */
+#store-project > div,
+.projects-section .section-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 4rem; /* Separación entre logo y texto */
+}
+
+/* Responsive para Comercio */
+@media (max-width: 768px) {
+  #store-project > div,
+  .projects-section .section-container {
+    flex-direction: column;
+    text-align: center;
+    gap: 2rem;
+  }
+}
+
+/* 2. Escúchame en Spotify */
+.services-section,
+#services {
+  background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)),
+              url('/src/assets/Albums.png') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  padding: 6rem 0 !important;
+  border-bottom: 0 !important;
+}
+
+/* Centrar tarjeta de Spotify */
+.services-section .services-grid,
+#services .services-grid {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* --- Hero: solo móvil (≤768px); escritorio sin cambios --- */
+@media (max-width: 768px) {
+  /* Sin 100vh forzado: el hero solo ocupa su contenido; flecha cerca del widget */
+  .hero-section {
+    height: auto !important;
+    min-height: 0 !important;
+    justify-content: flex-start !important;
+    padding-top: 8.5rem !important;
+    padding-bottom: 52px !important;
+  }
+
+  .hero-section .scroll-arrow {
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    margin: 0.35rem auto 0.85rem !important;
+    align-self: center !important;
+    z-index: 5 !important;
+  }
+
+  .hero-section .hero-title {
+    display: none !important;
+  }
+
+  /* Evitar hueco gigante: hero-split ya no estira la columna; hero-left deja de height:100% */
+  .hero-section .hero-split {
+    flex: 0 1 auto !important;
+    min-height: 0 !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0 !important;
+    flex-wrap: nowrap !important;
+  }
+
+  /* Columna personaje: delante del widget (efecto “sentado encima”) */
+  .hero-section .hero-left {
+    position: relative !important;
+    z-index: 3 !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* Last.fm sube y queda debajo del PNG; solo móvil (más junto al personaje) */
+  .hero-section .hero-right {
+    position: relative !important;
+    z-index: 1 !important;
+    margin-top: -5.25rem !important;
+    padding-top: 0 !important;
+  }
+
+  .hero-section .hero-left,
+  .hero-section .hero-right {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 1rem 1.5rem !important;
+  }
+
+  .hero-section .hero-left {
+    padding-bottom: 0 !important;
+  }
+
+  .hero-section .hero-right {
+    padding-top: 0 !important;
+  }
+
+  .hero-section .hero-left .floating-name {
+    width: 100%;
+    align-items: center !important;
+    padding: 0 0 1.05rem !important;
+    margin-top: 0 !important;
+    flex: 0 0 auto !important;
+  }
+
+  .hero-section .hero-left .character-img {
+    display: block !important;
+    margin: .5rem auto 0 !important;
+    width: 280px !important;
+    height: 280px !important;
+    max-width: min(100%, 400px) !important;
+    object-fit: contain !important;
+    position: relative !important;
+    z-index: 4 !important;
+  }
+
+  .hero-section .hero-right .hero-glass-panel {
+    position: relative !important;
+    z-index: 1 !important;
+    width: 100% !important;
+    max-width: min(100%, 600px) !important;
+    margin: 0 auto !important;
+    aspect-ratio: 1 / 1;
+  }
+
+  .hero-section .lastfm-content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    margin: 0 !important;
+    width: 100%;
+    position: relative !important;
+    z-index: 1 !important;
+  }
+}

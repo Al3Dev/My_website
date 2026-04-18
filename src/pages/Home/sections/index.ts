@@ -1,0 +1,9 @@
+export { default as HeroSection } from './HeroSection';
+export { default as SlidingText } from './SlidingText';
+export { default as UpdatesSection } from './UpdatesSection';
+export { default as New3DModelSection } from './New3DModelSection';
+export { default as GallerySection } from './GallerySection';
+export { default as MusicSection } from './MusicSection';
+export { default as CharacterSection } from './CharacterSection';
+export { default as GamePreviewSection } from './GamePreviewSection';
+export { default as ServicesSection } from './ServicesSection';
