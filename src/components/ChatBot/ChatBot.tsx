@@ -76,7 +76,7 @@ const ChatBot = ({ chatOpen, setChatOpen, isFullScreen, setIsFullScreen }: ChatB
     }
   };
 
-  const windowStyle = isMobile
+  const windowStyle: React.CSSProperties = isMobile
     ? {
         top: 0,
         left: 0,

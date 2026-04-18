@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaGithub, FaLinkedin, FaSpotify } from 'react-icons/fa';
-import { SiReact, SiFigma, SiVercel, SiLastfm } from 'react-icons/si';
+import { SiReact, SiFigma, SiVercel, SiLastdotfm } from 'react-icons/si';
 import '../../App.css';
 
 interface TechIcon {
@@ -13,7 +13,7 @@ const TechMarquee: React.FC = () => {
   const techIcons: TechIcon[] = [
     { icon: <FaGithub />, name: 'GitHub', url: 'https://github.com' },
     { icon: <FaLinkedin />, name: 'LinkedIn', url: 'https://linkedin.com' },
-    { icon: <SiLastfm />, name: 'Last.fm', url: 'https://last.fm' },
+    { icon: <SiLastdotfm />, name: 'Last.fm', url: 'https://last.fm' },
     { icon: <SiReact />, name: 'React' },
     { icon: <SiFigma />, name: 'Figma' },
     { icon: <FaSpotify />, name: 'Spotify', url: 'https://spotify.com' },
