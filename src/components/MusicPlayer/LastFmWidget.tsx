@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  LASTFM_API_KEY as API_KEY,
-  LASTFM_USER as USER,
+  buildWidgetRecentUrl,
   lastFmConfigError,
 } from '../../config/lastfm';
-const API_URL = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${USER}&api_key=${API_KEY}&format=json&limit=1`;
 
 interface TrackImage {
   '#text': string;
@@ -53,8 +51,14 @@ function LastFmWidget() {
       setLoading(false);
       return;
     }
+    const url = buildWidgetRecentUrl();
+    if (!url) {
+      setError(lastFmConfigError() ?? 'Last.fm: configuración incompleta.');
+      setLoading(false);
+      return;
+    }
     try {
-      const res = await fetch(API_URL);
+      const res = await fetch(url);
       const data: LastFmResponse = await res.json();
       const tracks = data.recenttracks?.track;
       if (Array.isArray(tracks) && tracks.length > 0) {
@@ -81,7 +85,7 @@ function LastFmWidget() {
   const statusLabel = isNowPlaying ? '🔴 NOW PLAYING' : '⏸ LAST PLAYED';
   const albumArtUrl = getAlbumArtUrl(track);
   const songName = track?.name ?? '—';
-  const artistName = track?.artist['#text'] ?? '—';
+  const artistName = track?.artist?.['#text'] ?? '—';
   const titleLong = songName.length > 20;
 
   const handleClick = () => {

@@ -1,14 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import '../../App.css';
 import {
-  LASTFM_API_KEY as API_KEY,
-  LASTFM_USER as USER,
+  buildMusicPageUrls,
   lastFmConfigError,
 } from '../../config/lastfm';
-const BASE = 'https://ws.audioscrobbler.com/2.0/';
-const RECENT_URL = `${BASE}?method=user.getrecenttracks&user=${USER}&api_key=${API_KEY}&format=json&limit=10`;
-const TOP_TRACKS_URL = `${BASE}?method=user.gettoptracks&user=${USER}&api_key=${API_KEY}&format=json&period=7day&limit=8`;
-const TOP_ALBUMS_URL = `${BASE}?method=user.gettopalbums&user=${USER}&api_key=${API_KEY}&format=json&period=7day&limit=8`;
 
 interface TrackImage {
   '#text': string;
@@ -81,11 +76,18 @@ const MusicPage: React.FC = () => {
       setLoading(false);
       return;
     }
+    const urls = buildMusicPageUrls();
+    if (!urls) {
+      setError(lastFmConfigError() ?? 'Last.fm: configuración incompleta.');
+      setLoading(false);
+      return;
+    }
     try {
+      const { recent: recentUrl, topTracks: topTracksUrl, topAlbums: topAlbumsUrl } = urls;
       const [recentRes, tracksRes, albumsRes] = await Promise.all([
-        fetch(RECENT_URL),
-        fetch(TOP_TRACKS_URL),
-        fetch(TOP_ALBUMS_URL),
+        fetch(recentUrl),
+        fetch(topTracksUrl),
+        fetch(topAlbumsUrl),
       ]);
 
       const [recentData, topTracksData, albumsData] = await Promise.all([
