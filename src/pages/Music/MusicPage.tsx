@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import '../../App.css';
-
-const API_KEY = import.meta.env.VITE_LASTFM_API_KEY;
-const USER = import.meta.env.VITE_LASTFM_USER;
+import { LASTFM_API_KEY as API_KEY, LASTFM_USER as USER } from '../../config/lastfm';
 const BASE = 'https://ws.audioscrobbler.com/2.0/';
 const RECENT_URL = `${BASE}?method=user.getrecenttracks&user=${USER}&api_key=${API_KEY}&format=json&limit=10`;
 const TOP_TRACKS_URL = `${BASE}?method=user.gettoptracks&user=${USER}&api_key=${API_KEY}&format=json&period=7day&limit=8`;

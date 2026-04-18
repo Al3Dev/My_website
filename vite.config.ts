@@ -5,4 +5,6 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: '/', // Configuración para Vercel
+  // Expone LASTFM_* al bundle (además de VITE_*), para coincidir con nombres en Vercel.
+  envPrefix: ['VITE_', 'LASTFM_'],
 })
