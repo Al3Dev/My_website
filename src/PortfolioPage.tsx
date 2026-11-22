@@ -7,7 +7,7 @@ export function PortfolioLink({ href, children }: { href: string; children: Reac
   return <a className="portfolio-link" href={href} target="_blank" rel="noreferrer">{children}<span aria-hidden="true">↗︎</span></a>;
 }
 
-export default function PortfolioPage({ title, summary, children }: { title: string; summary: string; children: ReactNode }) {
+export default function PortfolioPage({ title, children }: { title: string; children: ReactNode }) {
   const [chatOpen, setChatOpen] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
 
@@ -17,7 +17,6 @@ export default function PortfolioPage({ title, summary, children }: { title: str
         <div className="portfolio-shell">
           <header className="portfolio-banner">
             <h1>{title}</h1>
-            <p>{summary}</p>
           </header>
           {children}
         </div>
