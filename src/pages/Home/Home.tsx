@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react';
 import About from '../../About';
-import ChatBot from '../../components/ChatBot';
 import DiscordSection from './sections/DiscordSection';
 import type { ReactNode } from 'react';
 import {
@@ -19,16 +17,6 @@ interface HomeProps {
 }
 
 const Home = ({ statusBadge }: HomeProps) => {
-  const [chatOpen, setChatOpen] = useState(false);
-  const [isFullScreen, setIsFullScreen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   const handleScrollDown = () => {
     window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
   };
@@ -37,7 +25,6 @@ const Home = ({ statusBadge }: HomeProps) => {
     <>
       <HeroSection
         onScrollDown={handleScrollDown}
-        onOpenChat={() => setChatOpen(true)}
         statusBadge={statusBadge}
       />
 
@@ -51,12 +38,6 @@ const Home = ({ statusBadge }: HomeProps) => {
       <GamePreviewSection />
       <ServicesSection />
 
-      <ChatBot
-        chatOpen={chatOpen}
-        setChatOpen={setChatOpen}
-        isFullScreen={isFullScreen}
-        setIsFullScreen={setIsFullScreen}
-      />
     </>
   );
 };

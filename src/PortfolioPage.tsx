@@ -1,6 +1,4 @@
-import { useState, type ReactNode } from 'react';
-import ChatBot from './components/ChatBot';
-import { MobileNav } from './components/Layout';
+import type { ReactNode } from 'react';
 import './PortfolioPage.css';
 
 export function PortfolioLink({ href, children }: { href: string; children: ReactNode }) {
@@ -8,11 +6,7 @@ export function PortfolioLink({ href, children }: { href: string; children: Reac
 }
 
 export default function PortfolioPage({ title, children }: { title: string; children: ReactNode }) {
-  const [chatOpen, setChatOpen] = useState(false);
-  const [isFullScreen, setIsFullScreen] = useState(false);
-
   return (
-    <>
       <main className="portfolio-page">
         <div className="portfolio-shell">
           <header className="portfolio-banner">
@@ -21,8 +15,5 @@ export default function PortfolioPage({ title, children }: { title: string; chil
           {children}
         </div>
       </main>
-      <MobileNav onOpenChat={() => setChatOpen(true)} />
-      <ChatBot chatOpen={chatOpen} setChatOpen={setChatOpen} isFullScreen={isFullScreen} setIsFullScreen={setIsFullScreen} />
-    </>
   );
 }

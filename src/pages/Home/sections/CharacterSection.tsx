@@ -1,5 +1,3 @@
-import React from 'react';
-
 const CharacterSection = () => (
   <section className="character-section">
     <div className="character-container">
@@ -7,11 +5,9 @@ const CharacterSection = () => (
         <img src="/assets/Personaje.jpeg" alt="Mi Personaje" />
       </div>
       <div className="character-content">
-        <h2 className="character-title">Este es mi Personaje</h2>
+        <h2 className="character-title">Mi personaje</h2>
         <p className="character-description">
-          Un ser digital que representa mi esencia creativa. Cada píxel cuenta una historia, cada
-          movimiento refleja mi pasión por la música y la tecnología. Este personaje es la fusión
-          perfecta entre mi amor por la programación y mi espíritu artístico.
+          Mi avatar reúne lo que hago como AlleRoDi: música, ilustración y programación.
         </p>
       </div>
     </div>

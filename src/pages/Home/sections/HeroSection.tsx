@@ -1,16 +1,14 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { MobileNav } from '../../../components/Layout';
 import SlidingText from './SlidingText';
 import { LastFmWidget } from '../../../components/MusicPlayer';
 
 interface HeroSectionProps {
   onScrollDown: () => void;
-  onOpenChat: () => void;
   statusBadge?: ReactNode;
 }
 
-const HeroSection = ({ onScrollDown, onOpenChat, statusBadge }: HeroSectionProps) => (
+const HeroSection = ({ onScrollDown, statusBadge }: HeroSectionProps) => (
   <>
     <div className="hero-section">
       <div className="stars-layer">
@@ -54,7 +52,6 @@ const HeroSection = ({ onScrollDown, onOpenChat, statusBadge }: HeroSectionProps
 
     {statusBadge}
 
-    <MobileNav onOpenChat={onOpenChat} />
   </>
 );
 

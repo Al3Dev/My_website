@@ -1,31 +1,27 @@
-import { Link, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
-interface MobileNavProps {
-  onOpenChat: () => void;
-}
+const destinations = [
+  { path: '/', label: 'Inicio', icon: 'fa-home' },
+  { path: '/creations', label: 'Proyectos', icon: 'fa-folder-open' },
+  { path: '/music', label: 'Música', icon: 'fa-headphones' },
+  { path: '/social', label: 'Redes', icon: 'fa-users' },
+];
 
-const MobileNav = ({ onOpenChat }: MobileNavProps) => {
-  const { pathname } = useLocation();
-
-  const navClass = (path: string) =>
-    `nav-button${pathname === path ? ' active' : ''}`;
-
+export default function MobileNav({ onOpenChat }: { onOpenChat: () => void }) {
   return (
-    <div className="mobile-nav">
-      <div className="nav-buttons">
-        <Link to="/" className={navClass('/')}>
-          <i className="fas fa-home"></i>
-          <div className="nav-indicator"></div>
-        </Link>
-        <Link to="/creations" className={navClass('/creations')}>
-          <i className="fas fa-camera"></i>
-        </Link>
-        <button type="button" className="nav-button chat-button" onClick={onOpenChat}>
-          <i className="fas fa-comments"></i>
+    <nav className="site-mobile-tabs" aria-label="Navegación móvil">
+      <div className="site-mobile-tabs__items">
+        {destinations.map(({ path, icon, label }) => (
+          <NavLink key={path} to={path} end className="site-mobile-tabs__item">
+            <i className={`fas ${icon}`} aria-hidden="true" />
+            <span>{label}</span>
+          </NavLink>
+        ))}
+        <button type="button" className="site-mobile-tabs__item" onClick={onOpenChat}>
+          <i className="fas fa-comment-dots" aria-hidden="true" />
+          <span>Chat</span>
         </button>
       </div>
-    </div>
+    </nav>
   );
-};
-
-export default MobileNav;
+}

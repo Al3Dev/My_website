@@ -1,4 +1,4 @@
-import React from 'react';
+import { Link } from 'react-router-dom';
 
 const GamePreviewSection = () => (
   <section className="game-section">
@@ -23,21 +23,15 @@ const GamePreviewSection = () => (
         </video>
       </div>
       <div className="game-content">
-        <h2 className="game-title">Mi Videojuego</h2>
+        <h2 className="game-title">Fly Out</h2>
         <p className="game-description">
-          Estoy trabajando en un emocionante proyecto de videojuego que combina música, arte
-          digital y narrativa interactiva. Una experiencia única que te transportará a un mundo donde
-          la música cobra vida y cada decisión cuenta.
+          Elige una isla y despega en esta aventura de vuelo en pixel art, con música original de AlleRoDi.
         </p>
         <div className="game-details">
-          <div className="game-detail">
-            <i className="fas fa-gamepad"></i>
-            <span>Próximamente</span>
-          </div>
-          <div className="game-detail">
-            <i className="fas fa-code"></i>
-            <span>Desarrollo en Progreso</span>
-          </div>
+          <Link className="game-detail home-game-link" to="/creations">
+            <i className="fas fa-gamepad" aria-hidden="true" />
+            Jugar Fly Out
+          </Link>
         </div>
       </div>
     </div>

@@ -1,10 +1,12 @@
-import React, { Suspense, useEffect } from 'react';
-import { BrowserRouter as Router, Navigate, Routes, Route } from 'react-router-dom';
+import React, { Suspense, useEffect, useLayoutEffect, useState } from 'react';
+import { BrowserRouter as Router, Navigate, Routes, Route, useLocation } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { TextPlugin } from 'gsap/TextPlugin';
 import './App.css';
-import { Navbar, Footer } from './components/Layout';
+import { Navbar, Footer, MobileNav } from './components/Layout';
+import ChatBot from './components/ChatBot';
+import './MobileLayout.css';
 import StatusBadge from './components/StatusBadge';
 import Home from './pages/Home';
 import { usePreloader, useScrollNav } from './hooks';
@@ -16,6 +18,24 @@ const Creations = React.lazy(() => import('./Creations'));
 const SocialPage = React.lazy(() => import('./pages/Social/SocialPage'));
 const MusicPage = React.lazy(() => import('./pages/Music'));
 const Admin = React.lazy(() => import('./Admin'));
+
+function SiteNavigation() {
+  const { pathname, hash } = useLocation();
+  const [chatOpen, setChatOpen] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
+
+  useLayoutEffect(() => {
+    if (!hash) window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [pathname, hash]);
+
+  return (
+    <>
+      <Navbar />
+      <MobileNav onOpenChat={() => setChatOpen(true)} />
+      <ChatBot chatOpen={chatOpen} setChatOpen={setChatOpen} isFullScreen={isFullScreen} setIsFullScreen={setIsFullScreen} />
+    </>
+  );
+}
 
 function LoadingFallback() {
   return (
@@ -58,7 +78,7 @@ const App = () => {
   return (
     <Router>
       <div className="app">
-        <Navbar />
+        <SiteNavigation />
         <Routes>
           <Route path="/" element={<Home statusBadge={<StatusBadge />} />} />
           <Route

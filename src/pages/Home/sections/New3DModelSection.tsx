@@ -1,4 +1,3 @@
-import React from 'react';
 import Bg3DImage from '../../../assets/3Dimage.png';
 
 const New3DModelSection = () => (
@@ -9,8 +8,8 @@ const New3DModelSection = () => (
     <div className="model-section-split">
       <div className="model-left-zone">
         <div className="model-text-content">
-          <div className="level-up-box">LEVEL UP!</div>
-          <p>Introducing the new 3D character model. See me in a whole new dimension.</p>
+          <h2 className="level-up-box">Mi personaje en 3D</h2>
+          <p>Una versión tridimensional de mi avatar de AlleRoDi.</p>
         </div>
       </div>
       <div className="model-right-zone" aria-hidden />

@@ -1,0 +1,199 @@
+.site-mobile-tabs {
+  display: none;
+}
+
+.home-game-link {
+  color: #fff;
+  text-decoration: none;
+}
+
+@media (max-width: 991px) {
+  .site-mobile-tabs {
+    position: fixed;
+    z-index: 1000;
+    display: block;
+    inset: auto 0 0;
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+    background: #0b0c13f5;
+    border-top: 1px solid #ffffff1a;
+  }
+
+  .site-mobile-tabs__items {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 2px;
+    max-width: 550px;
+    margin-inline: auto;
+  }
+
+  .site-mobile-tabs__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 50px;
+    padding: 4px 2px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: #c4c8d6;
+    text-decoration: none;
+    font: 600 .69rem/1.2 system-ui, sans-serif;
+  }
+
+  .site-mobile-tabs__item i {
+    font-size: 1.03rem;
+  }
+
+  .site-mobile-tabs__item[aria-current='page'] {
+    color: #f3f6ff;
+    background: #28334e;
+  }
+
+  .site-mobile-tabs__item:hover,
+  .site-mobile-tabs__item:focus-visible {
+    color: #fff;
+  }
+
+  .site-mobile-tabs__item:focus-visible {
+    outline: 2px solid #b8d8ff;
+    outline-offset: -2px;
+  }
+
+  .navbar .navbar-toggler,
+  .navbar .navbar-collapse,
+  .chatbot-fab {
+    display: none !important;
+  }
+
+  .pixel-footer.pro-footer {
+    padding-bottom: calc(82px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (max-width: 768px) {
+  .app :is(.game-section, .character-section, .music-section) {
+    padding: clamp(30px, 9vw, 58px) 18px !important;
+  }
+
+  .app :is(.game-container, .character-container, .music-container) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+    max-width: 540px;
+    padding: 0;
+    margin-inline: auto;
+  }
+
+  .app :is(.game-image, .character-image, .music-image) {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    place-items: center;
+  }
+
+  .app .game-image video {
+    width: min(100%, 360px) !important;
+    height: clamp(230px, 70vw, 340px);
+    object-fit: contain !important;
+    background: #0c1020;
+    border-radius: 10px !important;
+  }
+
+  .app .character-image img {
+    width: clamp(150px, 52vw, 245px) !important;
+    height: auto !important;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+
+  .app .music-image img {
+    width: min(66%, 240px) !important;
+    height: auto !important;
+  }
+
+  .app :is(.game-content, .character-content, .music-content) {
+    padding: 19px;
+    width: 100%;
+    max-width: none;
+    background: #0b0d17e8;
+    border-radius: 10px;
+    text-align: left;
+  }
+
+  .app :is(.game-title, .character-title, .music-title) {
+    margin: 0 0 14px;
+    text-align: left;
+    font-size: clamp(.94rem, 4.2vw, 1.3rem);
+    line-height: 1.55;
+  }
+
+  .app :is(.game-description, .character-description, .music-description) {
+    margin: 0;
+    text-align: left;
+    color: #e4e6f0;
+    font: 400 1rem/1.6 system-ui, sans-serif;
+  }
+
+  .app :is(.music-buttons, .game-details) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px;
+    margin: 16px 0 0;
+  }
+
+  .app .music-buttons .pixel-btn,
+  .app .home-game-link {
+    min-height: 44px;
+    padding: 9px 12px;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    border: 0;
+    border-radius: 10px;
+    background: #252e47;
+  }
+
+  .app .music-buttons .pixel-btn :is(span, i) {
+    color: #fff;
+  }
+
+  .app .new-3d-model-section {
+    min-height: 430px;
+    align-items: flex-end;
+    padding: 18px;
+    background-position: 82% top !important;
+  }
+
+  .app .new-3d-model-section::before {
+    background: linear-gradient(180deg, transparent 45%, #0b0d17bf);
+  }
+
+  .app .model-text-content {
+    max-width: 540px;
+    margin: auto;
+    padding: 19px;
+    border: 0;
+    border-radius: 10px;
+    background: #0b0d17ed;
+  }
+
+  .app .level-up-box {
+    margin: 0 0 10px;
+    padding: 0;
+    border: 0;
+    letter-spacing: 0;
+    line-height: 1.55;
+  }
+
+  .app .model-text-content p {
+    font: 400 1rem/1.55 system-ui, sans-serif;
+    color: #e4e6f0;
+  }
+}

@@ -222,22 +222,6 @@ export const initAnimations = () => {
     );
   });
 
-  // Animación para el footer (más simple)
-  const footer = document.querySelector('.pixel-footer');
-  if (footer) {
-    gsap.from(footer, {
-      duration: 0.6,
-      y: 30,
-      opacity: 0,
-      ease: "power2.out",
-      scrollTrigger: {
-        trigger: footer,
-        start: "top 95%",
-        toggleActions: "play none none none"
-      }
-    });
-  }
-
   // Asegurar que los botones del juego siempre sean visibles
   gsap.set('.game-buttons .pixel-btn', {
     opacity: 1,

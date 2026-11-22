@@ -1,5 +1,3 @@
-import React from 'react';
-
 const MusicSection = () => (
   <section className="music-section">
     <div className="music-container">
@@ -7,10 +5,9 @@ const MusicSection = () => (
         <img src="/assets/Albums.png" alt="AlleRoDI Albums" />
       </div>
       <div className="music-content">
-        <h2 className="music-title">Mi Música</h2>
+        <h2 className="music-title">Mi música</h2>
         <p className="music-description">
-          Mi música está disponible en todas las plataformas digitales. Explora mis álbumes y
-          singles en tu plataforma favorita.
+          Escucha mis álbumes y sencillos en Spotify o explora mi tienda.
         </p>
         <div className="music-buttons">
           <a
