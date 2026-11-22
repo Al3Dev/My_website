@@ -35,9 +35,9 @@ export default function Creations() {
             <Link className="portfolio-link" to="/music">Historial en Last.fm <span aria-hidden="true">→</span></Link>
           </div>
         </section>
-        <section className="portfolio-card" aria-labelledby="creation-code">
-          <div className="portfolio-code-art" aria-hidden="true"><span>&lt;/&gt;</span></div>
+        <section className="portfolio-card portfolio-code-card" aria-labelledby="creation-code">
           <div className="portfolio-body">
+            <p className="portfolio-label">Software</p>
             <h2 id="creation-code">MechMake</h2>
             <p>Una app multiplataforma en Flutter para crear y personalizar máquinas virtuales. El código de la app y la versión web está en GitHub.</p>
             <PortfolioLink href="https://github.com/Al3Dev/mechmake_app">App en Flutter</PortfolioLink>

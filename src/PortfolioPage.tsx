@@ -4,7 +4,7 @@ import { MobileNav } from './components/Layout';
 import './PortfolioPage.css';
 
 export function PortfolioLink({ href, children }: { href: string; children: ReactNode }) {
-  return <a className="portfolio-link" href={href} target="_blank" rel="noreferrer">{children}<span aria-hidden="true">↗</span></a>;
+  return <a className="portfolio-link" href={href} target="_blank" rel="noreferrer">{children}<span aria-hidden="true">↗︎</span></a>;
 }
 
 export default function PortfolioPage({ title, summary, children }: { title: string; summary: string; children: ReactNode }) {
