@@ -7,7 +7,7 @@
   --music-pixel-font: 'Press Start 2P', monospace;
   background:
     linear-gradient(180deg, #0008 0%, #0007 40%, #000 100%) top / 100% min(96vw, 930px) no-repeat,
-    url('../../assets/background.png') center top / auto min(96vw, 930px) no-repeat #000;
+    url('../../assets/background.png') center top / max(100%, 930px) auto no-repeat #000;
   color: var(--music-text);
   min-height: 100vh;
   padding: 130px clamp(16px, 4vw, 52px) 68px;
@@ -49,7 +49,7 @@
 
 .listening-intro h1 {
   margin: .65em 0 .4em;
-  font: 400 clamp(1.8rem, 4vw, 3.55rem)/1.36 var(--music-pixel-font);
+  font: 400 clamp(1.8rem, 3.55vw, 2.95rem)/1.36 var(--music-pixel-font);
   text-shadow: 0 0 10px #ffffff80, 0 3px #000;
 }
 
