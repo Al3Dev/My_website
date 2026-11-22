@@ -123,6 +123,10 @@
     height: auto !important;
   }
 
+  .app .music-image::after {
+    display: none;
+  }
+
   .app :is(.game-content, .character-content, .music-content) {
     padding: 19px;
     width: 100%;
@@ -169,6 +173,7 @@
 
   .app .music-buttons .pixel-btn :is(span, i) {
     color: #fff;
+    animation: none;
   }
 
   .app .new-3d-model-section {
