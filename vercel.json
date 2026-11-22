@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/.well-known/discord",
+      "destination": "/discord-verification.txt"
+    },
+    {
       "source": "/sitemap.xml",
       "destination": "/sitemap.xml"
     },
@@ -37,6 +41,13 @@
           "key": "Referrer-Policy",
           "value": "strict-origin-when-cross-origin"
         }
+      ]
+    },
+    {
+      "source": "/.well-known/discord",
+      "headers": [
+        { "key": "Content-Type", "value": "text/plain; charset=utf-8" },
+        { "key": "Cache-Control", "value": "no-store" }
       ]
     },
     {
