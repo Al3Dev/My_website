@@ -91,12 +91,6 @@
   image-rendering: pixelated;
 }
 
-.creation-media--mi-voto-seguro img {
-  width: min(65%, 330px);
-  height: auto;
-  border-radius: 10px;
-}
-
 .creation-wordmark {
   font: 400 clamp(.9rem, 3vw, 2rem)/1.4 'Press Start 2P', monospace;
   color: #c3d7fa;

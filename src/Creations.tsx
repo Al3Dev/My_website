@@ -2,13 +2,10 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import PortfolioPage, { PortfolioLink } from './PortfolioPage';
 import cyberCat from './assets/CyberCat.png';
-import hackathon from './assets/astrohackathon.jpg';
 
 const projects = [
   { id: 'fly-out', title: 'Fly Out', category: 'Videojuego en desarrollo', art: '/assets/fly-out-title.png',
     description: 'Elige una isla y despega en esta aventura de vuelo en pixel art.' },
-  { id: 'mi-voto-seguro', title: 'MiVotoSeguro', category: 'AstroHackathon · Segundo lugar', art: hackathon,
-    description: 'Prototipo de votación digital sobre Internet Computer Protocol. Lo desarrollamos en equipo en 48 horas y lo presentamos al jurado.' },
   { id: 'cyber-cat', title: 'Cyber Cat', category: 'Música electrónica', art: cyberCat,
     description: 'Dos versiones de una misma pista: nightcore y slowed & reverb. Explora también las seis canciones del EP Missing Tracks.' },
   { id: 'mechmake', title: 'MechMake', category: 'Software', art: null,
@@ -65,8 +62,6 @@ export default function Creations() {
                 </button>
                 <PortfolioLink href="/fly-out/index.html">Abrir el juego</PortfolioLink>
               </>}
-              {project.id === 'mi-voto-seguro' &&
-                <PortfolioLink href="https://github.com/VictorRojas3/icp-backend-starter">Repositorio del equipo</PortfolioLink>}
               {project.id === 'cyber-cat' && <>
                 <PortfolioLink href="https://music.apple.com/us/artist/allerodi/1556014355">Discografía</PortfolioLink>
                 <Link className="portfolio-link" to="/music">Historial en Last.fm</Link>
