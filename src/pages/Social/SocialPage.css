@@ -1,5 +1,7 @@
 .social-page {
-  background-color: #000;
+  background:
+    linear-gradient(180deg, #08091628, #08091618 72%, #08091690),
+    url('../../assets/social-starlight.webp') center bottom / cover no-repeat #080916;
   min-height: 100vh;
   padding: 100px 20px 80px;
 }
@@ -12,16 +14,16 @@
 }
 
 .social-subtitle {
-  color: #888;
+  color: #e5ddf8;
   font-size: 0.9rem;
   margin: 0 0 2rem;
 }
 
 .social-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 1.25rem;
-  max-width: 600px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(.65rem, 2vw, 1.25rem);
+  width: min(100%, 620px);
   margin-bottom: 2rem;
 }
 
@@ -31,18 +33,24 @@
   align-items: center;
   gap: 0.5rem;
   padding: 1.25rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: #101227e8;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
   color: #fff;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: background-color .2s ease, border-color .2s ease;
 }
 
 .social-card:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: #242044;
   border-color: rgba(255, 255, 255, 0.25);
-  transform: translateY(-2px);
+  color: #fff;
+}
+
+.social-card:focus-visible,
+.social-back:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
 }
 
 .social-card-icon {
@@ -57,19 +65,32 @@
 
 .social-card-desc {
   font-size: 0.75rem;
-  color: #a0a0a0;
+  color: #d3cae5;
 }
 
 .social-back {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: #888;
+  color: #fff;
+  background: #101227e8;
+  border-radius: 8px;
+  padding: .55rem .85rem;
   font-size: 0.85rem;
   text-decoration: none;
   transition: color 0.2s;
 }
 
 .social-back:hover {
-  color: #fff;
+  color: #e7d2ff;
+}
+
+.social-card .fa-discord {
+  color: #b8b9ff;
+}
+
+@media (max-width: 540px) {
+  .social-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

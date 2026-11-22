@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import '../../App.css';
 import './SocialPage.css';
@@ -36,6 +35,12 @@ const socialLinks: SocialLink[] = [
     description: 'Música y artistas'
   },
   {
+    name: 'Discord',
+    url: 'https://discord.gg/puXfPCyZw7',
+    icon: 'fab fa-discord',
+    description: 'Únete al servidor'
+  },
+  {
     name: 'itch.io',
     url: 'https://allerodi.itch.io/',
     icon: 'fas fa-gamepad',
@@ -69,7 +74,7 @@ const SocialPage = () => {
               rel="noopener noreferrer"
               className="social-card"
             >
-              <i className={`${item.icon} social-card-icon`} />
+              <i className={`${item.icon} social-card-icon`} aria-hidden="true" />
               <span className="social-card-name">{item.name}</span>
               {item.description && (
                 <span className="social-card-desc">{item.description}</span>
