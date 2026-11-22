@@ -15,8 +15,8 @@
 .discord-section__art {
   min-height: 250px;
   background:
-    linear-gradient(90deg, transparent 60%, #140e24),
-    url('../../../assets/CyberCat.png') center / cover no-repeat;
+    linear-gradient(90deg, transparent 82%, #140e24),
+    url('../../../assets/discord-allerodi.webp') center / cover no-repeat;
 }
 
 .discord-section__content {
@@ -71,9 +71,9 @@
 
   .discord-section__art {
     min-height: 160px;
-    aspect-ratio: 2 / 1;
+    aspect-ratio: 4 / 3;
     background-image:
-      linear-gradient(180deg, transparent 50%, #140e24),
-      url('../../../assets/CyberCat.png');
+      linear-gradient(180deg, transparent 82%, #140e24),
+      url('../../../assets/discord-allerodi.webp');
   }
 }
