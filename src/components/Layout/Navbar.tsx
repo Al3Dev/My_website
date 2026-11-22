@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Navbar = () => (
@@ -32,11 +31,6 @@ const Navbar = () => (
           <li className="nav-item">
             <Link to="/creations" className="nav-link">
               Creations
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link to="/stories" className="nav-link">
-              Stories
             </Link>
           </li>
           <li className="nav-item">

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 interface MobileNavProps {
@@ -17,9 +16,6 @@ const MobileNav = ({ onOpenChat }: MobileNavProps) => {
         <Link to="/" className={navClass('/')}>
           <i className="fas fa-home"></i>
           <div className="nav-indicator"></div>
-        </Link>
-        <Link to="/stories" className={navClass('/stories')}>
-          <i className="fas fa-book-open"></i>
         </Link>
         <Link to="/creations" className={navClass('/creations')}>
           <i className="fas fa-camera"></i>

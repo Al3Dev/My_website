@@ -25,15 +25,10 @@ const HeroSection = ({ onScrollDown, onOpenChat, statusBadge }: HeroSectionProps
           <div className="floating-name">
             <h1 className="hero-title">AlleRoDi</h1>
             <div className="game-buttons">
-              <a
-                href="https://allerodi.itch.io/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="pixel-btn"
-              >
+              <Link to="/creations" className="pixel-btn">
                 <i className="fas fa-gamepad"></i>
                 <span>Jugar</span>
-              </a>
+              </Link>
               <Link to="/creations" className="pixel-btn">
                 <i className="fas fa-folder-open"></i>
                 <span>Projects</span>

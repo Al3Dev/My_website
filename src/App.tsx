@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, Routes, Route } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { TextPlugin } from 'gsap/TextPlugin';
@@ -13,7 +13,6 @@ import { animateLoadingScreen, hideLoadingScreen } from './animations';
 gsap.registerPlugin(ScrollTrigger, TextPlugin);
 
 const Creations = React.lazy(() => import('./Creations'));
-const Stories = React.lazy(() => import('./Stories'));
 const SocialPage = React.lazy(() => import('./pages/Social/SocialPage'));
 const MusicPage = React.lazy(() => import('./pages/Music'));
 const Admin = React.lazy(() => import('./Admin'));
@@ -70,14 +69,7 @@ const App = () => {
               </Suspense>
             }
           />
-          <Route
-            path="/stories"
-            element={
-              <Suspense fallback={<LoadingFallback />}>
-                <Stories />
-              </Suspense>
-            }
-          />
+          <Route path="/stories" element={<Navigate to="/creations" replace />} />
           <Route
             path="/social"
             element={
