@@ -1,0 +1,79 @@
+.discord-section {
+  padding: clamp(3rem, 7vw, 6rem) 1.25rem;
+}
+
+.discord-section__frame {
+  max-width: 1040px;
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  border: 2px solid #8268bc;
+  background: #140e24;
+  box-shadow: 6px 6px 0 #362452;
+}
+
+.discord-section__art {
+  min-height: 250px;
+  background:
+    linear-gradient(90deg, transparent 60%, #140e24),
+    url('../../../assets/CyberCat.png') center / cover no-repeat;
+}
+
+.discord-section__content {
+  align-self: center;
+  padding: clamp(1.5rem, 5vw, 4rem);
+}
+
+.discord-section #discord-heading {
+  margin: 0 0 1.25rem;
+  text-align: left;
+  font-size: clamp(1.05rem, 2.5vw, 1.75rem);
+  line-height: 1.6;
+}
+
+.discord-section__content p {
+  max-width: 40ch;
+  margin-bottom: 1.5rem;
+  color: #e8e0f5;
+  line-height: 1.65;
+}
+
+.discord-section .discord-section__join {
+  display: inline-flex;
+  flex-direction: row;
+  gap: 0.85rem;
+  max-width: 100%;
+  padding: 1rem;
+  border-color: #ccb8ff;
+  background: #3e2a65;
+  font-size: 0.65rem;
+  line-height: 1.5;
+}
+
+.discord-section__join svg {
+  flex-shrink: 0;
+  font-size: 1.4rem;
+}
+
+.discord-section .discord-section__join:hover {
+  background: #564082;
+}
+
+.discord-section__join:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}
+
+@media (max-width: 680px) {
+  .discord-section__frame {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .discord-section__art {
+    min-height: 160px;
+    aspect-ratio: 2 / 1;
+    background-image:
+      linear-gradient(180deg, transparent 50%, #140e24),
+      url('../../../assets/CyberCat.png');
+  }
+}

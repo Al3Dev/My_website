@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import About from '../../About';
 import ChatBot from '../../components/ChatBot';
+import DiscordSection from './sections/DiscordSection';
 import type { ReactNode } from 'react';
 import {
   HeroSection,
@@ -45,6 +46,7 @@ const Home = ({ statusBadge }: HomeProps) => {
       <About />
       <GallerySection />
       <MusicSection />
+      <DiscordSection />
       <CharacterSection />
       <GamePreviewSection />
       <ServicesSection />
