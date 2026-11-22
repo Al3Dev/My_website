@@ -6,7 +6,7 @@
   --music-accent: #fff;
   --music-pixel-font: 'Press Start 2P', monospace;
   background:
-    linear-gradient(180deg, #0008 0%, #0007 40%, #000 100%) top / 100% min(96vw, 930px) no-repeat,
+    linear-gradient(180deg, #0008 0, #0007 360px, #000 930px),
     url('../../assets/background.png') center top / max(100%, 930px) auto no-repeat #000;
   color: var(--music-text);
   min-height: 100vh;
@@ -363,7 +363,10 @@
 @media (max-width: 600px) {
   .listening-page {
     padding-top: 98px;
-    background-size: 100% 690px, auto 690px;
+    background-image:
+      linear-gradient(180deg, #0008 0%, #0007 270px, #000 690px),
+      url('../../assets/background.png');
+    background-size: 100% 100%, auto 690px;
   }
 
   .listening-hero {
