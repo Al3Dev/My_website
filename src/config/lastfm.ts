@@ -17,8 +17,10 @@ function trimmedKeyUser(): { key: string; user: string } | null {
   return { key, user }
 }
 
+export type MusicPeriod = '7day' | '1month' | '12month'
+
 /** URLs para la página Music; `null` si falta key o usuario (no llamar fetch). */
-export function buildMusicPageUrls(): {
+export function buildMusicPageUrls(period: MusicPeriod = '7day'): {
   recent: string
   topTracks: string
   topAlbums: string
@@ -29,9 +31,9 @@ export function buildMusicPageUrls(): {
   const u = encodeURIComponent(user)
   const k = encodeURIComponent(key)
   return {
-    recent: `${API_BASE}?method=user.getrecenttracks&user=${u}&api_key=${k}&format=json&limit=10`,
-    topTracks: `${API_BASE}?method=user.gettoptracks&user=${u}&api_key=${k}&format=json&period=7day&limit=8`,
-    topAlbums: `${API_BASE}?method=user.gettopalbums&user=${u}&api_key=${k}&format=json&period=7day&limit=8`,
+    recent: `${API_BASE}?method=user.getrecenttracks&user=${u}&api_key=${k}&format=json&limit=30`,
+    topTracks: `${API_BASE}?method=user.gettoptracks&user=${u}&api_key=${k}&format=json&period=${period}&limit=8`,
+    topAlbums: `${API_BASE}?method=user.gettopalbums&user=${u}&api_key=${k}&format=json&period=${period}&limit=8`,
   }
 }
 
