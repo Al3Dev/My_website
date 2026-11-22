@@ -12,7 +12,6 @@ export const initAnimations = () => {
   
   // Animación de entrada del hero: solo fade in (sin translate para no romper el layout split)
   const name = document.querySelector('.floating-name h1, .hero-title');
-  const character = document.querySelector('.character-overlay, .character-img');
   const star = document.querySelector('.star');
   if (name) {
     mainTimeline
@@ -21,11 +20,6 @@ export const initAnimations = () => {
         opacity: 0,
         ease: "power2.out"
       })
-      .from(character, {
-        duration: 0.8,
-        opacity: 0,
-        ease: "power2.out"
-      }, "-=0.5")
       .from(star, {
         duration: 0.6,
         scale: 0.8,
@@ -294,4 +288,4 @@ export const hideLoadingScreen = () => {
       (el as HTMLElement).style.display = 'none';
     }
   });
-}; 
+};

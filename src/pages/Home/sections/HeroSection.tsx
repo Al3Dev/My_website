@@ -1,4 +1,4 @@
-import React, { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { MobileNav } from '../../../components/Layout';
 import SlidingText from './SlidingText';
@@ -23,12 +23,6 @@ const HeroSection = ({ onScrollDown, onOpenChat, statusBadge }: HeroSectionProps
       <div className="hero-split">
         <div className="hero-left">
           <div className="floating-name">
-            <img
-              className="character-img"
-              src="/assets/character.png"
-              alt=""
-              aria-hidden="true"
-            />
             <h1 className="hero-title">AlleRoDi</h1>
             <div className="game-buttons">
               <a

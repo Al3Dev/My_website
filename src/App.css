@@ -1198,15 +1198,6 @@ body {
     min-height: 400px;
   }
 
-  .hero-left .character-overlay,
-  .hero-left .character-img {
-    width: 280px;
-    height: 280px;
-  }
-
-  .hero-left .hero-title {
-    margin-top: 0;
-  }
 }
 
 .stars-layer {
@@ -1343,49 +1334,6 @@ body {
   text-align: center;
 }
 
-/* "Sitting on the logo" effect (desktop): title overlaps under character's feet */
-.hero-left .hero-title {
-  margin-top: -63px;
-  z-index: 1;
-}
-
-/* Character image on top so boots cover the text – drop-shadow para contraste Y2K */
-.hero-left .character-img {
-  display: block;
-  width: 400px;
-  height: 400px;
-  object-fit: contain;
-  object-position: center;
-  position: relative;
-  z-index: 2;
-  flex-shrink: 0;
-  filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.9));
-  animation: characterFloat 3s ease-in-out infinite;
-}
-
-@keyframes characterFloat {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
-
-.character-overlay {
-  background-image: url('./assets/character.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  width: 400px;
-  height: 400px;
-  position: relative;
-  top: 0;
-  left: 0;
-  transform: none;
-  z-index: 2;
-  flex-shrink: 0;
-}
 
 .hero-left .game-buttons {
   justify-content: center;
@@ -2291,16 +2239,6 @@ a.pixel-btn {
     font-size: 0.6rem;
   }
 
-  .hero-left .character-overlay,
-  .hero-left .character-img {
-    top: 0;
-    width: 280px;
-    height: 280px;
-  }
-
-  .hero-left .hero-title {
-    margin-top: 0;
-  }
 
   .star {
     opacity: 0.5; /* Reducimos la opacidad en móviles */
@@ -7785,7 +7723,8 @@ a.pixel-btn {
   }
 
   .hero-section .hero-title {
-    display: none !important;
+    font-size: clamp(1.65rem, 7vw, 3rem);
+    line-height: 1.35;
   }
 
   /* Evitar hueco gigante: hero-split ya no estira la columna; hero-left deja de height:100% */
@@ -7799,18 +7738,15 @@ a.pixel-btn {
     flex-wrap: nowrap !important;
   }
 
-  /* Columna personaje: delante del widget (efecto “sentado encima”) */
   .hero-section .hero-left {
     position: relative !important;
     z-index: 3 !important;
     padding-bottom: 0 !important;
   }
 
-  /* Last.fm sube y queda debajo del PNG; solo móvil (más junto al personaje) */
   .hero-section .hero-right {
     position: relative !important;
     z-index: 1 !important;
-    margin-top: -5.25rem !important;
     padding-top: 0 !important;
   }
 
@@ -7839,17 +7775,6 @@ a.pixel-btn {
     padding: 0 0 1.05rem !important;
     margin-top: 0 !important;
     flex: 0 0 auto !important;
-  }
-
-  .hero-section .hero-left .character-img {
-    display: block !important;
-    margin: .5rem auto 0 !important;
-    width: 280px !important;
-    height: 280px !important;
-    max-width: min(100%, 400px) !important;
-    object-fit: contain !important;
-    position: relative !important;
-    z-index: 4 !important;
   }
 
   .hero-section .hero-right .hero-glass-panel {
