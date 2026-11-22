@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   buildWidgetRecentUrl,
@@ -38,11 +38,12 @@ function getAlbumArtUrl(track: Track | null): string {
 }
 
 
-function LastFmWidget() {
+function LastFmWidget({ onReady }: { onReady?: (ready: boolean) => void }) {
   const navigate = useNavigate();
   const [track, setTrack] = useState<Track | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const albumArt = useRef<HTMLImageElement>(null);
 
   const fetchNowPlaying = useCallback(async () => {
     const cfgErr = lastFmConfigError();
@@ -82,11 +83,21 @@ function LastFmWidget() {
   }, [fetchNowPlaying]);
 
   const isNowPlaying = track?.['@attr']?.nowplaying === 'true';
-  const statusLabel = isNowPlaying ? '🔴 NOW PLAYING' : '⏸ LAST PLAYED';
+  const statusLabel = isNowPlaying ? 'Escuchando ahora' : 'Última escucha';
   const albumArtUrl = getAlbumArtUrl(track);
   const songName = track?.name ?? '—';
   const artistName = track?.artist?.['#text'] ?? '—';
   const titleLong = songName.length > 20;
+
+  useEffect(() => {
+    if (loading || !onReady) return;
+    let active = true;
+    const decoded = albumArt.current?.decode() ?? Promise.resolve();
+    void decoded.catch(() => undefined).then(() => {
+      if (active) onReady(true);
+    });
+    return () => { active = false; };
+  }, [albumArtUrl, loading, onReady]);
 
   const handleClick = () => {
     navigate('/music');
@@ -120,10 +131,10 @@ function LastFmWidget() {
         <div className="lastfm-art-center">
           {albumArtUrl ? (
             <img
+              ref={albumArt}
               src={albumArtUrl}
               alt=""
               className="lastfm-art-center-img"
-              loading="lazy"
             />
           ) : (
             <div className="lastfm-art-center-placeholder">

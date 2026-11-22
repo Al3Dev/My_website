@@ -5,10 +5,11 @@ import { LastFmWidget } from '../../../components/MusicPlayer';
 
 interface HeroSectionProps {
   onScrollDown: () => void;
+  onMusicReady: (ready: boolean) => void;
   statusBadge?: ReactNode;
 }
 
-const HeroSection = ({ onScrollDown, statusBadge }: HeroSectionProps) => (
+const HeroSection = ({ onScrollDown, onMusicReady, statusBadge }: HeroSectionProps) => (
   <>
     <div className="hero-section">
       <div className="stars-layer">
@@ -40,7 +41,7 @@ const HeroSection = ({ onScrollDown, statusBadge }: HeroSectionProps) => (
         </div>
         <div className="hero-right">
           <div className="hero-glass-panel">
-            <LastFmWidget />
+            <LastFmWidget onReady={onMusicReady} />
           </div>
         </div>
       </div>

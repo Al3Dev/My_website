@@ -7,7 +7,7 @@
   --music-pixel-font: 'Press Start 2P', monospace;
   background:
     linear-gradient(180deg, #0008 0, #0007 360px, #000 930px),
-    url('../../assets/background.png') center top / max(100%, 930px) auto no-repeat #000;
+    url('../../assets/hero-background.webp') center top / max(100%, 930px) auto no-repeat #000;
   color: var(--music-text);
   min-height: 100vh;
   padding: 130px clamp(16px, 4vw, 52px) 68px;
@@ -365,7 +365,7 @@
     padding-top: 98px;
     background-image:
       linear-gradient(180deg, #0008 0%, #0007 270px, #000 690px),
-      url('../../assets/background.png');
+      url('../../assets/hero-background.webp');
     background-size: 100% 100%, auto 690px;
   }
 

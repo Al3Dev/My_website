@@ -1,52 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-const PRELOAD_IMAGE_URLS = [
-  '/assets/character.png',
-  '/assets/background.png',
-  '/assets/star.png',
-  '/assets/project1.png',
-  '/assets/Me.png',
-  '/assets/Albums.png',
-];
+const MAX_WAIT_MS = 5500;
 
-const PRELOAD_MIN_DURATION_MS = 3000;
-
-function loadImage(url: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.src = url;
-    img.onload = () => resolve();
-    img.onerror = reject;
-  });
-}
-
-/**
- * Preloads critical images and sets loading to false after a minimum duration.
- * Returns the current loading state.
- */
-export function usePreloader(): boolean {
-  const [loading, setLoading] = useState(true);
+export function usePreloader(images: readonly string[], contentReady: boolean) {
+  const [settled, setSettled] = useState(0);
+  const [expired, setExpired] = useState(false);
+  const total = images.length + 1;
 
   useEffect(() => {
-    let cancelled = false;
-
-    const preloadResources = async () => {
-      try {
-        await Promise.all(PRELOAD_IMAGE_URLS.map(loadImage));
-        if (!cancelled) {
-          setTimeout(() => setLoading(false), PRELOAD_MIN_DURATION_MS);
-        }
-      } catch (error) {
-        console.error('Error cargando recursos:', error);
-        if (!cancelled) setLoading(false);
-      }
-    };
-
-    preloadResources();
+    let active = true;
+    const deadline = window.setTimeout(() => setExpired(true), MAX_WAIT_MS);
+    const resources = images.map(url => {
+      const image = new Image();
+      image.src = url;
+      return image.decode();
+    });
+    resources.push(document.fonts.load('1em "Press Start 2P"').then(() => undefined));
+    for (const resource of resources) {
+      void resource.catch(() => undefined).then(() => {
+        if (active) setSettled(count => count + 1);
+      });
+    }
     return () => {
-      cancelled = true;
+      active = false;
+      window.clearTimeout(deadline);
     };
-  }, []);
+  }, [images]);
 
-  return loading;
+  const loading = !expired && (settled < total || !contentReady);
+  return { loading, progress: Math.round((settled + Number(contentReady)) / (total + 1) * 100) };
 }

@@ -14,9 +14,10 @@ import {
 
 interface HomeProps {
   statusBadge?: ReactNode;
+  onMusicReady: (ready: boolean) => void;
 }
 
-const Home = ({ statusBadge }: HomeProps) => {
+const Home = ({ statusBadge, onMusicReady }: HomeProps) => {
   const handleScrollDown = () => {
     window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
   };
@@ -25,6 +26,7 @@ const Home = ({ statusBadge }: HomeProps) => {
     <>
       <HeroSection
         onScrollDown={handleScrollDown}
+        onMusicReady={onMusicReady}
         statusBadge={statusBadge}
       />
 

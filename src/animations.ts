@@ -7,34 +7,6 @@ import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 gsap.registerPlugin(ScrollTrigger, TextPlugin, ScrollToPlugin);
 
 export const initAnimations = () => {
-  // Timeline principal de entrada (más suave)
-  const mainTimeline = gsap.timeline();
-  
-  // Animación de entrada del hero: solo fade in (sin translate para no romper el layout split)
-  const name = document.querySelector('.floating-name h1, .hero-title');
-  const star = document.querySelector('.star');
-  if (name) {
-    mainTimeline
-      .from(name, {
-        duration: 1,
-        opacity: 0,
-        ease: "power2.out"
-      })
-      .from(star, {
-        duration: 0.6,
-        scale: 0.8,
-        opacity: 0,
-        stagger: 0.1,
-        ease: "power2.out"
-      }, "-=0.3")
-      .from('.game-buttons .pixel-btn', {
-        duration: 0.5,
-        opacity: 0,
-        stagger: 0.05,
-        ease: "power2.out"
-      }, "-=0.2");
-  }
-
   // Animaciones de scroll más ligeras y optimizadas
   const sections = [
     '.about-section',
@@ -109,13 +81,6 @@ export const initAnimations = () => {
     yoyo: true
   });
 
-  // Animación del navbar (más simple)
-  gsap.from('.navbar', {
-    duration: 0.8,
-    y: -50,
-    opacity: 0,
-    ease: "power2.out"
-  });
 
   // Animación de los botones del juego (más sutil y sin desaparecer)
   gsap.to('.pixel-btn', {
@@ -255,24 +220,5 @@ export const smoothScrollTo = (target: string) => {
     duration: 1.5,
     scrollTo: target,
     ease: "power2.inOut"
-  });
-};
-
-export const animateLoadingScreen = () => {
-  const el = document.querySelector('.loading-screen');
-  if (!el) return;
-  gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power2.out' });
-};
-
-export const hideLoadingScreen = () => {
-  const el = document.querySelector('.loading-screen');
-  if (!el) return;
-  gsap.to(el, {
-    opacity: 0,
-    duration: 0.7,
-    ease: 'power2.in',
-    onComplete: () => {
-      (el as HTMLElement).style.display = 'none';
-    }
   });
 };
