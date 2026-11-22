@@ -1,5 +1,8 @@
 .discord-section {
   padding: clamp(3rem, 7vw, 6rem) 1.25rem;
+  background:
+    linear-gradient(180deg, #000 0%, transparent 16%, transparent 84%, #000 100%),
+    #090d20 url('../../../assets/discord-background.jpg') center / cover no-repeat;
 }
 
 .discord-section__frame {
