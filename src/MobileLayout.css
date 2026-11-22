@@ -1,4 +1,5 @@
-.site-mobile-tabs {
+.site-mobile-tabs,
+.home-game-cover {
   display: none;
 }
 
@@ -78,28 +79,34 @@
   }
 
   .app :is(.game-container, .character-container, .music-container) {
-    display: grid;
+    display: grid !important;
     grid-template-columns: minmax(0, 1fr);
-    gap: 22px;
-    max-width: 540px;
-    padding: 0;
+    gap: 22px !important;
+    max-width: 540px !important;
+    padding: 0 !important;
     margin-inline: auto;
   }
 
   .app :is(.game-image, .character-image, .music-image) {
     width: 100%;
-    max-width: none;
+    max-width: none !important;
     margin: 0;
     padding: 0;
-    display: grid;
+    display: grid !important;
     place-items: center;
   }
 
   .app .game-image video {
-    width: min(100%, 360px) !important;
-    height: clamp(230px, 70vw, 340px);
-    object-fit: contain !important;
-    background: #0c1020;
+    display: none;
+  }
+
+  .app .home-game-cover {
+    display: block;
+    width: 100%;
+  }
+
+  .app .home-game-cover img {
+    display: block;
     border-radius: 10px !important;
   }
 
@@ -126,16 +133,16 @@
   }
 
   .app :is(.game-title, .character-title, .music-title) {
-    margin: 0 0 14px;
+    margin: 0 0 14px !important;
     text-align: left;
-    font-size: clamp(.94rem, 4.2vw, 1.3rem);
+    font-size: clamp(.94rem, 4.2vw, 1.3rem) !important;
     line-height: 1.55;
   }
 
   .app :is(.game-description, .character-description, .music-description) {
-    margin: 0;
+    margin: 0 !important;
     text-align: left;
-    color: #e4e6f0;
+    color: #e4e6f0 !important;
     font: 400 1rem/1.6 system-ui, sans-serif;
   }
 

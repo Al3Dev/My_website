@@ -6,9 +6,8 @@ const GamePreviewSection = () => (
       <div className="game-image">
         <video
           controls
-          autoPlay
-          loop
-          muted
+          preload="none"
+          poster="/assets/fly-out-title.png"
           playsInline
           style={{
             width: '100%',
@@ -21,6 +20,9 @@ const GamePreviewSection = () => (
           <source src="/assets/Mivideojuego.mp4" type="video/mp4" />
           Tu navegador no soporta el elemento de video.
         </video>
+        <Link className="home-game-cover" to="/creations" aria-label="Ver Fly Out en Proyectos">
+          <img src="/assets/fly-out-title.png" alt="" loading="lazy" />
+        </Link>
       </div>
       <div className="game-content">
         <h2 className="game-title">Fly Out</h2>

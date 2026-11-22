@@ -50,10 +50,12 @@ export const initAnimations = () => {
     '.inspiration-section',
     '.character-section'
   ];
+  const mobile = window.matchMedia('(max-width: 768px)').matches;
 
   sections.forEach((sectionSelector) => {
     const sectionElements = document.querySelectorAll(sectionSelector);
-    sectionElements.forEach((section: any) => {
+    sectionElements.forEach((section) => {
+      if (mobile && section.matches('.music-section, .game-section, .character-section')) return;
       // Animación principal de la sección (más suave)
       gsap.fromTo(section, 
         {
@@ -76,7 +78,8 @@ export const initAnimations = () => {
   });
 
   // Animación especial para títulos de sección (más simple)
-  gsap.utils.toArray('.section-title, .about-title, .projects-title, .services-title, .music-title, .game-title, .store-title, .creations-title, .stories-title').forEach((title: any) => {
+  gsap.utils.toArray<HTMLElement>('.section-title, .about-title, .projects-title, .services-title, .music-title, .game-title, .store-title, .creations-title, .stories-title').forEach((title) => {
+    if (mobile && title.matches('.music-title, .game-title')) return;
     gsap.fromTo(title,
       {
         y: 20,
