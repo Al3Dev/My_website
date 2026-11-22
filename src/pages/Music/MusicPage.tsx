@@ -66,11 +66,14 @@ function musicLink(item: MusicItem, artist: string) {
     : `https://www.last.fm/search?q=${encodeURIComponent(`${item.name} ${artist}`)}`;
 }
 
-function Cover({ item, eager = false }: { item: MusicItem; eager?: boolean }) {
-  const image = ['extralarge', 'large', 'medium', 'small']
+function coverUrl(item: MusicItem) {
+  return ['extralarge', 'large', 'medium', 'small']
     .map(size => item.image?.find(entry => entry.size === size)?.['#text'])
     .find(src => src?.startsWith('https://') && !src.includes('2a96cbd8b46e442fc41c2b86b821562f'));
+}
 
+function Cover({ item, eager = false }: { item: MusicItem; eager?: boolean }) {
+  const image = coverUrl(item);
   return (
     <span className="listening-cover" aria-hidden="true">
       <FiDisc />
@@ -109,6 +112,7 @@ export default function MusicPage() {
   const tracks = useFeed<RankedItem>(urls?.topTracks, 'toptracks', 'track', refresh);
   const albums = useFeed<RankedItem>(urls?.topAlbums, 'topalbums', 'album', refresh);
   const latest = recent.items[0];
+  const latestCover = latest ? coverUrl(latest) : undefined;
   const live = latest?.['@attr']?.nowplaying === 'true';
 
   return (
@@ -117,26 +121,27 @@ export default function MusicPage() {
         <header className="listening-hero">
           <div className="listening-intro">
             <span className="listening-source"><FiHeadphones aria-hidden="true" /> AlleRoDI en Last.fm</span>
-            <h1>En <em>rotación</em></h1>
+            <h1>En rotación</h1>
             <p>Mi historial de escucha y la música a la que siempre vuelvo.</p>
             <a className="listening-external" href={profile} target="_blank" rel="noreferrer">
               Ver en Last.fm <FiArrowUpRight aria-hidden="true" />
             </a>
           </div>
           <div className="listening-feature">
-            <span className={live ? 'listening-live' : 'listening-feature-label'}>
-              {live ? 'Escuchando ahora' : 'Última escucha'}
-            </span>
+            {latestCover && <img className="listening-feature-background" src={latestCover} alt="" onError={event => { event.currentTarget.hidden = true; }} />}
             {latest ? (
               <a className="listening-feature-track" href={musicLink(latest, latest.artist['#text'])} target="_blank" rel="noreferrer">
                 <Cover item={latest} eager />
+                <span className={live ? 'listening-live' : 'listening-feature-label'}>
+                  {live ? 'Escuchando ahora' : 'Última escucha'}
+                </span>
                 <span className="listening-item-text">
                   <strong>{latest.name}</strong>
                   <small>{latest.artist['#text']}</small>
                   {latest.album?.['#text'] && <small>{latest.album['#text']}</small>}
                   {!live && <TrackDate track={latest} />}
                 </span>
-                <FiArrowUpRight aria-hidden="true" />
+                <FiArrowUpRight className="listening-feature-arrow" aria-hidden="true" />
               </a>
             ) : <FeedMessage status={recent.status} empty="Todavía no hay escuchas registradas." />}
           </div>
